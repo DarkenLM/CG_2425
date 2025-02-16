@@ -1,15 +1,19 @@
-#include "include/generator/point.hpp"
+#include "common/geometry/point.hpp"
 
 Point3D::Point3D() : x(0), y(0), z(0) {}
 Point3D::Point3D(double x, double y, double z) : x(x), y(y), z(z) {}
 
-double Point3D::getX() const { return x; }
-double Point3D::getY() const { return y; }
-double Point3D::getZ() const { return z; }
+// double Point3D::getX() const { return x; }
+// double Point3D::getY() const { return y; }
+// double Point3D::getZ() const { return z; }
 
 void Point3D::setX(double xVal) { x = xVal; }
 void Point3D::setY(double yVal) { y = yVal; }
 void Point3D::setZ(double zVal) { z = zVal; }
+
+Point3D Point3D::copy() {
+    return Point3D(this->x, this->y, this->z);
+}
 
 bool Point3D::operator==(const Point3D& other) const {
     return x == other.x && y == other.y && z == other.z;

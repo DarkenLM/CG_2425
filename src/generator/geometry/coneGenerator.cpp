@@ -1,8 +1,8 @@
 #include <vector>
 #include <cmath>
-#include "include/generator/point.hpp"
-#include "include/generator/cone.hpp"
-#include "include/common/common.h"
+#include "common/common.h"
+#include "common/geometry/point.hpp"
+#include "common/geometry/cone.hpp"
 
 void coneTriangleGenerator(int radius, int height, int slices, int stacks, std::vector<Point3D> &points) {
     float alpha = (2 * M_PI) / slices;
@@ -48,17 +48,30 @@ void coneTriangleGenerator(int radius, int height, int slices, int stacks, std::
     }
 }
 
-int coneGenerator(int radius, int height, int slices, int stacks) {
-    std::vector<Point3D> vertices;
+// std::vector<Point3D> coneGenerator(int radius, int height, int slices, int stacks) {
+//     std::vector<Point3D> vertices;
 
-    coneTriangleGenerator(radius, height, slices, stacks, vertices);
+//     coneTriangleGenerator(radius, height, slices, stacks, vertices);
 
-    for (size_t i = 0; i < vertices.size(); i++) {
-        std::cout << "Vertex " << i << ": " << vertices[i] << "\n";
-    }
-    std::cout << "Number of triangles in model: " << (vertices.size() / 3) << "\n";
+//     for (size_t i = 0; i < vertices.size(); i++) {
+//         std::cout << "Vertex " << i << ": " << vertices[i] << "\n";
+//     }
     
-    saveToFile("cone.3d", 1, vertices);
+//     std::cout << "Number of triangles in model: " << (vertices.size() / 3) << "\n";
 
-    return 0;
+//     return vertices;
+// }
+
+ConeGeometry::ConeGeometry(int radius, int height, int slices, int stacks) {
+    coneTriangleGenerator(radius, height, slices, stacks, this->vertices);
+}
+
+std::vector<Point3D> ConeGeometry::serialize() {
+    std::vector<Point3D> ret;
+
+    for (auto i : this->vertices) {
+        ret.push_back(i.copy());
+    }
+
+    return ret;
 }

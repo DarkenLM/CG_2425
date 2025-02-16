@@ -108,6 +108,10 @@ void printInfo() {
 int main(int argc, char** argv) {
     commonTest();
 
+    #ifdef DEBUG_MODE
+        printf("ENGINE DEBUG MODE.\n");
+    #endif
+
 	// put GLUT init here
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);

@@ -11,6 +11,9 @@
 If CMake stops working, god help you, because I sure as fuck won't.  
 ![I'll punch you](./docs/repo/punch.png) - Mini Scene Graph Based 3D Engine
 
+### Notes
+- When creating new geometry primitives, place it's creation and serialization methods in `generator`, it's deserialization in `engine`, and it's definition in a `common` header, inheriting from `BaseGeometry`.
+
 ## Description
 
 ### 🎯 Purpose:

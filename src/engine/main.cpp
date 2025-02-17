@@ -90,7 +90,7 @@ void renderScene(void) {
 	double _mult = 0;
 
 	// printf("MULT: %f %f\n", mult, _mult);
-	glutWireTeapot(abs(sin(mult)) + 0.5);
+	glutWireTeapot(fabs(sin(mult)) + 0.5);
 	// glutWireTeapot(1);
 	
 	// End of frame

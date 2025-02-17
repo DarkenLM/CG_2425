@@ -7,7 +7,14 @@ file(GLOB_RECURSE COMMON_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}" "*.cpp")
 file(GLOB_RECURSE COMMON_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
 message(STATUS "Common Sources Dir: ${CMAKE_CURRENT_SOURCE_DIR}")
 message(STATUS "Common Sources: ${COMMON_SOURCES}")
-add_library(${SUBPROJECT_NAME} SHARED ${COMMON_SOURCES})
+
+if(WIN32)
+    add_library(${SUBPROJECT_NAME} STATIC ${COMMON_SOURCES})
+else()
+    add_library(${SUBPROJECT_NAME} SHARED ${COMMON_SOURCES})
+endif()
+
+
 
 # Include directories for other projects
 target_include_directories(${SUBPROJECT_NAME} PUBLIC ${COMMON_HEADERS} ${CMAKE_SOURCE_DIR}/include)

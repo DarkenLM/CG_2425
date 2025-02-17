@@ -1,5 +1,8 @@
-#include <vector>
+// M_PI does not work in visual studio without this BS, so use it
+#define _USE_MATH_DEFINES
+
 #include <cmath>
+#include <vector>
 #include "common/common.h"
 #include "common/geometry/point.hpp"
 #include "common/geometry/cone.hpp"

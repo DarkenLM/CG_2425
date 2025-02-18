@@ -18,13 +18,8 @@ function Show-Usage {
 }
 
 # Check for --debug or -d flag
-if ($Debug) {
-    Write-Host "Configuring in DEBUG mode."
-    $BuildType = "Debug"
-} else {
-    Write-Host "Configuring in RELEASE mode."
-    $BuildType = "Release"
-}
+$BuildType = if ($Debug) { "DEBUG" } else { "RELEASE" }
+Write-Host "Running in $BuildType mode."
 
 # Check for --verbose or -v flag
 if ($Verbose) {

@@ -20,14 +20,8 @@ function Show-Usage {
     Write-Host "  --clean: Cleans the build directory before configuring and building."
 }
 
-# Check for --debug or -d
-if ($Debug) {
-    Write-Host "Running in DEBUG mode."
-    $BuildType = "Debug"
-} else {
-    Write-Host "Running in RELEASE mode."
-    $BuildType = "Release"
-}
+$BuildType = if ($Debug) { "DEBUG" } else { "RELEASE" }
+Write-Host "Running in $BuildType mode."
 
 # Check for --verbose or -v
 if ($Verbose) {
@@ -44,7 +38,7 @@ if ($Clean) {
 
 # Configure the project
 Write-Host "Configuring the project..."
-cmake -B build -DCMAKE_BUILD_TYPE=$BuildType
+cmake -B build -DCMAKE_BUILD_TYPE=$BuildType 
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Error: CMake configuration failed."

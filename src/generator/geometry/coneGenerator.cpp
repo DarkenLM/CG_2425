@@ -24,30 +24,28 @@ void coneTriangleGenerator(int radius, int height, int slices, int stacks, std::
         points.push_back(center);
         points.push_back(Point3D(x1, 0.0f, z1));
         points.push_back(Point3D(x2, 0.0f, z2));
-    }
 
-    for (int i = 0; i < slices; i++) {
         for (int j = 0; j < stacks; j++) {
             float y1 = j * stackHeight;
             float y2 = (j + 1) * stackHeight;
 
-            float x1 = radius * cos(i * alpha) * (1 - (float)(j + 1) / stacks);
-            float z1 = radius * sin(i * alpha) * (1 - (float)(j + 1) / stacks);
-            float x2 = radius * cos((i + 1) * alpha) * (1 - (float)(j + 1) / stacks);
-            float z2 = radius * sin((i + 1) * alpha) * (1 - (float)(j + 1) / stacks);
+            x1 = radius * cos(i * alpha) * (1 - (float)(j + 1) / stacks);
+            z1 = radius * sin(i * alpha) * (1 - (float)(j + 1) / stacks);
+            x2 = radius * cos((i + 1) * alpha) * (1 - (float)(j + 1) / stacks);
+            z2 = radius * sin((i + 1) * alpha) * (1 - (float)(j + 1) / stacks);
 
             float x3 = radius * cos(i * alpha) * (1 - (float)j / stacks);
             float z3 = radius * sin(i * alpha) * (1 - (float)j / stacks);
             float x4 = radius * cos((i + 1) * alpha) * (1 - (float)j / stacks);
             float z4 = radius * sin((i + 1) * alpha) * (1 - (float)j / stacks);
 
+            points.push_back(Point3D(x2, y2, z2));
+            points.push_back(Point3D(x3, y1, z3));
             points.push_back(Point3D(x1, y2, z1));
-            points.push_back(Point3D(x3, y1, z3));
-            points.push_back(Point3D(x2, y2, z2));
 
-            points.push_back(Point3D(x3, y1, z3));
-            points.push_back(Point3D(x4, y1, z4));
             points.push_back(Point3D(x2, y2, z2));
+            points.push_back(Point3D(x4, y1, z4));
+            points.push_back(Point3D(x3, y1, z3));
         }
     }
 }

@@ -3,9 +3,10 @@
 
 #include <cmath>
 #include <vector>
+
 #include "common/common.h"
-#include "common/geometry/point.hpp"
 #include "common/geometry/cone.hpp"
+#include "common/geometry/point.hpp"
 
 void coneTriangleGenerator(int radius, int height, int slices, int stacks, std::vector<Point3D> &points) {
     float alpha = (2 * M_PI) / slices;
@@ -59,7 +60,7 @@ void coneTriangleGenerator(int radius, int height, int slices, int stacks, std::
 //     for (size_t i = 0; i < vertices.size(); i++) {
 //         std::cout << "Vertex " << i << ": " << vertices[i] << "\n";
 //     }
-    
+
 //     std::cout << "Number of triangles in model: " << (vertices.size() / 3) << "\n";
 
 //     return vertices;

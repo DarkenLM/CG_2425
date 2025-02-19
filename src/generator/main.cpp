@@ -1,22 +1,24 @@
 #include <stdio.h>
-#include <iostream>
-#include <vector>
-#include <string>
+
 #include <cstdlib>
-#include "common/geometry/cone.hpp"
+#include <iostream>
+#include <string>
+#include <vector>
+
 #include "common/common.h"
+#include "common/geometry/cone.hpp"
 #include "common/parser.hpp"
 
 int main(int argc, char* argv[]) {
     commonTest();
     printf("Hello from GENERATOR.\n");
 
-    #ifdef DEBUG_MODE
-        printf("GENERATOR DEBUG MODE.\n");
-        printf("ARGC: %d | ARGV: ", argc);
-        for (int i = 0; i < argc; i++) printf("%s ", argv[i]);
-        printf("\n");
-    #endif
+#ifdef DEBUG_MODE
+    printf("GENERATOR DEBUG MODE.\n");
+    printf("ARGC: %d | ARGV: ", argc);
+    for (int i = 0; i < argc; i++) printf("%s ", argv[i]);
+    printf("\n");
+#endif
 
     if (argc < 2) {
         std::cerr << "Usage: " << argv[0] << " <figure>\n";
@@ -25,9 +27,9 @@ int main(int argc, char* argv[]) {
 
     std::string figure = argv[1];
 
-    if(figure == "cone") {
-        if(argc < 7){
-            std::cerr << "Usage: " << argv[0] << " " << argv[1] << " <radius> <height> <slices> <stacks> <output_file>";
+    if (figure == "cone") {
+        if (argc < 7) {
+            std::cerr << "Usage: " << argv[0] << " " << argv[1] << " <radius> <height> <slices> <stacks> <output_file>\n";
             return 1;
         }
 
@@ -39,12 +41,12 @@ int main(int argc, char* argv[]) {
         // coneGenerator(radius, height, slices, stacks);
         ConeGeometry cone(radius, height, slices, stacks);
         std::vector<Point3D> vertices = cone.getVertices();
-        Parser3D::saveToFile(argv[6], PARSER_VERSION, vertices);
+        Parser3D::saveToFile(argv[6], vertices);
 
         std::cout << "Generated cone!!\n";
-        return 0;        
+        return 0;
     } else if (figure == "box") {
-        if(argc < 5){
+        if (argc < 5) {
             std::cerr << "Usage: " << argv[0] << " " << argv[1] << " <length> <grid_size> <output_file>";
             return 1;
         }
@@ -53,9 +55,9 @@ int main(int argc, char* argv[]) {
         int grid_size = std::atoi(argv[3]);
 
         std::cout << "Generated box!!\n";
-        return 0;      
+        return 0;
     } else if (figure == "plane") {
-        if(argc < 5){
+        if (argc < 5) {
             std::cerr << "Usage: " << argv[0] << " " << argv[1] << " <length> <grid_size> <output_file>";
             return 1;
         }
@@ -64,9 +66,9 @@ int main(int argc, char* argv[]) {
         int grid_size = std::atoi(argv[3]);
 
         std::cout << "Generated plane!!\n";
-        return 0;    
+        return 0;
     } else if (figure == "sphere") {
-        if(argc < 6){
+        if (argc < 6) {
             std::cerr << "Usage: " << argv[0] << " " << argv[1] << " <radius> <slices> <stacks>";
             return 1;
         }
@@ -76,9 +78,9 @@ int main(int argc, char* argv[]) {
         int stacks = std::atoi(argv[4]);
 
         std::cout << "Generated sphere!!\n";
-        return 0;    
+        return 0;
     } else {
         std::cerr << "Error: Primitive not supported.\n";
         return 1;
-    }    
+    }
 }

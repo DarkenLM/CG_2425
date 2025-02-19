@@ -1,22 +1,31 @@
 #include "common/parser.hpp"
+
+#include <fstream>
 #include <iostream>
 #include <sstream>
-#include <fstream>
 
 Parser3D::Parser3D() {
-
 }
 
-void Parser3D::saveToFile(const std::string& filename, uint8_t version, std::vector<Point3D>& vertices) {
-    std::ofstream file(filename, std::ios::binary);
+/**
+ *  @brief File format version number (1 byte)
+ */
+constexpr uint8_t PARSER_VERSION = 1;
 
-    if(!file){
+int Parser3D::saveToFile(const std::string& filename, std::vector<Point3D>& vertices) {
+    std::ofstream file(("Models/" + filename), std::ios::binary);
+
+    if (!file) {
         std::cerr << "Error opening file for writing: " << filename << std::endl;
-        return;
+        return 1;
     }
 
-    file.write(reinterpret_cast<const char*>(&version), sizeof(version));
+    file.write(reinterpret_cast<const char*>(&PARSER_VERSION), sizeof(PARSER_VERSION));
 
+    if (vertices.size() % 3 != 0) {
+        std::cerr << "Number of vertices are insuficient: <vertices>%3 != 0";
+        return 1;
+    }
     uint16_t nTriangles = vertices.size() / 3;
 
     file.write(reinterpret_cast<const char*>(&nTriangles), sizeof(nTriangles));
@@ -32,5 +41,40 @@ void Parser3D::saveToFile(const std::string& filename, uint8_t version, std::vec
     }
 
     file.close();
+
     std::cout << "Saved " << nTriangles << " triangles to " << filename << " successfully!\n";
+    return 0;
+}
+
+int Parser3D::load3DFile(const std::string& filename, std::vector<Point3D>& vertices) {
+    std::ifstream file(("Models/" + filename), std::ios::binary);
+    if (!file) {
+        std::cerr << "Error opening file for reading: " << filename << std::endl;
+        return 1;
+    }
+
+    uint8_t file_version;
+    file.read(reinterpret_cast<char*>(&file_version), sizeof(file_version));
+    if (file_version != PARSER_VERSION) {
+        std::cerr << "Error: Unsupported file version " << static_cast<int>(file_version)
+                  << " (expected) " << static_cast<int>(PARSER_VERSION) << ").\n";
+        return 1;
+    }
+
+    uint16_t nTriangles;
+    file.read(reinterpret_cast<char*>(&nTriangles), sizeof(nTriangles));
+
+    // Resize vertex vector for better performance
+    vertices.resize(nTriangles * 3);
+
+    for (Point3D& p : vertices) {
+        float x, y, z;
+        file.read(reinterpret_cast<char*>(&x), sizeof(x));
+        file.read(reinterpret_cast<char*>(&y), sizeof(y));
+        file.read(reinterpret_cast<char*>(&z), sizeof(z));
+        p.set(x, y, z);
+    }
+
+    std::cout << "Loaded " << nTriangles << " triangles from " << filename << ".\n";
+    return 0;
 }

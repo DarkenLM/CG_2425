@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "common/common.h"
+#include "common/common.hpp"
 #include "common/geometry/cone.hpp"
 #include "common/geometry/plane.hpp"
 #include "common/parser.hpp"

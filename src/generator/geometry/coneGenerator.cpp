@@ -4,7 +4,7 @@
 #include <cmath>
 #include <vector>
 
-#include "common/common.h"
+#include "common/common.hpp"
 #include "common/geometry/cone.hpp"
 #include "common/geometry/point.hpp"
 

@@ -1,8 +1,15 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <cstdint>
 
 #include "common/geometry/point.hpp"
+#include "common/geometry/BaseGeometry.hpp"
+
+/**
+ *  @brief File format version number (1 byte)
+ */
+constexpr uint8_t PARSER_VERSION = 2;
 
 /**
  *  @class Parser3D
@@ -43,4 +50,15 @@ class Parser3D {
      *         - Corrupted data
      */
     static int load3DFile(const std::string& filename, std::vector<Point3D>& triangles);
+
+    /**
+     *  @brief Deserializes a Geometry object from a binary file
+     *  @param filename Input filename
+     *  @return A geometry object, inheriting from BaseGeometry.
+     *  @throws Fails if:
+     *         - File cannot be opened
+     *         - Version mismatch
+     *         - Corrupted data
+     */
+    static BaseGeometry* loadGeometryFromFile(const std::string& filename);
 };

@@ -4,8 +4,9 @@
 
 class PlaneGeometry : public BaseGeometry {
     public:
+        virtual ~PlaneGeometry();
         PlaneGeometry(int length, int gridSize);
-        PlaneGeometry(std::vector<Point3D>);
+        PlaneGeometry(std::vector<Point3D> vertices);
         
         std::vector<Point3D> serialize() override;
         static PlaneGeometry* deserialize(std::string filePath);

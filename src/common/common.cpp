@@ -1,4 +1,4 @@
-#include "common/common.h"
+#include "common/common.hpp"
 #include <stdio.h>
 
 void commonTest() {

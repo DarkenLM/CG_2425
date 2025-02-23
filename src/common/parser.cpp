@@ -7,10 +7,10 @@
 Parser3D::Parser3D() {
 }
 
-/**
- *  @brief File format version number (1 byte)
- */
-constexpr uint8_t PARSER_VERSION = 1;
+// /**
+//  *  @brief File format version number (1 byte)
+//  */
+// constexpr uint8_t PARSER_VERSION = 1;
 
 int Parser3D::saveToFile(const std::string& filename, std::vector<Point3D>& vertices) {
     std::ofstream file(("Models/" + filename), std::ios::binary);

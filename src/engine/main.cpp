@@ -1,13 +1,14 @@
 // #include <stdio.h>
-// #include "common/common.h"
+// #include "common/common.hpp"
 
 // int main(int argc, char** argv) {
 //     commonTest();
 //     printf("Hello from ENGINE.\n");
 // }
 
-#include "common/common.h"
+#include "common/common.hpp"
 #include "common/parser.hpp"
+#include "common/geometry/BaseGeometry.hpp"
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
@@ -17,10 +18,17 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
+#include <vector>
+#include <sstream>
 
 #define MAX_TICK 10000000
 
 int TICK;
+
+struct scenestate {
+    std::vector<BaseGeometry> objects;
+};
+struct scenestate STATE;
 
 double clamp(double value, double min, double max) {
     if (value > max) return max;
@@ -115,6 +123,18 @@ void testingParser() {
     }
 }
 */
+
+// TODO: Load scene file. Meanwhile, hardcode that shit
+void loadScene(char* sceneFile) {
+    char* objects[] = {"plane.3d"};
+    int objectLen = 1;
+
+    for (int i = 0; i < objectLen; i++) {
+        std::stringstream ss;
+        ss << "Models/" << objects[i];
+
+    }
+}
 
 int main(int argc, char** argv) {
     commonTest();

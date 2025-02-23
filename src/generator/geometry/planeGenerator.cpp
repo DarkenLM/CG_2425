@@ -4,13 +4,15 @@
 #include <cmath>
 #include <vector>
 
-#include "common/common.h"
+#include "common/common.hpp"
 #include "common/geometry/plane.hpp"
 #include "common/geometry/point.hpp"
 
+PlaneGeometry::~PlaneGeometry() = default;
+
 PlaneGeometry::PlaneGeometry(int length, int gridSize) {
     this->_kind = GEOMETRY_PLANE;
-    
+
     float subDivUnit = length / gridSize;
 
     for (int i = 0; i < gridSize; i++) {

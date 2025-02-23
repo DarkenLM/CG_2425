@@ -65,6 +65,7 @@ void coneTriangleGenerator(int radius, int height, int slices, int stacks, std::
 // }
 
 ConeGeometry::ConeGeometry(int radius, int height, int slices, int stacks) {
+    this->_kind = GEOMETRY_CONE;
     coneTriangleGenerator(radius, height, slices, stacks, this->vertices);
 }
 

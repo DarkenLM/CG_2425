@@ -4,8 +4,19 @@
 #include <vector>
 #include "point.hpp"
 
+typedef enum basegeometry_kind {
+    _GEOMETRY_BASE,
+    GEOMETRY_CONE,
+    GEOMETRY_PLANE,
+    GEOMETRY_BOX,
+    GEOMETRY_SPHERE,
+    GEOMETRY_CYLINDER,
+    GEOMETRY_DONOT
+} BaseGeometryKind;
+
 class BaseGeometry {
     protected:
+        BaseGeometryKind _kind = _GEOMETRY_BASE;
         std::vector<Point3D> vertices;
 
     public:

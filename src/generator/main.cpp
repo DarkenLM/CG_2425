@@ -7,6 +7,7 @@
 
 #include "common/common.h"
 #include "common/geometry/cone.hpp"
+#include "common/geometry/plane.hpp"
 #include "common/parser.hpp"
 
 int main(int argc, char* argv[]) {
@@ -65,7 +66,11 @@ int main(int argc, char* argv[]) {
         int length = std::atoi(argv[2]);
         int grid_size = std::atoi(argv[3]);
 
-        std::cout << "Generated plane!!\n";
+        PlaneGeometry plane(length, grid_size);
+        std::vector<Point3D> vertices = plane.getVertices();
+        Parser3D::saveToFile(argv[4], vertices);
+
+        std::cout << "Generated plane at " << argv[4] << "!\n";
         return 0;
     } else if (figure == "sphere") {
         if (argc < 6) {

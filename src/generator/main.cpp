@@ -7,6 +7,7 @@
 
 #include "common/common.hpp"
 #include "common/geometry/cone.hpp"
+#include "common/geometry/cylinder.hpp"
 #include "common/geometry/plane.hpp"
 #include "common/parser.hpp"
 
@@ -56,6 +57,22 @@ int main(int argc, char* argv[]) {
         int grid_size = std::atoi(argv[3]);
 
         std::cout << "Generated box!!\n";
+        return 0;
+    } else if (figure == "cylinder") {
+        if (argc < 6) {
+            std::cerr << "Usage: " << argv[0] << " " << argv[1] << " <radius> <height> <slices> <output_file>";
+            return 1;
+        }
+
+        int radius = std::atoi(argv[2]);
+        int height = std::atoi(argv[3]);
+        int slices = std::atoi(argv[4]);
+
+        CylinderGeometry cylinder(radius, height, slices);
+        std::vector<Point3D> vertices = cylinder.getVertices();
+        Parser3D::saveToFile(argv[5], vertices);
+
+        std::cout << "Generated cylinder at " << argv[5] << "!\n";
         return 0;
     } else if (figure == "plane") {
         if (argc < 5) {

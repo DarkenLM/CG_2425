@@ -16,11 +16,11 @@ has_param() {
 
 get_args() {
     # local args=()
-    local -n args=$1
+    local -n __args=$1
     shift;
     for arg; do
         if [[ $arg != -* ]]; then
-            args+=("$arg")
+            __args+=("$arg")
         fi
     done
     # echo "${args[@]}"

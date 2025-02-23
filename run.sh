@@ -27,12 +27,15 @@ run_with_cmake() {
         cmake -B build -DCMAKE_BUILD_TYPE=Debug
         # cmake --build build --target run_${args[0]}
         cmake --build build --target ${args[0]}
-        run;
+        # run;
+        if [ $? -eq 0 ]; then run; else exit 1;  fi;
     else
         echo "Running in RELEASE mode." 
         cmake -B build -DCMAKE_BUILD_TYPE=Release
         # cmake --build build --target run_${args[0]} "${args[@]:1}"
-        run;
+        # run;
+        cmake --build build --target ${args[0]}
+        if [ $? -eq 0 ]; then run; else exit 1; fi;
     fi
 }
 

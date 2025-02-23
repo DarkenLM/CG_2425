@@ -26,7 +26,7 @@ target_include_directories(${SUBPROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message("DEBUG")
     target_compile_definitions(
-        ${SUBPROJECT_NAME} PRIVATE
+        ${SUBPROJECT_NAME} PUBLIC
         $<$<CONFIG:Debug>:DEBUG_MODE>    # Define DEBUG_MODE macro in Debug mode
     )
 else()

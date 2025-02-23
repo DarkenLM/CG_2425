@@ -15,7 +15,7 @@ add_executable(${SUBPROJECT_NAME} main.cpp ${SUBPROJECT_SOURCES} ${SUBPROJECT_HE
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	message("DEBUG")
 	target_compile_definitions(
-		${SUBPROJECT_NAME} PRIVATE
+		${SUBPROJECT_NAME} PUBLIC
 		$<$<CONFIG:Debug>:DEBUG_MODE>    # Define DEBUG_MODE macro in Debug mode
 	)
 else()
@@ -26,7 +26,7 @@ endif()
 target_link_libraries(${SUBPROJECT_NAME} common)
 
 # Include directories for other projects
-target_include_directories(${SUBPROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(${SUBPROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/include)
 
 # ============== Find OpenGL and FreeGLUT ==============
 set(OpenGL_GL_PREFERENCE "LEGACY")
@@ -37,8 +37,8 @@ if(NOT OPENGL_FOUND)
 endif(NOT OPENGL_FOUND)
 
 # Include OpenGL directories
-target_include_directories(${SUBPROJECT_NAME} PRIVATE ${OpenGL_INCLUDE_DIRS})
-target_link_directories(${SUBPROJECT_NAME} PRIVATE ${OpenGL_LIBRARY_DIRS})
+target_include_directories(${SUBPROJECT_NAME} PUBLIC ${OpenGL_INCLUDE_DIRS})
+target_link_directories(${SUBPROJECT_NAME} PUBLIC ${OpenGL_LIBRARY_DIRS})
 
 if(WIN32)
 	message(STATUS "Toolkits_DIR set to: " ${TOOLKITS_FOLDER})
@@ -50,7 +50,7 @@ if(WIN32)
 	endif (NOT EXISTS "${TOOLKITS_FOLDER}/glut/GL/glut.h" OR NOT EXISTS "${TOOLKITS_FOLDER}/glut/glut32.lib")	
 	
     # Include GLUT headers
-    target_include_directories(${SUBPROJECT_NAME} PRIVATE ${TOOLKITS_FOLDER}/glut)
+    target_include_directories(${SUBPROJECT_NAME} PUBLIC ${TOOLKITS_FOLDER}/glut)
 
 	# Link GLUT and OpenGL libraries
 	target_link_libraries(

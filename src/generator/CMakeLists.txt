@@ -12,7 +12,7 @@ add_executable(${SUBPROJECT_NAME} main.cpp ${SUBPROJECT_SOURCES} ${SUBPROJECT_HE
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message("DEBUG")
     target_compile_definitions(
-        ${SUBPROJECT_NAME} PRIVATE
+        ${SUBPROJECT_NAME} PUBLIC
         $<$<CONFIG:Debug>:DEBUG_MODE>    # Define DEBUG_MODE macro in Debug mode
     )
 else()
@@ -20,10 +20,10 @@ else()
 endif()
 
 # Link against "common"
-target_link_libraries(${SUBPROJECT_NAME} PRIVATE common)
+target_link_libraries(${SUBPROJECT_NAME} PUBLIC common)
 
 # Include directories for other projects
-target_include_directories(${SUBPROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(${SUBPROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/include)
 
 # Organize files in the IDE (Windows-specific)
 if(WIN32)

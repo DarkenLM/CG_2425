@@ -7,8 +7,8 @@
 // }
 
 #include "common/common.hpp"
-#include "common/parser.hpp"
 #include "common/geometry/BaseGeometry.hpp"
+#include "common/parser.hpp"
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
@@ -18,12 +18,31 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
-#include <vector>
+
 #include <sstream>
+#include <vector>
 
 #define MAX_TICK 10000000
 
 int TICK;
+
+//----- Camera settings -----//
+
+// Camera distance
+GLfloat distance = 10.0f;
+
+// Using distance and 45 degrees to calculate initial position
+GLfloat alpha = M_PI / 4;  // Vertical angle
+GLfloat beta = M_PI / 4;   // Horizontal angle
+
+// Setting gluLookAt
+GLfloat posX = distance * cos(alpha) * sin(beta);
+GLfloat posY = distance * sin(alpha);
+GLfloat posZ = distance * cos(alpha) * cos(beta);
+GLfloat atX = 0.0f, atY = 0.0f, atZ = 0.0f;  // LookAt target
+GLfloat upX = 0.0f, upY = 1.0f, upZ = 0.0f;  // Up vector
+
+//----- end -----//
 
 struct scenestate {
     std::vector<BaseGeometry> objects;
@@ -61,25 +80,31 @@ void renderScene(void) {
 
     // set camera
     glLoadIdentity();
-    // gluLookAt(
-    // 	5.0f, 5.0f, 5.0f,
-    // 	0.0f, 0.0f, -1.0f,
-    // 	0.0f, 1.0f, 0.0f
-    // );
+    gluLookAt(
+        posX, posY, posZ,
+        atX, atY, atZ,
+        upX, upY, upZ);
 
-    double dtick = TICK;
-    double factor = 20;
-    double multFactor = 5;
-    double camX = cos(dtick / factor) * multFactor;
-    double camY = cos(dtick / factor) * multFactor;
-    double camZ = sin(dtick / factor) * multFactor;
+    // put axis drawing in here
+    glBegin(GL_LINES);
+    // x in red
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glVertex3f(-100.f, 0.0f, 0.0f);
+    glVertex3f(100.0f, 0.0f, 0.0f);
+    // y in green
+    glColor3f(0.0f, 1.0f, 0.0f);
+    glVertex3f(0.0f, -100.0f, 0.0f);
+    glVertex3f(0.0f, 100.0f, 0.0f);
+    // z in blue
+    glColor3f(0.0f, 0.0f, 1.0f);
+    glVertex3f(0.f, 0.0f, -100.0f);
+    glVertex3f(0.0f, 0.0f, 100.0f);
+
+    // Changes color back to white
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glEnd();
     // double camX = 1, camZ = 0;
     // printf("CAM: %f %f\n", camX, camZ);
-
-    gluLookAt(
-        camX, camY, camZ,
-        0.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f);
 
     // put drawing instructions here
     // glutSolidCube(1.0f);
@@ -96,7 +121,7 @@ void renderScene(void) {
     double _mult = 0;
 
     // printf("MULT: %f %f\n", mult, _mult);
-    glutWireTeapot(fabs(sin(mult)) + 0.5);
+    glutWireTeapot(2);
     // glutWireTeapot(1);
 
     // End of frame
@@ -111,9 +136,9 @@ void printInfo() {
 
 /**
  * Function used to test the parser
-void testingParser() {
+ void testingParser() {
     std::vector<Point3D> vertices;
-    if (Parser3D::load3DFile("cone.3d", vertices) == 0) {
+    if (Parser3D::load3DFile("cylinder.3d", vertices) == 0) {
         for (int i = 0; i < vertices.size(); i++) {
             std::cout << "Vertice " << i << ": " << vertices[i] << std::endl;
         }
@@ -132,8 +157,44 @@ void loadScene(char* sceneFile) {
     for (int i = 0; i < objectLen; i++) {
         std::stringstream ss;
         ss << "Models/" << objects[i];
-
     }
+}
+
+// Function to update camera position using spherical coordinates
+void updateCameraPosition() {
+    posX = distance * cos(alpha) * sin(beta);
+    posY = distance * sin(alpha);
+    posZ = distance * cos(alpha) * cos(beta);
+}
+
+void processKeys(unsigned char key, int x, int y) {
+    switch (key) {
+        case 'w':  // Tilt up
+            if (alpha < M_PI / 2 - 0.02f) alpha += 0.01f;
+            break;
+        case 's':  // Tilt down
+            if (alpha > -M_PI / 2 + 0.02f) alpha -= 0.01f;
+            break;
+        case 'a':  // Rotate left
+            beta -= 0.01f;
+            break;
+        case 'd':  // Rotate right
+            beta += 0.01f;
+            break;
+        case 'h':  // Solid mode
+            glPolygonMode(GL_FRONT, GL_FILL);
+            break;
+        case 'j':  // Wireframe mode
+            glPolygonMode(GL_FRONT, GL_LINE);
+            break;
+        case 'k':  // Point mode
+            glPolygonMode(GL_FRONT, GL_POINT);
+            break;
+        default:
+            break;
+    }
+    updateCameraPosition();
+    glutPostRedisplay();
 }
 
 int main(int argc, char** argv) {
@@ -160,7 +221,9 @@ int main(int argc, char** argv) {
     // put callback registry here
     glutDisplayFunc(renderScene);
     glutReshapeFunc(changeSize);
-    glutIdleFunc(renderScene);
+    // glutIdleFunc(renderScene);
+
+    glutKeyboardFunc(processKeys);
 
     // some OpenGL settings
     glEnable(GL_DEPTH_TEST);

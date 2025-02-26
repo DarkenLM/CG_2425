@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "common/common.hpp"
+#include "common/geometry/box.hpp"
 #include "common/geometry/cone.hpp"
 #include "common/geometry/cylinder.hpp"
 #include "common/geometry/flatRing.hpp"
@@ -57,6 +58,10 @@ int main(int argc, char* argv[]) {
 
         int length = std::atoi(argv[2]);
         int grid_size = std::atoi(argv[3]);
+
+        BoxGeometry box(length, grid_size);
+        std::vector<Point3D> vertices = box.getVertices();
+        Parser3D::saveToFile(argv[4], vertices);
 
         std::cout << "Box information stored at Models/" << argv[4] << std::endl;
         return 0;

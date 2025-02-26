@@ -150,6 +150,7 @@ void printInfo() {
 */
 
 // TODO: Load scene file. Meanwhile, hardcode that shit
+/*
 void loadScene(char* sceneFile) {
     char* objects[] = {"plane.3d"};
     int objectLen = 1;
@@ -159,6 +160,7 @@ void loadScene(char* sceneFile) {
         ss << "Models/" << objects[i];
     }
 }
+*/
 
 // Function to update camera position using spherical coordinates
 void updateCameraPosition() {

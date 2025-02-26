@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+
 #include "point.hpp"
 
 typedef enum basegeometry_kind {
@@ -11,18 +12,19 @@ typedef enum basegeometry_kind {
     GEOMETRY_BOX,
     GEOMETRY_SPHERE,
     GEOMETRY_CYLINDER,
-    GEOMETRY_DONOT
+    GEOMETRY_TORUS,
+    GEOMETRY_FLATRING
 } BaseGeometryKind;
 
 class BaseGeometry {
-    protected:
-        BaseGeometryKind _kind = _GEOMETRY_BASE;
-        std::vector<Point3D> vertices;
+   protected:
+    BaseGeometryKind _kind = _GEOMETRY_BASE;
+    std::vector<Point3D> vertices;
 
-    public:
-        virtual ~BaseGeometry() = default;
-        std::vector<Point3D> getVertices() const { return this->vertices; };
+   public:
+    virtual ~BaseGeometry() = default;
+    std::vector<Point3D> getVertices() const { return this->vertices; };
 
-        virtual std::vector<Point3D> serialize() = 0;
-        static BaseGeometry* deserialize(std::string filePath) { return nullptr; };
+    virtual std::vector<Point3D> serialize() = 0;
+    static BaseGeometry* deserialize(std::string filePath) { return nullptr; };
 };

@@ -58,6 +58,7 @@ else()
 endif()
 
 # Add subdirectories
+add_subdirectory("${SRC_DIR}/lib")
 add_subdirectory("${SRC_DIR}/common")
 add_subdirectory("${SRC_DIR}/engine")
 add_subdirectory("${SRC_DIR}/generator")

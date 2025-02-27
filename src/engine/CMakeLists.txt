@@ -23,6 +23,7 @@ else()
 endif()
 
 # Link against "common"
+target_link_libraries(${SUBPROJECT_NAME} lib)
 target_link_libraries(${SUBPROJECT_NAME} common)
 
 # Include directories for other projects

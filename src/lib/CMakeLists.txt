@@ -1,22 +1,20 @@
 # Project Name
-set(SUBPROJECT_NAME common)
+set(SUBPROJECT_NAME lib)
 
-file(GLOB_RECURSE COMMON_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}" "*.cpp")
-file(GLOB_RECURSE COMMON_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
+file(GLOB_RECURSE LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}" "*.cpp")
+file(GLOB_RECURSE LIB_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
 
-message(STATUS "Common Sources Dir: ${CMAKE_CURRENT_SOURCE_DIR}")
-message(STATUS "Common Sources: ${COMMON_SOURCES}")
+message(STATUS "Vendor Lib Sources Dir: ${CMAKE_CURRENT_SOURCE_DIR}")
+message(STATUS "Vendor Lib Sources: ${LIB_SOURCES}")
 
 
 if(WIN32)
-    add_library(${SUBPROJECT_NAME} STATIC ${COMMON_SOURCES} ${COMMON_HEADERS})
+    add_library(${SUBPROJECT_NAME} STATIC ${LIB_SOURCES} ${LIB_HEADERS})
 else()
-    add_library(${SUBPROJECT_NAME} SHARED ${COMMON_SOURCES})
+    add_library(${SUBPROJECT_NAME} SHARED ${LIB_SOURCES})
 endif()
 
 
-# Link against "lib"
-target_link_libraries(${SUBPROJECT_NAME} PUBLIC lib)
 
 
 # Include directories for other projects
@@ -38,7 +36,7 @@ endif()
 
 
 if(WIN32)
-    foreach(SOURCE_FILE IN LISTS COMMON_SOURCES COMMON_HEADERS)
+    foreach(SOURCE_FILE IN LISTS LIB_SOURCES LIB_HEADERS)
         # Get the relative path of the file from the current source directory
         file(RELATIVE_PATH RELATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" "${SOURCE_FILE}")
         

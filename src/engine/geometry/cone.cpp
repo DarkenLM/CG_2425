@@ -6,6 +6,7 @@ ConeGeometry::~ConeGeometry() = default;
 
 ConeGeometry::ConeGeometry(std::vector<Point3D> vertices) {
     this->vertices = vertices;
+    this->_kind = GEOMETRY_CONE;
 }
 
 std::vector<Point3D> ConeGeometry::serialize() {
@@ -14,7 +15,7 @@ std::vector<Point3D> ConeGeometry::serialize() {
 
 ConeGeometry* ConeGeometry::deserialize(std::string filePath) {
     std::vector<Point3D> points;
-    Parser3D::load3DFile(filePath, points);
+    // Parser3D::load3DFile(filePath, points);
 
     return new ConeGeometry(points);
     return nullptr;

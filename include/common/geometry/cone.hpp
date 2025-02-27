@@ -7,11 +7,14 @@
 #include "common/geometry/BaseGeometry.hpp"
 
 class ConeGeometry : public BaseGeometry {
-   public:
-    virtual ~ConeGeometry();
-    ConeGeometry(int radius, int height, int slices, int stacks);
-    ConeGeometry(std::vector<Point3D> vertices);
+    // protected:
+    //     BaseGeometryKind _kind = GEOMETRY_CONE;
 
-    std::vector<Point3D> serialize() override;
-    static ConeGeometry* deserialize(std::string filePath);
+    public:
+        virtual ~ConeGeometry();
+        ConeGeometry(int radius, int height, int slices, int stacks);
+        ConeGeometry(std::vector<Point3D> vertices);
+
+        std::vector<Point3D> serialize() override;
+        static ConeGeometry* deserialize(std::string filePath);
 };

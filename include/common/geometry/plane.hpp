@@ -3,6 +3,9 @@
 #include "common/geometry/BaseGeometry.hpp"
 
 class PlaneGeometry : public BaseGeometry {
+    // protected:
+    //     BaseGeometryKind _kind = GEOMETRY_PLANE;
+
     public:
         virtual ~PlaneGeometry();
         PlaneGeometry(int length, int gridSize);

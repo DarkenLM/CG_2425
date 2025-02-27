@@ -6,6 +6,7 @@ SphereGeometry::~SphereGeometry() = default;
 
 SphereGeometry::SphereGeometry(std::vector<Point3D> vertices) {
     this->vertices = vertices;
+    this->_kind = GEOMETRY_SPHERE;
 }
 
 std::vector<Point3D> SphereGeometry::serialize() {
@@ -14,7 +15,7 @@ std::vector<Point3D> SphereGeometry::serialize() {
 
 SphereGeometry* SphereGeometry::deserialize(std::string filePath) {
     std::vector<Point3D> points;
-    Parser3D::load3DFile(filePath, points);
+    // Parser3D::load3DFile(filePath, points);
 
     return new SphereGeometry(points);
     return nullptr;

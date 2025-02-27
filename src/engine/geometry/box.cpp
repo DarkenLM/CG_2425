@@ -13,7 +13,7 @@ std::vector<Point3D> BoxGeometry::serialize() {
 
 BoxGeometry* BoxGeometry::deserialize(std::string filePath) {
     std::vector<Point3D> points;
-    Parser3D::load3DFile(filePath, points);
+    // Parser3D::load3DFile(filePath, points);
 
     return new BoxGeometry(points);
     return nullptr;

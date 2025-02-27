@@ -14,7 +14,7 @@ std::vector<Point3D> FlatRingGeometry::serialize() {
 
 FlatRingGeometry* FlatRingGeometry::deserialize(std::string filePath) {
     std::vector<Point3D> points;
-    Parser3D::load3DFile(filePath, points);
+    // Parser3D::load3DFile(filePath, points);
 
     return new FlatRingGeometry(points);
     return nullptr;

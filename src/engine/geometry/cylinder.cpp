@@ -6,6 +6,7 @@ CylinderGeometry::~CylinderGeometry() = default;
 
 CylinderGeometry::CylinderGeometry(std::vector<Point3D> vertices) {
     this->vertices = vertices;
+    this->_kind = GEOMETRY_CYLINDER;
 }
 
 std::vector<Point3D> CylinderGeometry::serialize() {
@@ -14,7 +15,7 @@ std::vector<Point3D> CylinderGeometry::serialize() {
 
 CylinderGeometry* CylinderGeometry::deserialize(std::string filePath) {
     std::vector<Point3D> points;
-    Parser3D::load3DFile(filePath, points);
+    // Parser3D::load3DFile(filePath, points);
 
     return new CylinderGeometry(points);
     return nullptr;

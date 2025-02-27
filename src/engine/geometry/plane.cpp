@@ -5,6 +5,7 @@ PlaneGeometry::~PlaneGeometry() = default;
 
 PlaneGeometry::PlaneGeometry(std::vector<Point3D> vertices) {
     this->vertices = vertices;
+    this->_kind = GEOMETRY_PLANE;
 }
 
 
@@ -14,8 +15,7 @@ std::vector<Point3D> PlaneGeometry::serialize() {
 
 PlaneGeometry* PlaneGeometry::deserialize(std::string filePath) {
     std::vector<Point3D> points;
-    Parser3D::load3DFile(filePath, points);
+    // Parser3D::load3DFile(filePath, points);
 
     return new PlaneGeometry(points);
-    return nullptr;
 }

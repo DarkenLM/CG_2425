@@ -9,6 +9,8 @@
 #include "common/common.hpp"
 #include "common/geometry/BaseGeometry.hpp"
 #include "common/parser.hpp"
+#include "engine/scene/Scene.hpp"
+
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
@@ -150,17 +152,19 @@ void printInfo() {
 */
 
 // TODO: Load scene file. Meanwhile, hardcode that shit
-/*
-void loadScene(char* sceneFile) {
-    char* objects[] = {"plane.3d"};
-    int objectLen = 1;
+void loadScene(char* sceneFile, char* modelDir) {
+    Scene* scene = Scene::fromFile(sceneFile);
+    if (scene == nullptr) {
+        exit(1);
+    }
 
-    for (int i = 0; i < objectLen; i++) {
-        std::stringstream ss;
-        ss << "Models/" << objects[i];
+    fuckAround {
+        scene->load();
+    } findOut(std::string e) {
+        std::cout << std::string("Unable to load scene: ") + e + "\n";
+        exit(1);
     }
 }
-*/
 
 // Function to update camera position using spherical coordinates
 void updateCameraPosition() {
@@ -195,6 +199,7 @@ void processKeys(unsigned char key, int x, int y) {
         default:
             break;
     }
+    
     updateCameraPosition();
     glutPostRedisplay();
 }
@@ -207,6 +212,7 @@ int main(int argc, char** argv) {
 #endif
 
     // testingParser();
+    loadScene("Scenes/phase1/test_1_1.xml", "");
 
     // put GLUT init here
     glutInit(&argc, argv);

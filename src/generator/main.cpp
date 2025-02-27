@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "common/common.hpp"
+#include "common/geometry/point.hpp"
 #include "common/geometry/box.hpp"
 #include "common/geometry/cone.hpp"
 #include "common/geometry/cylinder.hpp"
@@ -46,7 +47,8 @@ int main(int argc, char* argv[]) {
         // coneGenerator(radius, height, slices, stacks);
         ConeGeometry cone(radius, height, slices, stacks);
         std::vector<Point3D> vertices = cone.getVertices();
-        Parser3D::saveToFile(argv[6], vertices);
+        // Parser3D::saveToFile(argv[6], vertices);
+        Parser3D::saveToFile(argv[6], &cone);
 
         std::cout << "Cone information stored at Models/" << argv[6] << std::endl;
         return 0;
@@ -60,8 +62,8 @@ int main(int argc, char* argv[]) {
         int grid_size = std::atoi(argv[3]);
 
         BoxGeometry box(length, grid_size);
-        std::vector<Point3D> vertices = box.getVertices();
-        Parser3D::saveToFile(argv[4], vertices);
+        // std::vector<Point3D> vertices = box.getVertices();
+        Parser3D::saveToFile(argv[4], &box);
 
         std::cout << "Box information stored at Models/" << argv[4] << std::endl;
         return 0;
@@ -76,7 +78,8 @@ int main(int argc, char* argv[]) {
 
         PlaneGeometry plane(length, grid_size);
         std::vector<Point3D> vertices = plane.getVertices();
-        Parser3D::saveToFile(argv[4], vertices);
+        // Parser3D::saveToFile(argv[4], vertices);
+        Parser3D::saveToFile(argv[4], &plane);
 
         std::cout << "Plane information stored at Models/" << argv[4] << std::endl;
         return 0;
@@ -103,8 +106,8 @@ int main(int argc, char* argv[]) {
         int slices = std::atoi(argv[4]);
 
         CylinderGeometry cylinder(radius, height, slices);
-        std::vector<Point3D> vertices = cylinder.getVertices();
-        Parser3D::saveToFile(argv[5], vertices);
+        // std::vector<Point3D> vertices = cylinder.getVertices();
+        Parser3D::saveToFile(argv[5], &cylinder);
 
         std::cout << "Cylinder information stored at Models/" << argv[5] << std::endl;
         return 0;
@@ -120,8 +123,8 @@ int main(int argc, char* argv[]) {
         int sides = std::atoi(argv[5]);
 
         TorusGeometry torus(majorRadius, minorRadius, slices, sides);
-        std::vector<Point3D> vertices = torus.getVertices();
-        Parser3D::saveToFile(argv[6], vertices);
+        // std::vector<Point3D> vertices = torus.getVertices();
+        Parser3D::saveToFile(argv[6], &torus);
 
         std::cout << "Torus information stored at Models/" << argv[6] << std::endl;
         return 0;
@@ -135,9 +138,9 @@ int main(int argc, char* argv[]) {
         int minorRadius = std::atoi(argv[3]);
         int slices = std::atoi(argv[4]);
 
-        FlatRingGeometry torus(majorRadius, minorRadius, slices);
-        std::vector<Point3D> vertices = torus.getVertices();
-        Parser3D::saveToFile(argv[5], vertices);
+        FlatRingGeometry flatRing(majorRadius, minorRadius, slices);
+        // std::vector<Point3D> vertices = torus.getVertices();
+        Parser3D::saveToFile(argv[5], &flatRing);
 
         std::cout << "FlatRing information stored at Models/" << argv[5] << std::endl;
         return 0;

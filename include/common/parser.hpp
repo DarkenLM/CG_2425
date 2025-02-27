@@ -9,7 +9,7 @@
 /**
  *  @brief File format version number (1 byte)
  */
-constexpr uint8_t PARSER_VERSION = 2;
+constexpr uint8_t PARSER_VERSION = 3;
 
 /**
  *  @class Parser3D
@@ -37,28 +37,17 @@ class Parser3D {
      *          - File cannot be opened
      *          - Vertex count not divisible by 3
      */
-    static int saveToFile(const std::string& filename, std::vector<Point3D>& triangles);
+    // static int saveToFile(const std::string& filename, std::vector<Point3D>& triangles);
+    static int saveToFile(const std::string& filename, BaseGeometry* geometry);
 
     /**
      *  @brief Deserializes 3D vertices from a binary file
      *  @param filename Input filename
-     *  @param vertices Output vector to populate with loaded Point3D vertices
-     *  @return 0 on success, 1 on failure
+     *  @return A geometry object, inheriting from BaseGeometry.
      *  @throws Does not throw but returns error code - fails if:
      *         - File cannot be opened
      *         - Version mismatch
      *         - Corrupted data
      */
-    static int load3DFile(const std::string& filename, std::vector<Point3D>& triangles);
-
-    /**
-     *  @brief Deserializes a Geometry object from a binary file
-     *  @param filename Input filename
-     *  @return A geometry object, inheriting from BaseGeometry.
-     *  @throws Fails if:
-     *         - File cannot be opened
-     *         - Version mismatch
-     *         - Corrupted data
-     */
-    static BaseGeometry* loadGeometryFromFile(const std::string& filename);
+    static BaseGeometry* load3DFile(const std::string& filename);
 };

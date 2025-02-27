@@ -9,10 +9,13 @@
 - Use `./clean.sh` to remove the build artifacts. Use `./clean.sh --all` to nuke the whole build directory.
 
 If CMake stops working, god help you, because I sure as fuck won't.  
-![I'll punch you](./docs/repo/punch.png) - Mini Scene Graph Based 3D Engine
+![I'll punch you](./docs/repo/punch.png)
+
+### Debugging
+There are two VSCode debug profiles included in this project, Engine and Generator. To change the arguments passed to the executable at runtime, go to [`.vscode/launch.json`](./.vscode/launch.json) and edit the property `args` for each respective profile.
 
 ### Notes
-- When creating new geometry primitives, place it's creation and serialization methods in `generator`, it's deserialization in `engine`, and it's definition in a `common` header, inheriting from `BaseGeometry`.
+- When creating new geometry primitives, place it's creation and serialization methods in `generator`, it's deserialization in `engine`, and it's definition in a `common` header, inheriting from `BaseGeometry`. Remember to add a default destructurer to the source files, in both solutions.
 
 ## Description
 

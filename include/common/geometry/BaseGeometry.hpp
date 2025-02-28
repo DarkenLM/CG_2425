@@ -1,15 +1,15 @@
 #pragma once
 
-#include <string>
-#include <vector>
 #include <cstdint>
 #include <memory>
+#include <string>
 #include <unordered_map>
+#include <vector>
 
-#include "point.hpp"
 #include "common/util/maputil.hpp"
+#include "point.hpp"
 
-typedef enum basegeometry_kind: uint8_t {
+typedef enum basegeometry_kind : uint8_t {
     _GEOMETRY_BASE,
     GEOMETRY_CONE,
     GEOMETRY_PLANE,
@@ -18,9 +18,9 @@ typedef enum basegeometry_kind: uint8_t {
     GEOMETRY_CYLINDER,
     GEOMETRY_TORUS,
     GEOMETRY_FLATRING,
+    GEOMETRY_ISCOSPHERE,
     _GEOMETRY_KIND_UPPER_BOUND
 } BaseGeometryKind;
-
 
 // #define REGISTER_GEOMETRY(ClassName, KindValue) \
 //     static struct ClassName##Register { \
@@ -41,15 +41,14 @@ class BaseGeometry {
     BaseGeometryKind _kind = _GEOMETRY_BASE;
     std::vector<Point3D> vertices;
 
-    public:
-        virtual ~BaseGeometry() = default;
-        std::vector<Point3D> getVertices() const { return this->vertices; };
+   public:
+    virtual ~BaseGeometry() = default;
+    std::vector<Point3D> getVertices() const { return this->vertices; };
 
-        BaseGeometryKind getKind() const { return this->_kind; };
+    BaseGeometryKind getKind() const { return this->_kind; };
 
-        virtual std::vector<Point3D> serialize() = 0;
-        static BaseGeometry* deserialize(std::string filePath) { return nullptr; };
-
+    virtual std::vector<Point3D> serialize() = 0;
+    static BaseGeometry* deserialize(std::string filePath) { return nullptr; };
 
     //     static void registerType(BaseGeometryKind kind, std::unique_ptr<BaseGeometry> (*creator)(std::vector<Point3D>)) {
     //         registry[kind] = creator;

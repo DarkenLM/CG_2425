@@ -6,12 +6,13 @@
 #include <vector>
 
 #include "common/common.hpp"
-#include "common/geometry/point.hpp"
 #include "common/geometry/box.hpp"
 #include "common/geometry/cone.hpp"
 #include "common/geometry/cylinder.hpp"
 #include "common/geometry/flatRing.hpp"
+#include "common/geometry/icosphere.hpp"
 #include "common/geometry/plane.hpp"
+#include "common/geometry/point.hpp"
 #include "common/geometry/torus.hpp"
 #include "common/parser.hpp"
 
@@ -143,6 +144,21 @@ int main(int argc, char* argv[]) {
         Parser3D::saveToFile(argv[5], &flatRing);
 
         std::cout << "FlatRing information stored at Models/" << argv[5] << std::endl;
+        return 0;
+    } else if (figure == "icosphere") {
+        if (argc < 5) {
+            std::cerr << "Usage: " << argv[0] << " " << argv[1] << " <radius> <subdivisions> <output_file>";
+            return 1;
+        }
+
+        int radius = std::atoi(argv[2]);
+        int subdivisions = std::atoi(argv[3]);
+
+        IcosphereGeometry IcosphereGeometry(radius, subdivisions);
+        // std::vector<Point3D> vertices = torus.getVertices();
+        Parser3D::saveToFile(argv[4], &IcosphereGeometry);
+
+        std::cout << "Icosphere information stored at Models/" << argv[4] << std::endl;
         return 0;
     } else {
         std::cerr << "Error: Primitive not supported.\n";

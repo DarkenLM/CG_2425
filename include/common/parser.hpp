@@ -50,4 +50,6 @@ class Parser3D {
      *         - Corrupted data
      */
     static BaseGeometry* load3DFile(const std::string& filename);
+
+    BaseGeometry* loadGeometryFromFile(const std::string& filename);
 };

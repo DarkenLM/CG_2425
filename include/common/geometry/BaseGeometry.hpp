@@ -7,7 +7,6 @@
 #include <unordered_map>
 
 #include "point.hpp"
-#include "common/util/static.hpp"
 #include "common/util/maputil.hpp"
 
 typedef enum basegeometry_kind: uint8_t {

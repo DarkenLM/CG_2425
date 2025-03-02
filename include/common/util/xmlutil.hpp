@@ -3,7 +3,7 @@
 #include "common/debug.hpp"
 #include "lib/tinyxml2.h"
 
-#define GET_XML_DOC_ELEMENT_OR_FAIL(source, target, elem) \ 
+#define GET_XML_DOC_ELEMENT_OR_FAIL(source, target, elem) \
     XMLElement* elem; \
     if ((elem = source.FirstChildElement(target)) == NULL) { \
         ERROR << "Could not find element '" target "' at root." << std::endl; \

@@ -10,6 +10,9 @@ class Window {
             this->height = height;
         };
 
+        int getWidth() const { return this->width; }
+        int getHeight() const { return this->height; }
+
         static Window* fromXML(XMLElement* xml) {
             GET_XML_ELEMENT_ATTRIB_OR_FAIL(xml, "width", width, int);
             GET_XML_ELEMENT_ATTRIB_OR_FAIL(xml, "height", height, int);

@@ -10,17 +10,17 @@ Model::Model(const char* source) {
     this->_loaded = false;
 }
 
-Model* Model::fromXML(XMLElement* xml) {
-    GET_XML_ELEMENT_ATTRIB_OR_FAIL(xml, "file", file, const char*);
-    GET_XML_ELEMENT_ATTRIB(xml, "texture", texture, const char*);
-    GET_XML_ELEMENT_ATTRIB(xml, "color", color, const char*);
+#pragma region ------- Overrides -------
+void Model::render() {
+    std::vector<Point3D> vertices = this->geometry->getVertices();
 
-    Model* obj = new Model(file);
-    if (texture) obj->setTexture(texture);
-    if (color) obj->setTexture(color);
-
-    return obj;
+    glBegin(GL_TRIANGLES);
+        for (Point3D vertex : vertices) {
+            glVertex3f(vertex.getX(), vertex.getY(), vertex.getZ());
+        }
+    glEnd();
 }
+#pragma endregion ------- Overrides -------
 
 const char* Model::getTexture() {
     return this->texture.c_str();
@@ -38,6 +38,18 @@ const char* Model::getColor() {
 Model* Model::setColor(const char *color) {
     this->color = color;
     return this;
+}
+
+Model* Model::fromXML(XMLElement* xml) {
+    GET_XML_ELEMENT_ATTRIB_OR_FAIL(xml, "file", file, const char*);
+    GET_XML_ELEMENT_ATTRIB(xml, "texture", texture, const char*);
+    GET_XML_ELEMENT_ATTRIB(xml, "color", color, const char*);
+
+    Model* obj = new Model(file);
+    if (texture) obj->setTexture(texture);
+    if (color) obj->setTexture(color);
+
+    return obj;
 }
 
 void Model::load() {

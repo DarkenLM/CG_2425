@@ -15,7 +15,10 @@ Scene::Scene(Window* window, Camera* camera, std::vector<Group*> groups) {
     this->groups = groups;
 }
 
-Scene* Scene::fromFile(char* filePath) {
+int Scene::getWindowWidth() const { return this->window->getWidth(); }
+int Scene::getWindowHeight() const { return this->window->getHeight(); }
+
+Scene* Scene::fromFile(const char* filePath) {
     fs::path fullPath = fs::absolute(filePath);
 
     if (!fs::exists(fullPath)) {
@@ -42,6 +45,7 @@ Scene* Scene::fromFile(char* filePath) {
 
     GET_XML_ELEMENT_OR_FAIL(root, "camera", camera);
     Camera* sceneCamera = Camera::fromXML(camera);
+    sceneCamera->setCameraMode(CAMERA_EX);
 
     std::vector<Group*> groups;
 
@@ -65,4 +69,51 @@ void Scene::load() {
             yeet std::string("Unable to load group: ") + e;
         }
     }
+
+    this->setCameraAspectRatio(this->getWindowWidth() / this->getWindowHeight());
+}
+
+void Scene::render() {
+    for (Group* g : this->groups) {
+        g->render();
+    }   
+}
+
+void Scene::setupCamera() {
+    this->camera->render();
+}
+
+void Scene::setCameraAspectRatio(float aspectRatio) {
+    this->camera->setAspectRatio(aspectRatio);
+}
+
+void Scene::update(float deltaTime) {
+
+}
+
+void Scene::onKeypress(unsigned char key, int mx, int my) {
+    switch (key) {
+        case 'q': case 'Q': {
+			this->camera->rotateTo(0, Camera::CAMERA_STEP, 0.0f);
+			break;
+		}
+		case 'e': case 'E': {
+			this->camera->rotateTo(0, -Camera::CAMERA_STEP, 0.0f);
+			break;
+		}
+		case 'z': case 'Z': {
+			this->camera->rotateTo(0, 0.0f, Camera::CAMERA_STEP);
+			break;
+		}
+		case 'c': case 'C': {
+			this->camera->rotateTo(0, 0.0f, -Camera::CAMERA_STEP);
+			break;
+		}
+        default: {
+            // Didn't to shit, do not reprocess.
+            return;
+        }
+    }
+
+    glutPostRedisplay();
 }

@@ -3,10 +3,11 @@
 #include "common/geometry/BaseGeometry.hpp"
 #include "common/util/xmlutil.hpp"
 #include "engine/scene/Model.hpp"
+#include "engine/scene/Object.hpp"
 
 using namespace tinyxml2;
 
-class Group {
+class Group: public Object {
     public:
         Group() = default;
         Group(std::vector<Model*> objects) {
@@ -87,6 +88,18 @@ class Group {
                 }
             }
         }
+
+        #pragma region ------- Overrides -------
+        void render() override {
+            for (Model* m : this->objects) {
+                m->render();
+            }
+
+            for (Group* g : this->groups) {
+                g->render();
+            }
+        };
+        #pragma endregion ------- Overrides -------
 
     private:
         std::vector<Model*> objects;

@@ -12,9 +12,18 @@ class Scene {
             std::vector<Group*> groups
         );
 
-        static Scene* fromFile(char* filePath);
+        int getWindowWidth() const;
+        int getWindowHeight() const;
 
+        static Scene* fromFile(const char* filePath);
         void load();
+
+        void render();
+        void setupCamera();
+        void setCameraAspectRatio(float aspectRatio);
+        void update(float deltaTime);
+
+        void onKeypress(unsigned char key, int mx, int my);
 
     private:
         Window* window;

@@ -37,15 +37,16 @@ struct _parser3d_load_result _parser3DLoadFile(const std::string& filename) {
     file.read(reinterpret_cast<char*>(&nTriangles), sizeof(nTriangles));
 
     // Resize vertex vector for better performance
-    // vertices.resize(nTriangles * 3);
     std::vector<Point3D> vertices;
 
-    for (Point3D& p : vertices) {
+    // for (Point3D& p : vertices) {
+    for (int i = 0; i < nTriangles * 3; i++) {
         float x, y, z;
         file.read(reinterpret_cast<char*>(&x), sizeof(x));
         file.read(reinterpret_cast<char*>(&y), sizeof(y));
         file.read(reinterpret_cast<char*>(&z), sizeof(z));
-        p.set(x, y, z);
+        // p.set(x, y, z);
+        vertices.push_back(Point3D(x, y, z));
     }
 
     std::cout << "Loaded " << nTriangles << " triangles from " << filename << ".\n";

@@ -6,7 +6,7 @@ IcosphereGeometry::~IcosphereGeometry() = default;
 
 IcosphereGeometry::IcosphereGeometry(std::vector<Point3D> vertices) {
     this->vertices = vertices;
-    this->_kind = GEOMETRY_ISCOSPHERE;
+    this->_kind = GEOMETRY_ICOSPHERE;
 }
 
 std::vector<Point3D> IcosphereGeometry::serialize() {

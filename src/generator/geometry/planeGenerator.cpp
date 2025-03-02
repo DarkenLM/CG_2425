@@ -13,19 +13,20 @@ PlaneGeometry::~PlaneGeometry() = default;
 PlaneGeometry::PlaneGeometry(int length, int gridSize) {
     this->_kind = GEOMETRY_PLANE;
 
-    float subDivUnit = length / gridSize;
+    float flen = (float)length;
+    float subDivUnit = length * 1.0f / gridSize;
 
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
             // Upper trigon
-            this->vertices.push_back(Point3D(subDivUnit * i, 0.0f, subDivUnit * j));
-            this->vertices.push_back(Point3D(subDivUnit * i, 0.0f, subDivUnit * (j + 1)));
-            this->vertices.push_back(Point3D(subDivUnit * (i + 1), 0.0f, subDivUnit* j));
+            this->vertices.push_back(Point3D(-flen / 2 + subDivUnit * (j + 1), 0, -flen / 2 + subDivUnit * i));
+			this->vertices.push_back(Point3D(-flen / 2 + subDivUnit * j      , 0, -flen / 2 + subDivUnit * i));
+			this->vertices.push_back(Point3D(-flen / 2 + subDivUnit * (j + 1), 0, -flen / 2 + subDivUnit * (i + 1)));
 
             // Lower trigon
-            this->vertices.push_back(Point3D(subDivUnit * (i + 1), 0.0f, subDivUnit * j));
-            this->vertices.push_back(Point3D(subDivUnit * (i + 1), 0.0f, subDivUnit* (j + 1)));
-            this->vertices.push_back(Point3D(subDivUnit * i, 0.0f, subDivUnit * (j + 1)));
+			this->vertices.push_back(Point3D(-flen / 2 + subDivUnit * j      , 0, -flen / 2 + subDivUnit * i));
+			this->vertices.push_back(Point3D(-flen / 2 + subDivUnit * j      , 0, -flen / 2 + subDivUnit * (i + 1)));
+			this->vertices.push_back(Point3D(-flen / 2 + subDivUnit*  (j + 1), 0, -flen / 2 + subDivUnit * (i + 1)));
         }
     }
 }

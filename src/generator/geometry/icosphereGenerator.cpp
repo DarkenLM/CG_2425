@@ -87,7 +87,7 @@ void subdivide(std::vector<Point3D>& vertices, std::vector<unsigned int>& indice
 }
 
 IcosphereGeometry::IcosphereGeometry(int radius, int subdivisions) {
-    this->_kind = GEOMETRY_ISCOSPHERE;
+    this->_kind = GEOMETRY_ICOSPHERE;
 
     // Local vectors for vertices and indices
     std::vector<Point3D> vertices;

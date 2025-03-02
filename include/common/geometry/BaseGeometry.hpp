@@ -18,7 +18,7 @@ typedef enum basegeometry_kind : uint8_t {
     GEOMETRY_CYLINDER,
     GEOMETRY_TORUS,
     GEOMETRY_FLATRING,
-    GEOMETRY_ISCOSPHERE,
+    GEOMETRY_ICOSPHERE,
     _GEOMETRY_KIND_UPPER_BOUND
 } BaseGeometryKind;
 

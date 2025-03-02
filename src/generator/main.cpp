@@ -8,6 +8,7 @@
 #include "common/common.hpp"
 #include "common/geometry/box.hpp"
 #include "common/geometry/cone.hpp"
+#include "common/geometry/sphere.hpp"
 #include "common/geometry/cylinder.hpp"
 #include "common/geometry/flatRing.hpp"
 #include "common/geometry/icosphere.hpp"
@@ -93,6 +94,9 @@ int main(int argc, char* argv[]) {
         int radius = std::atoi(argv[2]);
         int slices = std::atoi(argv[3]);
         int stacks = std::atoi(argv[4]);
+
+        SphereGeometry sphere(radius, slices, stacks);
+        Parser3D::saveToFile(argv[5], &sphere);
 
         std::cout << "Sphere information stored at Models/" << argv[5] << std::endl;
         return 0;

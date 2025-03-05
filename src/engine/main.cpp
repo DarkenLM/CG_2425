@@ -100,6 +100,7 @@ void loadScene(const char* sceneFile) {
 
     Scene* scene = Scene::fromFile(sceneFile);
     if (scene == nullptr) {
+        std::cout << "Unable to read scene.\n";
         exit(1);
     }
 

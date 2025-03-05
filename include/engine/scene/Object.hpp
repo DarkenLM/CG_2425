@@ -39,6 +39,13 @@ class Object {
         virtual void setPosition(float x, float y, float z) {};
 
         /** 
+         * Moves this object to the absolute position represented by the vector passed as arguments.
+         * 
+         * @param pos The position vector to move to.
+         */
+        virtual void setPosition(Vector3<float> pos) {};
+
+        /** 
          * Moves this object to the position represented by the coordinates passed as arguments, relative to the object's
          * current position. The values for each coordinate are added to the current object's coordinate values.
          * 
@@ -47,6 +54,14 @@ class Object {
          * @param z The Z position to move to.
          */
         virtual void moveTo(float x, float y, float z) {};
+
+        /** 
+         * Moves this object to the position represented by the position vector passed as argument, relative to the 
+         * object's current position. The values for each coordinate are added to the current object's coordinate values.
+         * 
+         * @param pos The position vector to move to.
+         */
+        virtual void moveTo(Vector3<float> pos) {};
 
         /**
          * Rotates this object back to it's original rotation.
@@ -75,6 +90,25 @@ class Object {
          */
         virtual void rotateTo(float roll, float pitch, float yaw) {};
 
+        /** 
+         * Rotates this object along the axis characterized by the first three parameters by 
+         * the specified angle. The axis is a unit vector, and it's parameters must be normalized.
+         * 
+         * @param axisX The X parameter of the axis vector.
+         * @param axisY The Y parameter of the axis vector.
+         * @param axisZ The Z parameter of the axis vector.
+         */
+        virtual void rotateAlong(float axisX, float axisY, float axisZ, float angle) {};
+
+        /** 
+         * Rotates this object along the axis characterized by the first three parameters of the vector by 
+         * the fourth parameter of the vector. The first three parameters of the vector represent a unit 
+         * vector, and must be normalized.
+         * 
+         * @param vec The (axisX, axisY, axisZ, angle) vector.
+         */
+        virtual void rotateAlong(Vector4<float> vec) {};
+
         /**
          * Scales this object back to it's original scale.
          * 
@@ -93,6 +127,13 @@ class Object {
         virtual void setScale(float x, float y, float z) {};
 
         /** 
+         * Scales this object to the absolute scale represented by the vector passed as argument.
+         * 
+         * @param scale The vector representing the scale on each axis.
+         */
+        virtual void setScale(Vector3<float> scale) {};
+
+        /** 
          * Scales this object relative to to the current scale using the values passed as arguments.
          * 
          * @param x The scale on the X axis.
@@ -100,4 +141,11 @@ class Object {
          * @param z The scale on the Z axis.
          */
         virtual void scaleTo(float x, float y, float z) {};
+
+        /** 
+         * Scales this object relative to to the current scale using the vector passed as argument.
+         * 
+         * @param scale The vector representing the scale on each axis.
+         */
+        virtual void scaleTo(Vector3<float> scale) {};
 };

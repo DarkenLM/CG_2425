@@ -1,6 +1,7 @@
 #include "common/common.hpp"
 #include "common/geometry/BaseGeometry.hpp"
 #include "common/parser.hpp"
+#include "engine/engineUI/engineUI.hpp"
 #include "engine/scene/Scene.hpp"
 
 #ifdef __APPLE__
@@ -13,18 +14,24 @@
 #include <math.h>
 #include <stdio.h>
 
+#include <chrono>
 #include <sstream>
 #include <vector>
-#include <chrono>
 
 #define MAX_TICK 10000000
-#define TICK_MS 16 // ~ 60 FPS (16ms * 60 = 960ms, 17ms * 60 = 1020ms)
+#define TICK_MS 16  // ~ 60 FPS (16ms * 60 = 960ms, 17ms * 60 = 1020ms)
 
 struct scenestate {
     Scene* scene;
+    EngineUI engineUI;
 
     std::chrono::steady_clock::time_point lastUpdate;
     float deltaTime;
+
+    // inner State (UI Validation)
+    bool fullscreen = false;
+    int polygonMode = 1;  // 0 - Fill; 1 - WireFrame; 2 - Points
+    int cameraMode = 0;   // 0 - Explorer; 1 - First Person; 2 - Third Person
 };
 struct scenestate STATE;
 
@@ -47,33 +54,104 @@ void changeSize(int w, int h) {
     glViewport(0, 0, w, h);
 }
 
+void validateGlutSettings() {
+    // Fullscreen validation
+    if (STATE.fullscreen != STATE.engineUI.fullscreen) {
+        STATE.fullscreen = STATE.engineUI.fullscreen;
+        if (STATE.fullscreen) {
+            glutFullScreen();
+        } else {
+            glutReshapeWindow(STATE.scene->getWindowWidth(), STATE.scene->getWindowHeight());
+            std::cout << "Window Mode";
+        }
+    }
+
+    // PolygonMode Validation
+    if (STATE.polygonMode != STATE.engineUI.polygonMode) {
+        STATE.polygonMode = STATE.engineUI.polygonMode;
+        switch (STATE.polygonMode) {
+            case 0:
+                glPolygonMode(GL_FRONT, GL_FILL);
+                break;
+            case 1:
+                glPolygonMode(GL_FRONT, GL_LINE);
+                break;
+            case 2:
+                glPolygonMode(GL_FRONT, GL_POINT);
+                break;
+            default:
+                break;
+        }
+    }
+
+    if (STATE.cameraMode != STATE.engineUI.cameraMode) {
+        STATE.cameraMode = STATE.engineUI.cameraMode;
+        switch (STATE.cameraMode) {
+            case 0:
+                STATE.scene->setCameraMode(CAMERA_EX);
+                break;
+            case 1:
+                STATE.scene->setCameraMode(CAMERA_FP);
+                break;
+            case 2:
+                STATE.scene->setCameraMode(CAMERA_TP);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 void renderScene(void) {
+    // Update ImGUI display size
+    ImGuiIO& io = ImGui::GetIO();
+    int width = glutGet(GLUT_WINDOW_WIDTH);
+    int height = glutGet(GLUT_WINDOW_HEIGHT);
+    io.DisplaySize = ImVec2((float)width, (float)height);
+
     // clear buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    validateGlutSettings();
 
     // set camera
     STATE.scene->setupCamera();
 
     // Setup Axis
     glBegin(GL_LINES);
-        // x in red
-        glColor3f(1.0f, 0.0f, 0.0f);
-        glVertex3f(-100.f, 0.0f, 0.0f);
-        glVertex3f(100.0f, 0.0f, 0.0f);
-        // y in green
-        glColor3f(0.0f, 1.0f, 0.0f);
-        glVertex3f(0.0f, -100.0f, 0.0f);
-        glVertex3f(0.0f, 100.0f, 0.0f);
-        // z in blue
-        glColor3f(0.0f, 0.0f, 1.0f);
-        glVertex3f(0.f, 0.0f, -100.0f);
-        glVertex3f(0.0f, 0.0f, 100.0f);
+    // x in red
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glVertex3f(-100.f, 0.0f, 0.0f);
+    glVertex3f(100.0f, 0.0f, 0.0f);
+    // y in green
+    glColor3f(0.0f, 1.0f, 0.0f);
+    glVertex3f(0.0f, -100.0f, 0.0f);
+    glVertex3f(0.0f, 100.0f, 0.0f);
+    // z in blue
+    glColor3f(0.0f, 0.0f, 1.0f);
+    glVertex3f(0.f, 0.0f, -100.0f);
+    glVertex3f(0.0f, 0.0f, 100.0f);
 
-        // Changes color back to white
-        glColor3f(1.0f, 1.0f, 1.0f);
+    // Changes color back to white
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glEnd();
+
+    // Setup terrain
+    glBegin(GL_TRIANGLES);
+    glColor3f(0.6f, 0.5f, 0.4f);
+    glVertex3f(100.f, -10.0f, -100.0f);
+    glVertex3f(-100.0f, -10.0f, -100.0f);
+    glVertex3f(-100.0f, -10.0f, 100.0f);
+    glVertex3f(100.f, -10.0f, 100.0f);
+    glVertex3f(100.0f, -10.0f, -100.0f);
+    glVertex3f(-100.0f, -10.0f, 100.0f);
+    glColor3f(1.0f, 1.0f, 1.0f);
     glEnd();
 
     STATE.scene->render();
+
+    // Render ImGui UI
+    STATE.engineUI.render();
 
     // End of frame
     glutSwapBuffers();
@@ -107,30 +185,35 @@ void loadScene(const char* sceneFile) {
     fuckAround {
         scene->load();
         STATE.scene = scene;
-    } findOut(std::string e) {
+    }
+    findOut(std::string e) {
         std::cout << std::string("Unable to load scene: ") + e + "\n";
         exit(1);
     }
 }
 
 void processKeys(unsigned char key, int x, int y) {
-    switch (key) {
-        case 'h':  // Solid mode
-            glPolygonMode(GL_FRONT, GL_FILL);
-            break;
-        case 'j':  // Wireframe mode
-            glPolygonMode(GL_FRONT, GL_LINE);
-            break;
-        case 'k':  // Point mode
-            glPolygonMode(GL_FRONT, GL_POINT);
-            break;
-        default:
-            break;
-    }
+    STATE.scene->onKeypress2(key, x, y);
 
-    STATE.scene->onKeypress(key, x, y);
-    
     glutPostRedisplay();
+}
+
+void processSpecialKeys(int key, int x, int y) {
+    glutPostRedisplay();
+}
+
+// Callback function for mouse input
+void processMouse(int button, int state, int x, int y) {
+    ImGui_ImplGLUT_MouseFunc(button, state, x, y);
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+        std::cout << "left mouse button Pressed\n";
+    }
+}
+
+// Callback function for mouse motion
+void motionFunc(int x, int y) {
+    ImGuiIO& io = ImGui::GetIO();
+    io.MousePos = ImVec2(x, y);
 }
 
 int main(int argc, char** argv) {
@@ -150,15 +233,21 @@ int main(int argc, char** argv) {
     glutInitWindowSize(STATE.scene->getWindowWidth(), STATE.scene->getWindowHeight());
     glutCreateWindow("CG@DI");
 
-    // printInfo();
+    // Initialize ImGui
+    STATE.engineUI.init();
 
     // put callback registry here
     glutDisplayFunc(renderScene);
     glutReshapeFunc(changeSize);
-    // glutIdleFunc(renderScene);
+    glutIdleFunc(renderScene);
     glutTimerFunc(16, stepFunc, 0);
 
+    // Keyboard and mouse input
     glutKeyboardFunc(processKeys);
+    glutSpecialFunc(processSpecialKeys);
+    glutMouseFunc(processMouse);
+    glutMotionFunc(motionFunc);
+    glutPassiveMotionFunc(motionFunc);
 
     // some OpenGL settings
     glEnable(GL_DEPTH_TEST);

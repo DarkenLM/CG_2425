@@ -1,10 +1,12 @@
 #include "engine/scene/Scene.hpp"
-#include "common/util/xmlutil.hpp"
-#include "common/debug.hpp"
-#include "lib/tinyxml2.h"
+
 #include <filesystem>
 #include <iostream>
 #include <vector>
+
+#include "common/debug.hpp"
+#include "common/util/xmlutil.hpp"
+#include "lib/tinyxml2.h"
 
 namespace fs = std::filesystem;
 using namespace tinyxml2;
@@ -28,7 +30,8 @@ Scene* Scene::fromFile(const char* filePath) {
 
     XMLDocument doc;
     if (doc.LoadFile(fullPath.c_str()) != XML_SUCCESS) {
-        ERROR << "Error reading XML file: "; doc.PrintError();
+        ERROR << "Error reading XML file: ";
+        doc.PrintError();
         return nullptr;
     }
 
@@ -45,14 +48,13 @@ Scene* Scene::fromFile(const char* filePath) {
 
     GET_XML_ELEMENT_OR_FAIL(root, "camera", camera);
     Camera* sceneCamera = Camera::fromXML(camera);
-    sceneCamera->setCameraMode(CAMERA_EX);
 
     std::vector<Group*> groups;
 
     GET_XML_ELEMENT_OR_FAIL(root, "group", _group);
     do {
         Group* group = Group::fromXML(_group);
-        if (!group) return nullptr; // TODO: Outright break or silently ignore?
+        if (!group) return nullptr;  // TODO: Outright break or silently ignore?
 
         groups.push_back(group);
     } while ((_group = _group->NextSiblingElement("group")));
@@ -65,7 +67,8 @@ void Scene::load() {
     for (Group* g : this->groups) {
         fuckAround {
             g->load();
-        } findOut(std::string e) {
+        }
+        findOut(std::string e) {
             yeet std::string("Unable to load group: ") + e;
         }
     }
@@ -76,11 +79,15 @@ void Scene::load() {
 void Scene::render() {
     for (Group* g : this->groups) {
         g->render();
-    }   
+    }
 }
 
 void Scene::setupCamera() {
     this->camera->render();
+}
+
+void Scene::setCameraMode(CameraMode camMode) {
+    this->camera->setCameraMode(camMode);
 }
 
 void Scene::setCameraAspectRatio(float aspectRatio) {
@@ -88,32 +95,12 @@ void Scene::setCameraAspectRatio(float aspectRatio) {
 }
 
 void Scene::update(float deltaTime) {
-
 }
 
-void Scene::onKeypress(unsigned char key, int mx, int my) {
-    switch (key) {
-        case 'q': case 'Q': {
-			this->camera->rotateTo(0, Camera::CAMERA_STEP, 0.0f);
-			break;
-		}
-		case 'e': case 'E': {
-			this->camera->rotateTo(0, -Camera::CAMERA_STEP, 0.0f);
-			break;
-		}
-		case 'z': case 'Z': {
-			this->camera->rotateTo(0, 0.0f, Camera::CAMERA_STEP);
-			break;
-		}
-		case 'c': case 'C': {
-			this->camera->rotateTo(0, 0.0f, -Camera::CAMERA_STEP);
-			break;
-		}
-        default: {
-            // Didn't to shit, do not reprocess.
-            return;
-        }
-    }
-
-    glutPostRedisplay();
+/**
+ * This Function serves as a bridge inside the scene, to send keyboard input from the main(glut) to the camera object
+ */
+void Scene::onKeypress2(unsigned char key, int mx, int my) {
+    this->camera->processMovement(key, mx, my);
+    return;
 }

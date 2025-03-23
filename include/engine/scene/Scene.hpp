@@ -13,6 +13,7 @@ class Scene {
 
     int getWindowWidth() const;
     int getWindowHeight() const;
+    Camera* getCamera();
 
     static Scene* fromFile(const char* filePath);
     void load();

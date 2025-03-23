@@ -94,6 +94,10 @@ void Scene::setCameraAspectRatio(float aspectRatio) {
     this->camera->setAspectRatio(aspectRatio);
 }
 
+Camera* Scene::getCamera() {
+    return this->camera;
+}
+
 void Scene::update(float deltaTime) {
 }
 

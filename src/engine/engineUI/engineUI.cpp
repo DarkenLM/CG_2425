@@ -2,6 +2,10 @@
 
 #include <iostream>
 
+#include "engine/scene/SceneState.hpp"
+
+extern struct scenestate STATE;
+
 EngineUI::EngineUI()
     : show_demo_window(false),
       show_another_window(false),
@@ -98,6 +102,8 @@ static void showPerformanceOverlay(bool* p_open) {
             ImGui::EndPopup();
         }
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+        ImGui::Text("POS: %.2fx %.2fy %.2fz", STATE.scene->getCamera()->getPosX(), STATE.scene->getCamera()->getPosY(), STATE.scene->getCamera()->getPosZ());
+        ImGui::Text("LOOKAT: %.2fx %.2fy %.2fz", STATE.scene->getCamera()->getLookX(), STATE.scene->getCamera()->getLookY(), STATE.scene->getCamera()->getLookZ());
     }
     ImGui::End();
 }
@@ -128,6 +134,8 @@ void EngineUI::camera() {
         ImGui::RadioButton("First Person", &this->cameraMode, 1);
         ImGui::SameLine();
         ImGui::RadioButton("Third Person", &this->cameraMode, 2);
+        ImGui::InputFloat("Rotation Speed", &(STATE.scene->getCamera()->ROTATION_SPEED), 0.01f, 0.0f, "%.2f", 1);
+        ImGui::InputFloat("Movement Speed", &(STATE.scene->getCamera()->MOVEMENT_SPEED), 0.01f, 0.0f, "%.2f", 1);
         ImGui::TreePop();
     }
 }

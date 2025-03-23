@@ -34,7 +34,8 @@ enum CameraMode {
 
 class Camera : public Object {
    public:
-    static constexpr float CAMERA_STEP = 0.01f;
+    float ROTATION_SPEED;
+    float MOVEMENT_SPEED;
 
     Camera(
         float posX, float posY, float posZ,
@@ -60,16 +61,19 @@ class Camera : public Object {
 
             this->cameras[i].aspectRatio = 1.0f;
         }
+        this->MOVEMENT_SPEED = 0.5f;
+        this->ROTATION_SPEED = 0.01f;
         this->currentMode = CAMERA_EX;
 
-        // Calculate initial pitch / yaw and alpha / beta
-        {
-            float dirX = abs(lookX - posX);
-            float dirY = abs(lookY - posY);
-            float dirZ = abs(lookZ - posZ);
+        // Functions used to calculate de distance
+        float dirX = abs(lookX - posX);
+        float dirY = abs(lookY - posY);
+        float dirZ = abs(lookZ - posZ);
 
+        {
             float horizontalDist = sqrt(dirX * dirX + dirZ * dirZ);
             float verticalDist = sqrt(dirY * dirY + dirZ * dirZ);
+
             this->cameras[0].pitch = atan2(dirY, horizontalDist);
             this->cameras[0].yaw = atan2(dirX, dirZ);
 
@@ -84,12 +88,13 @@ class Camera : public Object {
             this->cameras[0].posZ = this->cameras[0].zoom * cos(this->cameras[0].alpha) * sin(this->cameras[0].beta);
         }
         {
-            // Calculate the spherical coordinates (alpha and beta) based on the position
-            // Convert from Cartesian coordinates to spherical
-            this->cameras[1].zoom = sqrt(pow(this->cameras[1].posX, 2) + pow(this->cameras[1].posY, 2) + pow(this->cameras[1].posZ, 2));
+            float dirX = abs(lookX - posX);
+            float dirY = abs(lookY - posY);
+            float dirZ = abs(lookZ - posZ);
 
-            // Polar angle (pitch): alpha is the angle between the Y-axis and the camera's position vector
-            this->cameras[1].alpha = acos(this->cameras[1].posY / this->cameras[1].zoom);  // atan2 is also valid here if you need full quadrant handling
+            this->cameras[1].zoom = sqrt(pow(dirX, 2) + pow(dirY, 2) + pow(dirZ, 2));
+
+            this->cameras[1].alpha = acos(dirY / this->cameras[1].zoom);
 
             // Azimuthal angle (yaw): beta is the angle in the XZ plane
             this->cameras[1].beta = atan2(this->cameras[1].posZ, this->cameras[1].posX);  // The right sign will be determined by the signs of posX and posZ
@@ -101,26 +106,78 @@ class Camera : public Object {
         }
     };
 
+    float getPosX() {
+        if (this->currentMode == CAMERA_EX) {
+            return this->cameras[0].posX;
+        } else if (this->currentMode == CAMERA_FP) {
+            return this->cameras[1].posX;
+        } else {
+            return this->cameras[2].posX;
+        }
+    };
+    float getPosY() {
+        if (this->currentMode == CAMERA_EX) {
+            return this->cameras[0].posY;
+        } else if (this->currentMode == CAMERA_FP) {
+            return this->cameras[1].posY;
+        } else {
+            return this->cameras[2].posY;
+        }
+    };
+    float getPosZ() {
+        if (this->currentMode == CAMERA_EX) {
+            return this->cameras[0].posZ;
+        } else if (this->currentMode == CAMERA_FP) {
+            return this->cameras[1].posZ;
+        } else {
+            return this->cameras[2].posZ;
+        }
+    };
+    float getLookX() {
+        if (this->currentMode == CAMERA_EX) {
+            return this->cameras[0].lookX;
+        } else if (this->currentMode == CAMERA_FP) {
+            return this->cameras[1].lookX;
+        } else {
+            return this->cameras[2].lookX;
+        }
+    };
+    float getLookY() {
+        if (this->currentMode == CAMERA_EX) {
+            return this->cameras[0].lookY;
+        } else if (this->currentMode == CAMERA_FP) {
+            return this->cameras[1].lookY;
+        } else {
+            return this->cameras[2].lookY;
+        }
+    };
+    float getLookZ() {
+        if (this->currentMode == CAMERA_EX) {
+            return this->cameras[0].lookZ;
+        } else if (this->currentMode == CAMERA_FP) {
+            return this->cameras[1].lookZ;
+        } else {
+            return this->cameras[2].lookZ;
+        }
+    };
+
 #pragma region------- Overrides -------
     void render() override {
         glLoadIdentity();
         switch (this->currentMode) {
             case CAMERA_EX:
-                std::cout << "LOOKAT: " << this->cameras[0].posX << " " << this->cameras[0].posY << " " << this->cameras[0].posZ << " " << this->cameras[0].lookX << " " << this->cameras[0].lookY << " " << this->cameras[0].lookZ << " " << 0.0f << " " << 1.0f << " " << 0.0f << std::endl;
                 gluLookAt(
                     this->cameras[0].posX, this->cameras[0].posY, this->cameras[0].posZ,
                     this->cameras[0].lookX, this->cameras[0].lookY, this->cameras[0].lookZ,
                     this->cameras[0].upX, this->cameras[0].upY, this->cameras[0].upZ);
                 break;
             case CAMERA_FP:
-                std::cout << "LOOKAT: " << this->cameras[1].posX << " " << this->cameras[1].posY << " " << this->cameras[1].posZ << " " << this->cameras[1].lookX << " " << this->cameras[1].lookY << " " << this->cameras[1].lookZ << " " << 0.0f << " " << 1.0f << " " << 0.0f << std::endl;
                 gluLookAt(
                     this->cameras[1].posX, this->cameras[1].posY, this->cameras[1].posZ,
                     this->cameras[1].lookX, this->cameras[1].lookY, this->cameras[1].lookZ,
                     this->cameras[1].upX, this->cameras[1].upY, this->cameras[1].upZ);
                 break;
             case CAMERA_TP:
-                std::cout << "LOOKAT: " << this->cameras[2].posX << " " << this->cameras[2].posY << " " << this->cameras[2].posZ << " " << this->cameras[2].lookX << " " << this->cameras[2].lookY << " " << this->cameras[2].lookZ << " " << 0.0f << " " << 1.0f << " " << 0.0f << std::endl;
                 gluLookAt(
                     this->cameras[2].posX, this->cameras[2].posY, this->cameras[2].posZ,
                     this->cameras[2].lookX, this->cameras[2].lookY, this->cameras[2].lookZ,
@@ -234,22 +291,22 @@ class Camera : public Object {
         switch (key) {
             case 'w':
             case 'W': {
-                if (this->cameras[0].alpha > -M_PI / 2 + this->CAMERA_STEP) this->cameras[0].alpha -= this->CAMERA_STEP;
+                if (this->cameras[0].alpha > -M_PI / 2 + this->ROTATION_SPEED) this->cameras[0].alpha -= this->ROTATION_SPEED;
                 break;
             }
             case 's':
             case 'S': {
-                if (this->cameras[0].alpha < M_PI / 2 - this->CAMERA_STEP) this->cameras[0].alpha += this->CAMERA_STEP;
+                if (this->cameras[0].alpha < M_PI / 2 - this->ROTATION_SPEED) this->cameras[0].alpha += this->ROTATION_SPEED;
                 break;
             }
             case 'a':
             case 'A': {
-                this->cameras[0].beta += this->CAMERA_STEP;
+                this->cameras[0].beta += this->ROTATION_SPEED;
                 break;
             }
             case 'd':
             case 'D': {
-                this->cameras[0].beta -= this->CAMERA_STEP;
+                this->cameras[0].beta -= this->ROTATION_SPEED;
                 break;
             }
             case '-': {
@@ -274,7 +331,7 @@ class Camera : public Object {
      * This function processes the input for the First person camera.
      */
     void fpMovement(unsigned char key, int mx, int my) {
-        float moveStep = 1.0f;  // Step size for movement
+        float moveStep = this->MOVEMENT_SPEED;  // Step size for movement
 
         switch (key) {
             case 's':
@@ -309,24 +366,24 @@ class Camera : public Object {
             }
             case 'j': {
                 // Rotate look-at to the left (decrease beta)
-                this->cameras[1].beta -= this->CAMERA_STEP;
+                this->cameras[1].beta -= this->ROTATION_SPEED;
                 break;
             }
             case 'l': {
                 // Rotate look-at to the right (increase beta)
-                this->cameras[1].beta += this->CAMERA_STEP;
+                this->cameras[1].beta += this->ROTATION_SPEED;
                 break;
             }
             case 'i': {
                 // Rotate look-at up (increase alpha)
-                this->cameras[1].alpha += this->CAMERA_STEP;
-                if (this->cameras[1].alpha > M_PI / 2.0f) this->cameras[1].alpha = M_PI / 2.0f;  // Clamp to avoid flipping
+                this->cameras[1].alpha += this->ROTATION_SPEED;
+                if (this->cameras[1].alpha > M_PI - this->ROTATION_SPEED) this->cameras[1].alpha = M_PI - this->ROTATION_SPEED;  // Clamp to avoid flipping
                 break;
             }
             case 'k': {
                 // Rotate look-at down (decrease alpha)
-                this->cameras[1].alpha -= this->CAMERA_STEP;
-                if (this->cameras[1].alpha < -M_PI / 2.0f) this->cameras[1].alpha = -M_PI / 2.0f;  // Clamp to avoid flipping
+                this->cameras[1].alpha -= this->ROTATION_SPEED;
+                if (this->cameras[1].alpha < 0 + this->ROTATION_SPEED) this->cameras[1].alpha = this->ROTATION_SPEED;  // Clamp to avoid flipping
                 break;
             }
             case '-': {

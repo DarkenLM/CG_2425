@@ -3,6 +3,7 @@
 #include "common/parser.hpp"
 #include "engine/engineUI/engineUI.hpp"
 #include "engine/scene/Scene.hpp"
+#include "engine/scene/SceneState.hpp"
 
 #ifdef __APPLE__
 #include <GLUT/glut.h>
@@ -21,19 +22,9 @@
 #define MAX_TICK 10000000
 #define TICK_MS 16  // ~ 60 FPS (16ms * 60 = 960ms, 17ms * 60 = 1020ms)
 
-struct scenestate {
-    Scene* scene;
-    EngineUI engineUI;
-
-    std::chrono::steady_clock::time_point lastUpdate;
-    float deltaTime;
-
-    // inner State (UI Validation)
-    bool fullscreen = false;
-    int polygonMode = 1;  // 0 - Fill; 1 - WireFrame; 2 - Points
-    int cameraMode = 0;   // 0 - Explorer; 1 - First Person; 2 - Third Person
-};
 struct scenestate STATE;
+
+EngineUI engineUI;
 
 double clamp(double value, double min, double max) {
     if (value > max) return max;
@@ -56,19 +47,19 @@ void changeSize(int w, int h) {
 
 void validateGlutSettings() {
     // Fullscreen validation
-    if (STATE.fullscreen != STATE.engineUI.fullscreen) {
-        STATE.fullscreen = STATE.engineUI.fullscreen;
+    if (STATE.fullscreen != engineUI.fullscreen) {
+        STATE.fullscreen = engineUI.fullscreen;
         if (STATE.fullscreen) {
             glutFullScreen();
         } else {
             glutReshapeWindow(STATE.scene->getWindowWidth(), STATE.scene->getWindowHeight());
-            std::cout << "Window Mode";
+            changeSize(STATE.scene->getWindowWidth(), STATE.scene->getWindowHeight());
         }
     }
 
     // PolygonMode Validation
-    if (STATE.polygonMode != STATE.engineUI.polygonMode) {
-        STATE.polygonMode = STATE.engineUI.polygonMode;
+    if (STATE.polygonMode != engineUI.polygonMode) {
+        STATE.polygonMode = engineUI.polygonMode;
         switch (STATE.polygonMode) {
             case 0:
                 glPolygonMode(GL_FRONT, GL_FILL);
@@ -84,8 +75,8 @@ void validateGlutSettings() {
         }
     }
 
-    if (STATE.cameraMode != STATE.engineUI.cameraMode) {
-        STATE.cameraMode = STATE.engineUI.cameraMode;
+    if (STATE.cameraMode != engineUI.cameraMode) {
+        STATE.cameraMode = engineUI.cameraMode;
         switch (STATE.cameraMode) {
             case 0:
                 STATE.scene->setCameraMode(CAMERA_EX);
@@ -151,7 +142,7 @@ void renderScene(void) {
     STATE.scene->render();
 
     // Render ImGui UI
-    STATE.engineUI.render();
+    engineUI.render();
 
     // End of frame
     glutSwapBuffers();
@@ -193,6 +184,7 @@ void loadScene(const char* sceneFile) {
 }
 
 void processKeys(unsigned char key, int x, int y) {
+    ImGui_ImplGLUT_KeyboardFunc(key, x, y);
     STATE.scene->onKeypress2(key, x, y);
 
     glutPostRedisplay();
@@ -206,7 +198,6 @@ void processSpecialKeys(int key, int x, int y) {
 void processMouse(int button, int state, int x, int y) {
     ImGui_ImplGLUT_MouseFunc(button, state, x, y);
     if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-        std::cout << "left mouse button Pressed\n";
     }
 }
 
@@ -234,7 +225,7 @@ int main(int argc, char** argv) {
     glutCreateWindow("CG@DI");
 
     // Initialize ImGui
-    STATE.engineUI.init();
+    engineUI.init();
 
     // put callback registry here
     glutDisplayFunc(renderScene);

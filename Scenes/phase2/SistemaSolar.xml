@@ -21,8 +21,7 @@
         <!-- MERCURY -->
         <group> 
             <transform> 
-                <rotate angle="305.3218525082145" x="0" y="1" z="0" />
-                <translate x="4.0" y="0" z="0" />
+                <translate x="350.0" y="0" z="0" />
                 <scale x="0.040661666666666665" y="0.040661666666666665" z="0.040661666666666665" />
             </transform>
             <models> 
@@ -32,8 +31,7 @@
         <!-- VENUS -->
         <group> 
             <transform> 
-                <rotate angle="87.90222948994462" x="0" y="1" z="0" />
-                <translate x="5.0" y="0" z="0" />
+                <translate x="-450.0" y="0" z="0" />
                 <scale x="0.10086333333333333" y="0.10086333333333333" z="0.10086333333333333" />
             </transform>
             <models> 
@@ -43,8 +41,7 @@
         <!-- EARTH -->
         <group> 
             <transform> 
-                <rotate angle="111.19522558193873" x="0" y="1" z="0" />
-                <translate x="5.5" y="0" z="0" />
+                <translate x="550.0" y="0" z="0" />
                 <scale x="0.10618333333333334" y="0.10618333333333334" z="0.10618333333333334" />
             </transform>
             <models> 
@@ -54,8 +51,7 @@
         <!-- MARS -->
         <group> 
             <transform> 
-                <rotate angle="339.10996509822735" x="0" y="1" z="0" />
-                <translate x="7.0" y="0" z="0" />
+                <translate x="-650.0" y="0" z="0" />
                 <scale x="0.05649166666666667" y="0.05649166666666667" z="0.05649166666666667" />
             </transform>
             <models> 
@@ -65,8 +61,7 @@
         <!-- JUPITER -->
         <group> 
             <transform> 
-                <rotate angle="249.94885435463397" x="0" y="1" z="0" />
-                <translate x="16.0" y="0" z="0" />
+                <translate x="750.0" y="0" z="0" />
                 <scale x="1.1651833333333332" y="1.1651833333333332" z="1.1651833333333332" />
             </transform>
             <models> 
@@ -76,8 +71,7 @@
         <!-- SATURN -->
         <group> 
             <transform> 
-                <rotate angle="172.93591409259085" x="0" y="1" z="0" />
-                <translate x="27.0" y="0" z="0" />
+                <translate x="-850.0" y="0" z="0" />
                 <scale x="0.9705333333333334" y="0.9705333333333334" z="0.9705333333333334" />
             </transform>
             <models> 
@@ -87,8 +81,7 @@
         <!-- URANUS -->
         <group> 
             <transform> 
-                <rotate angle="329.0063551235143" x="0" y="1" z="0" />
-                <translate x="52.0" y="0" z="0" />
+                <translate x="950.0" y="0" z="0" />
                 <scale x="0.4227" y="0.4227" z="0.4227" />
             </transform>
             <models> 
@@ -98,8 +91,7 @@
         <!-- NEPTUNE -->
         <group> 
             <transform> 
-                <rotate angle="102.53838305353246" x="0" y="1" z="0" />
-                <translate x="79.0" y="0" z="0" />
+                <translate x="-1050.0" y="0" z="0" />
                 <scale x="0.4110333333333333" y="0.4110333333333333" z="0.4110333333333333" />
             </transform>
             <models> 

@@ -10,7 +10,7 @@
 
 SphereGeometry::~SphereGeometry() = default;
 
-SphereGeometry::SphereGeometry(int radius, int slices, int stacks) {
+SphereGeometry::SphereGeometry(float radius, int slices, int stacks) {
     this->_kind = GEOMETRY_SPHERE;
 
     float x, y, z, xy;

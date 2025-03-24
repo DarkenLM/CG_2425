@@ -4,6 +4,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 #include "common/common.hpp"
 #include "common/geometry/box.hpp"
@@ -31,6 +34,15 @@ int main(int argc, char* argv[]) {
     if (argc < 2) {
         std::cerr << "Usage: " << argv[0] << " <figure>\n";
         return 1;
+    }
+
+    if (!fs::exists("Models")) {
+        // Cria o diretório
+        if (fs::create_directory("Models")) {
+            std::cout << "Diretório Models criado com sucesso!\n";
+        } else {
+            std::cerr << "Falha ao criar o diretório Models.\n";
+        }
     }
 
     std::string figure = argv[1];
@@ -91,7 +103,7 @@ int main(int argc, char* argv[]) {
             return 1;
         }
 
-        int radius = std::atoi(argv[2]);
+        float radius = std::atof(argv[2]);
         int slices = std::atoi(argv[3]);
         int stacks = std::atoi(argv[4]);
 

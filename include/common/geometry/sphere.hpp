@@ -8,7 +8,7 @@ class SphereGeometry : public BaseGeometry {
 
     public:
         virtual ~SphereGeometry();
-        SphereGeometry(int radius, int slices, int stacks);
+        SphereGeometry(float radius, int slices, int stacks);
         SphereGeometry(std::vector<Point3D> vertices);
         
         std::vector<Point3D> serialize() override;

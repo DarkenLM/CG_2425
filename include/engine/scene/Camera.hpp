@@ -19,7 +19,6 @@ typedef struct cameraSettings {
     float fov;
     float near;
     float far;
-    float pitch, yaw;
     float alpha, beta;  // alpha vertical angle / beta horizontal angle
     float zoom;
     float aspectRatio;
@@ -36,6 +35,7 @@ class Camera : public Object {
    public:
     float ROTATION_SPEED;
     float MOVEMENT_SPEED;
+    float ZOOM_STEP;
 
     Camera(
         float posX, float posY, float posZ,
@@ -61,48 +61,83 @@ class Camera : public Object {
 
             this->cameras[i].aspectRatio = 1.0f;
         }
-        this->MOVEMENT_SPEED = 0.5f;
+
+        this->MOVEMENT_SPEED = 10.0f;
         this->ROTATION_SPEED = 0.01f;
+        this->ZOOM_STEP = 2.0f;
         this->currentMode = CAMERA_EX;
 
-        // Functions used to calculate de distance
-        float dirX = abs(lookX - posX);
-        float dirY = abs(lookY - posY);
-        float dirZ = abs(lookZ - posZ);
+        // Calcular os valores do vetor direção
+        float dirX = lookX - posX;
+        float dirY = lookY - posY;
+        float dirZ = lookZ - posZ;
+
+        // Calcular o zoom (Distancia da posição ao lookup)
+        float zoom = sqrt(pow(dirX, 2) + pow(dirY, 2) + pow(dirZ, 2));
 
         {
-            float horizontalDist = sqrt(dirX * dirX + dirZ * dirZ);
-            float verticalDist = sqrt(dirY * dirY + dirZ * dirZ);
+            // Colocamos o lookup inicial
+            this->cameras[0].lookX = lookX;
+            this->cameras[0].lookY = lookY;
+            this->cameras[0].lookZ = lookZ;
 
-            this->cameras[0].pitch = atan2(dirY, horizontalDist);
-            this->cameras[0].yaw = atan2(dirX, dirZ);
+            // Colocamos o vetor up inicial
+            this->cameras[0].upX = upX;
+            this->cameras[0].upY = upY;
+            this->cameras[0].upZ = upZ;
 
-            // Im adding this to be more consistent to what we use in class
-            this->cameras[0].beta = asin(dirZ / horizontalDist);
-            this->cameras[0].alpha = asin(dirY / verticalDist);
+            // colocamos o fov, near, far e aspect ration iniciais
+            this->cameras[0].fov = fov;
+            this->cameras[0].near = near;
+            this->cameras[0].far = far;
+            this->cameras[0].aspectRatio = 1.0f;
 
-            this->cameras[0].zoom = sqrt(pow(dirX, 2) + pow(dirY, 2) + pow(dirZ, 2));
+            this->cameras[0].zoom = zoom;
 
-            this->cameras[0].posX = this->cameras[0].zoom * cos(this->cameras[0].alpha) * cos(this->cameras[0].beta);
+            // Calcular o angulo alpha com ajuda do produto interno
+            this->cameras[0].alpha = M_PI_2 - acos(dotProduct(-dirX, -dirY, -dirZ, 0, 1, 0) / zoom);
+
+            // Calcular o angulo beta com ajuda do produto interno
+            this->cameras[0].beta = M_PI_2 - acos(dotProduct(-dirX, 0, -dirZ, 1, 0, 0) / zoom);
+
+            this->cameras[0].posX = this->cameras[0].zoom * cos(this->cameras[0].alpha) * sin(this->cameras[0].beta);
             this->cameras[0].posY = this->cameras[0].zoom * sin(this->cameras[0].alpha);
-            this->cameras[0].posZ = this->cameras[0].zoom * cos(this->cameras[0].alpha) * sin(this->cameras[0].beta);
+            this->cameras[0].posZ = this->cameras[0].zoom * cos(this->cameras[0].alpha) * cos(this->cameras[0].beta);
         }
         {
-            float dirX = abs(lookX - posX);
-            float dirY = abs(lookY - posY);
-            float dirZ = abs(lookZ - posZ);
+            // Colocamos a posição inicial
+            this->cameras[1].posX = posX;
+            this->cameras[1].posY = posY;
+            this->cameras[1].posZ = posZ;
 
-            this->cameras[1].zoom = sqrt(pow(dirX, 2) + pow(dirY, 2) + pow(dirZ, 2));
+            // Colocamos o vetor up inicial
+            this->cameras[1].upX = upX;
+            this->cameras[1].upY = upY;
+            this->cameras[1].upZ = upZ;
 
-            this->cameras[1].alpha = acos(dirY / this->cameras[1].zoom);
+            // colocamos o fov, near, far e aspect ration iniciais
+            this->cameras[1].fov = fov;
+            this->cameras[1].near = near;
+            this->cameras[1].far = far;
+            this->cameras[1].aspectRatio = 1.0f;
 
-            // Azimuthal angle (yaw): beta is the angle in the XZ plane
-            this->cameras[1].beta = atan2(this->cameras[1].posZ, this->cameras[1].posX);  // The right sign will be determined by the signs of posX and posZ
+            // Calcular o angulo alpha com ajuda do produto interno
+            this->cameras[1].alpha = M_PI_2 - acos(dotProduct(dirX, dirY, dirZ, 0, 1, 0) / zoom);
+
+            // Calcular o angulo beta com ajuda do produto interno
+            this->cameras[1].beta = M_PI + cos(dotProduct(dirX, 0, dirZ, 1, 0, 0) / zoom);
+
+            // Normalizamos a distancia da camera ao lookAt como 1
+            this->cameras[1].zoom = 1;
+
+            dirX = cos(this->cameras[1].beta) * cos(this->cameras[1].alpha);
+            dirY = sin(this->cameras[1].alpha);
+            dirZ = sin(this->cameras[1].beta) * cos(this->cameras[1].alpha);
 
             // Adjust the lookAt position based on the spherical coordinates and zoom value
-            this->cameras[1].lookX = this->cameras[1].posX - this->cameras[1].zoom * sin(this->cameras[1].alpha) * cos(this->cameras[1].beta);  // X component of lookAt
-            this->cameras[1].lookY = this->cameras[1].posY - this->cameras[1].zoom * cos(this->cameras[1].alpha);                               // Y component of lookAt
-            this->cameras[1].lookZ = this->cameras[1].posZ - this->cameras[1].zoom * sin(this->cameras[1].alpha) * sin(this->cameras[1].beta);  // Z component of lookAt
+            this->cameras[1].lookX = this->cameras[1].posX + dirX;
+            this->cameras[1].lookY = this->cameras[1].posY + dirY;
+            this->cameras[1].lookZ = this->cameras[1].posZ + dirZ;
         }
     };
 
@@ -310,11 +345,11 @@ class Camera : public Object {
                 break;
             }
             case '-': {
-                this->cameras[0].zoom++;
+                this->cameras[0].zoom += this->ZOOM_STEP;
                 break;
             }
             case '+': {
-                this->cameras[0].zoom--;
+                this->cameras[0].zoom -= this->ZOOM_STEP;
                 break;
             }
             default: {
@@ -322,91 +357,81 @@ class Camera : public Object {
                 return;
             }
         }
-        this->cameras[0].posX = this->cameras[0].zoom * cos(this->cameras[0].alpha) * cos(this->cameras[0].beta);
+        this->cameras[0].posX = this->cameras[0].zoom * cos(this->cameras[0].alpha) * sin(this->cameras[0].beta);
         this->cameras[0].posY = this->cameras[0].zoom * sin(this->cameras[0].alpha);
-        this->cameras[0].posZ = this->cameras[0].zoom * cos(this->cameras[0].alpha) * sin(this->cameras[0].beta);
+        this->cameras[0].posZ = this->cameras[0].zoom * cos(this->cameras[0].alpha) * cos(this->cameras[0].beta);
     }
 
-    /**
-     * This function processes the input for the First person camera.
-     */
     void fpMovement(unsigned char key, int mx, int my) {
-        float moveStep = this->MOVEMENT_SPEED;  // Step size for movement
+        float moveStep = this->MOVEMENT_SPEED;
+        float dirX, dirY, dirZ;
+        float dirX2, dirY2, dirZ2;
 
         switch (key) {
-            case 's':
-            case 'S': {
-                // Move forward: we need to move in the direction the camera is looking
-                this->cameras[1].posX += moveStep * sin(this->cameras[1].alpha) * cos(this->cameras[1].beta);
-                this->cameras[1].posY += moveStep * cos(this->cameras[1].alpha);  // Corrected: use cos(alpha) for vertical movement
-                this->cameras[1].posZ += moveStep * sin(this->cameras[1].alpha) * sin(this->cameras[1].beta);
-                break;
-            }
-            case 'w':
-            case 'W': {
-                // Move backward: opposite of the direction the camera is looking
-                this->cameras[1].posX -= moveStep * sin(this->cameras[1].alpha) * cos(this->cameras[1].beta);
-                this->cameras[1].posY -= moveStep * cos(this->cameras[1].alpha);  // Corrected: use cos(alpha) for vertical movement
-                this->cameras[1].posZ -= moveStep * sin(this->cameras[1].alpha) * sin(this->cameras[1].beta);
-                break;
-            }
-            case 'a':
-            case 'A': {
-                // Move right perpendicular to the look-at vector
-                this->cameras[1].posX -= moveStep * sin(this->cameras[1].beta);
-                this->cameras[1].posZ += moveStep * cos(this->cameras[1].beta);
-                break;
-            }
-            case 'd':
-            case 'D': {
-                // Move left perpendicular to the look-at vector
-                this->cameras[1].posX += moveStep * sin(this->cameras[1].beta);
-                this->cameras[1].posZ -= moveStep * cos(this->cameras[1].beta);
-                break;
-            }
             case 'j': {
-                // Rotate look-at to the left (decrease beta)
                 this->cameras[1].beta -= this->ROTATION_SPEED;
                 break;
             }
             case 'l': {
-                // Rotate look-at to the right (increase beta)
                 this->cameras[1].beta += this->ROTATION_SPEED;
                 break;
             }
             case 'i': {
-                // Rotate look-at up (increase alpha)
-                this->cameras[1].alpha += this->ROTATION_SPEED;
-                if (this->cameras[1].alpha > M_PI - this->ROTATION_SPEED) this->cameras[1].alpha = M_PI - this->ROTATION_SPEED;  // Clamp to avoid flipping
+                if (this->cameras[1].alpha < M_PI / 2 - this->ROTATION_SPEED) this->cameras[1].alpha += this->ROTATION_SPEED;
+                std::cout << "alpha" << this->cameras[1].alpha << std::endl;
                 break;
             }
             case 'k': {
-                // Rotate look-at down (decrease alpha)
-                this->cameras[1].alpha -= this->ROTATION_SPEED;
-                if (this->cameras[1].alpha < 0 + this->ROTATION_SPEED) this->cameras[1].alpha = this->ROTATION_SPEED;  // Clamp to avoid flipping
+                if (this->cameras[1].alpha > -M_PI / 2 + this->ROTATION_SPEED) this->cameras[1].alpha -= this->ROTATION_SPEED;
                 break;
-            }
-            case '-': {
-                // Zoom out
-                this->cameras[1].zoom += 1.0f;
-                break;
-            }
-            case '+': {
-                // Zoom in
-                this->cameras[1].zoom -= 1.0f;
-                if (this->cameras[1].zoom < 1.0f) this->cameras[1].zoom = 1.0f;  // Clamp to avoid zooming too close
-                break;
-            }
-            default: {
-                // No valid key pressed, do nothing
-                return;
             }
         }
 
-        // Update the look-at point based on the new alpha and beta angles
-        this->cameras[1].lookX = this->cameras[1].posX - this->cameras[1].zoom * sin(this->cameras[1].alpha) * cos(this->cameras[1].beta);
-        this->cameras[1].lookY = this->cameras[1].posY - this->cameras[1].zoom * cos(this->cameras[1].alpha);
-        this->cameras[1].lookZ = this->cameras[1].posZ - this->cameras[1].zoom * sin(this->cameras[1].alpha) * sin(this->cameras[1].beta);
+        dirX = cos(this->cameras[1].beta) * cos(this->cameras[1].alpha);
+        dirY = sin(this->cameras[1].alpha);
+        dirZ = sin(this->cameras[1].beta) * cos(this->cameras[1].alpha);
+
+        cross(dirX, dirY, dirZ, 0, 1, 0, dirX2, dirY2, dirZ2);
+
+        switch (key) {
+            case 'a':
+            case 'A': {  // Strafe left
+                this->cameras[1].posX -= moveStep * dirX2;
+                this->cameras[1].posY -= moveStep * dirY2;
+                this->cameras[1].posZ -= moveStep * dirZ2;
+                break;
+            }
+            case 'w':
+            case 'W': {  // Move forward
+                this->cameras[1].posX += moveStep * dirX;
+                this->cameras[1].posY += moveStep * dirY;
+                this->cameras[1].posZ += moveStep * dirZ;
+                break;
+            }
+            case 's':
+            case 'S': {  // Move backward
+                this->cameras[1].posX -= moveStep * dirX;
+                this->cameras[1].posY -= moveStep * dirY;
+                this->cameras[1].posZ -= moveStep * dirZ;
+                break;
+            }
+            case 'd':
+            case 'D': {  // Strafe right
+                this->cameras[1].posX += moveStep * dirX2;
+                this->cameras[1].posY += moveStep * dirY2;
+                this->cameras[1].posZ += moveStep * dirZ2;
+                break;
+            }
+            default: {
+                // No movement key pressed
+                break;
+            }
+        }
+
+        // Update look position based on new direction
+        this->cameras[1].lookX = this->cameras[1].posX + dirX;
+        this->cameras[1].lookY = this->cameras[1].posY + dirY;
+        this->cameras[1].lookZ = this->cameras[1].posZ + dirZ;
     }
 
     /**
@@ -442,6 +467,37 @@ class Camera : public Object {
     }
 
    private:
+    // Esta função devolve o produto externo de dois vetores (o vetor que lhes é prependicular)
+    void cross(float dx, float dy, float dz, float fx, float fy, float fz, float& rx, float& ry, float& rz) {
+        rx = dy * fz - dz * fy;
+        ry = dz * fx - dx * fz;
+        rz = dx * fy - dy * fx;
+    }
+
+    // Esta função devolve o produto interno de dois vetores (o angulo entre eles)
+    float dotProduct(float ax, float ay, float az, float bx, float by, float bz) {
+        return ax * bx + ay * by + az * bz;
+    }
+
+    void findPerpendicularVector(float x, float y, float z, float& px, float& py, float& pz) {
+        px = 0.0f;
+        py = z;
+        pz = -y;
+
+        if (py == 0.0f && pz == 0.0f) {
+            px = -z;
+            py = 0.0f;
+            pz = x;
+        }
+
+        float length = std::sqrt(px * px + py * py + pz * pz);
+        if (length > 0.0f) {
+            px /= length;
+            py /= length;
+            pz /= length;
+        }
+    }
+
     cameraSettings cameras[3];  // 0 - Explorer | 1 - First Person | 2 - Third Person
     CameraMode currentMode;
 };

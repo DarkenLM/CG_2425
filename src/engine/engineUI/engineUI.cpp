@@ -9,7 +9,7 @@ extern struct scenestate STATE;
 EngineUI::EngineUI()
     : show_demo_window(false),
       show_another_window(false),
-      show_performance_window(false),
+      show_performance_window(true),
       clear_color(ImVec4(0.45f, 0.55f, 0.60f, 1.00f)),
       fullscreen(false),
       polygonMode(1),
@@ -134,8 +134,21 @@ void EngineUI::camera() {
         ImGui::RadioButton("First Person", &this->cameraMode, 1);
         ImGui::SameLine();
         ImGui::RadioButton("Third Person", &this->cameraMode, 2);
-        ImGui::InputFloat("Rotation Speed", &(STATE.scene->getCamera()->ROTATION_SPEED), 0.01f, 0.0f, "%.2f", 1);
-        ImGui::InputFloat("Movement Speed", &(STATE.scene->getCamera()->MOVEMENT_SPEED), 0.01f, 0.0f, "%.2f", 1);
+        ImGui::InputFloat("Rotation Speed", &(STATE.scene->getCamera()->ROTATION_SPEED), 0.01f, 0.5f, "%.2f", 1);
+        if (this->cameraMode == 1) {
+            ImGui::InputFloat("Movement Speed", &(STATE.scene->getCamera()->MOVEMENT_SPEED), 0.01f, 0.5f, "%.2f", 1);
+        }
+        if (this->cameraMode == 0) {
+            ImGui::SliderFloat("Zoom Speed", &(STATE.scene->getCamera()->ZOOM_STEP), 0.01f, STATE.scene->getCamera()->ZOOM_STEP + 10, "%.2f", 1);
+        }
+        ImGui::TreePop();
+    }
+}
+
+// Creates a node in gui for the sceneModels options
+void EngineUI::models() {
+    if (ImGui::TreeNodeEx("Models", ImGuiTreeNodeFlags_Framed)) {
+        ImGui::Text("To be implemented!!");
         ImGui::TreePop();
     }
 }
@@ -156,9 +169,11 @@ void EngineUI::render() {
     ImGuiIO& io = ImGui::GetIO();
 
     ImGui::Begin("Our CG engine!", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Text("This project was developed as part\n of the Computer Graphics course.");
 
     ImGui::SetWindowPos(ImVec2(0, 0), ImGuiCond_Always);
 
+    /*
     ImGui::Text("This is some useful text.");           // Display some text (you can use a format strings too)
     ImGui::Checkbox("Demo Window", &show_demo_window);  // Edit bools storing our window open/close state
 
@@ -166,13 +181,16 @@ void EngineUI::render() {
     ImGui::ColorEdit3("clear color", (float*)&clear_color);  // Edit 3 floats representing a color
 
     if (ImGui::Button("Button"))  // Buttons return true when clicked (most widgets return true when edited/activated)
-        counter++;
+    counter++;
     ImGui::SameLine();
     ImGui::Text("counter = %d", counter);
+    */
 
     if (this->show_performance_window) {
         showPerformanceOverlay(&this->show_performance_window);
     }
+
+    EngineUI::models();
 
     EngineUI::camera();
 

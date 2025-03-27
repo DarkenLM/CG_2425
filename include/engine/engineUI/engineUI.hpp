@@ -25,6 +25,7 @@ class EngineUI {
     ImVec4 clear_color;
     // Scene Settings
 
+    void models();
     void settings();
     void camera();
 };

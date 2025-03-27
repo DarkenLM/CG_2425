@@ -1,10 +1,10 @@
-<world> <!-- a world can have a camera, a window definition, and a single group -->
+<world>
     <window width="512" height="512" />
     <camera> 
         <position x="1000" y="1000" z="1000" />
         <lookAt x="0" y="0" z="0" />
-        <up x="0" y="1" z="0" /> <!-- optional, use these values as default-->
-        <projection fov="60" near="1" far="5000" /> <!-- optional, use these values as default-->
+        <up x="0" y="1" z="0" />
+        <projection fov="60" near="1" far="15000" />
     </camera>
 
     <group> 
@@ -12,17 +12,18 @@
         <group>
             <transform> 
                 <translate x="0" y="0" z="0" />
-                <scale x="3" y="3" z="3" /> <!-- Ratio of 1/10000 -->
+                <scale x="4" y="4" z="4" />
             </transform>
             <models> 
-                <model file="planet.3d" /> <!-- generator sphere 1 20 20 planet.3d -->
+                <model file="planet.3d" /> <!-- generator sphere 50 100 100 planet.3d -->
             </models>
         </group>
         <!-- MERCURY -->
         <group> 
             <transform> 
-                <translate x="350.0" y="0" z="0" />
-                <scale x="0.040661666666666665" y="0.040661666666666665" z="0.040661666666666665" />
+                <rotate angle="36" x="0" y="1" z="0" />
+                <translate x="300.0" y="0" z="0" />
+                <scale x="0.2" y="0.2" z="0.2" />
             </transform>
             <models> 
                 <model file="planet.3d" /> 
@@ -31,8 +32,9 @@
         <!-- VENUS -->
         <group> 
             <transform> 
-                <translate x="-450.0" y="0" z="0" />
-                <scale x="0.10086333333333333" y="0.10086333333333333" z="0.10086333333333333" />
+                <rotate angle="72" x="0" y="1" z="0" />
+                <translate x="-400.0" y="0" z="0" />
+                <scale x="0.4" y="0.4" z="0.4" />
             </transform>
             <models> 
                 <model file="planet.3d" /> 
@@ -40,19 +42,32 @@
         </group>
         <!-- EARTH -->
         <group> 
-            <transform> 
-                <translate x="550.0" y="0" z="0" />
-                <scale x="0.10618333333333334" y="0.10618333333333334" z="0.10618333333333334" />
+            <transform>
+                <rotate angle="108" x="0" y="1" z="0" /> 
+                <translate x="500.0" y="0" z="0" />
+                <scale x="0.4" y="0.4" z="0.4" />
             </transform>
             <models> 
                 <model file="planet.3d" /> 
             </models>
+            <!-- MOON -->
+            <group> 
+                <transform> 
+                    <rotate angle="60" x="0" y="1" z="0" />
+                    <translate x="200.0" y="0" z="0" />
+                    <scale x="0.4" y="0.4" z="0.4" />
+                </transform>
+                <models> 
+                    <model file="planet.3d" /> 
+                </models>
+            </group>
         </group>
         <!-- MARS -->
         <group> 
             <transform> 
-                <translate x="-650.0" y="0" z="0" />
-                <scale x="0.05649166666666667" y="0.05649166666666667" z="0.05649166666666667" />
+                <rotate angle="140" x="0" y="1" z="0" />
+                <translate x="-600.0" y="0" z="0" />
+                <scale x="0.3" y="0.3" z="0.3" />
             </transform>
             <models> 
                 <model file="planet.3d" /> 
@@ -61,42 +76,123 @@
         <!-- JUPITER -->
         <group> 
             <transform> 
-                <translate x="750.0" y="0" z="0" />
-                <scale x="1.1651833333333332" y="1.1651833333333332" z="1.1651833333333332" />
+                <rotate angle="176" x="0" y="1" z="0" />
+                <translate x="850.0" y="0" z="0" />
+                <scale x="2" y="2" z="2" />
             </transform>
             <models> 
                 <model file="planet.3d" />
             </models>
+
+            <!-- IO -->
+            <group>
+                <transform>
+                    <rotate angle="200" x="0" y="1" z="0" />
+                    <translate x="120.0" y="0" z="0" />
+                    <scale x="0.25" y="0.25" z="0.25" />
+                </transform>
+                <models>
+                    <model file="planet.3d" />
+                </models>
+            </group>
+            <!-- EUROPE -->
+            <group>
+                <transform>
+                    <rotate angle="280" x="0" y="1" z="0" />
+                    <translate x="100.0" y="0" z="0" />
+                    <scale x="0.2" y="0.2" z="0.2" />
+                </transform>
+                <models>
+                    <model file="planet.3d" />
+                </models>
+            </group>
         </group>
         <!-- SATURN -->
         <group> 
             <transform> 
-                <translate x="-850.0" y="0" z="0" />
-                <scale x="0.9705333333333334" y="0.9705333333333334" z="0.9705333333333334" />
+                <rotate angle="212" x="0" y="1" z="0" />
+                <translate x="-1000.0" y="0" z="0" />
+                <scale x="1.75" y="1.75" z="1.75" />
             </transform>
             <models> 
                 <model file="planet.3d" />
             </models>
+            <!-- SATURN's RING -->
+            <group>
+                <transform>
+                    <rotate angle="150" x="1" y="0" z="0" />
+                    <scale x="1.5" y="0.05" z="1.5" />
+                </transform>
+                <models>
+                    <model file="ring.3d" />  <!-- ./generator flatRing 50 10 100 ring.3d -->
+                </models>
+            </group>
+            <!-- TITAN -->
+            <group> 
+                <transform> 
+                    <rotate angle="30" x="0" y="1" z="0" />
+                    <translate x="150.0" y="0" z="0" />
+                    <scale x="0.5" y="0.5" z="0.5" />
+                </transform>
+                <models> 
+                    <model file="planet.3d" /> 
+                </models>
+            </group>
+            <!-- IAPETUS -->
+            <group> 
+                <transform> 
+                    <rotate angle="90" x="0" y="1" z="0" />
+                    <translate x="200.0" y="0" z="0" />
+                    <scale x="0.15" y="0.15" z="0.15" />
+                </transform>
+                <models> 
+                    <model file="planet.3d" /> 
+                </models>
+            </group>
         </group>
         <!-- URANUS -->
         <group> 
             <transform> 
-                <translate x="950.0" y="0" z="0" />
-                <scale x="0.4227" y="0.4227" z="0.4227" />
+                <rotate angle="248" x="0" y="1" z="0" />
+                <translate x="1200.0" y="0" z="0" />
+                <scale x="0.75" y="0.75" z="0.75" />
             </transform>
             <models> 
                 <model file="planet.3d" /> 
             </models>
+            <!-- TITANIA -->
+            <group> 
+                <transform> 
+                    <rotate angle="180" x="0" y="1" z="0" />
+                    <translate x="150.0" y="0" z="0" />
+                    <scale x="0.15" y="0.15" z="0.15" />
+                </transform>
+                <models> 
+                    <model file="planet.3d" /> 
+                </models>
+            </group>
         </group>
         <!-- NEPTUNE -->
         <group> 
             <transform> 
-                <translate x="-1050.0" y="0" z="0" />
-                <scale x="0.4110333333333333" y="0.4110333333333333" z="0.4110333333333333" />
+                <rotate angle="284" x="0" y="1" z="0" />
+                <translate x="-1400.0" y="0" z="0" />
+                <scale x="0.75" y="0.75" z="0.75" />
             </transform>
             <models> 
                 <model file="planet.3d" />
             </models>
+            <!-- TRITON -->
+            <group> 
+                <transform> 
+                    <rotate angle="90" x="0" y="1" z="0" />
+                    <translate x="150.0" y="0" z="0" />
+                    <scale x="0.2" y="0.2" z="0.2" />
+                </transform>
+                <models> 
+                    <model file="planet.3d" /> 
+                </models>
+            </group>
         </group>
     </group>
 </world>

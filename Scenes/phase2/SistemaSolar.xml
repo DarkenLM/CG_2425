@@ -15,7 +15,7 @@
                 <scale x="4" y="4" z="4" />
             </transform>
             <models> 
-                <model file="planet.3d" /> <!-- generator sphere 50 100 100 planet.3d -->
+                <model file="planet.3d" /> <!-- generator sphere 50 35 15 planet.3d -->
             </models>
         </group>
         <!-- MERCURY -->

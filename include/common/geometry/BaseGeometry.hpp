@@ -19,7 +19,8 @@ typedef enum basegeometry_kind : uint8_t {
     GEOMETRY_TORUS,
     GEOMETRY_FLATRING,
     GEOMETRY_ICOSPHERE,
-    _GEOMETRY_KIND_UPPER_BOUND
+    _GEOMETRY_KIND_UPPER_BOUND,
+    GEOMETRY_OBJ
 } BaseGeometryKind;
 
 // #define REGISTER_GEOMETRY(ClassName, KindValue) \

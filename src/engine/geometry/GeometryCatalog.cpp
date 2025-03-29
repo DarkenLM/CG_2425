@@ -10,6 +10,7 @@ BaseGeometry* createGeometryFromKind(BaseGeometryKind kind, std::vector<Point3D>
         case GEOMETRY_CYLINDER: return new CylinderGeometry(vertices); break;
         case GEOMETRY_FLATRING: return new FlatRingGeometry(vertices); break;
         case GEOMETRY_ICOSPHERE: return new IcosphereGeometry(vertices); break;
+        case GEOMETRY_OBJ: return new ObjGeometry(vertices); break;
     }
 
     return nullptr;

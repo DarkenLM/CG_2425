@@ -51,5 +51,15 @@ class Parser3D {
      */
     static BaseGeometry* load3DFile(const std::string& filename);
 
+    /**
+     *  @brief Reads data from a obj file
+     *  @param filename Input filename
+     *  @return A geometry object, inheriting from BaseGeometry.
+     *  @throws Does not throw but returns error code - fails if:
+     *         - File cannot be opened
+     *         - Corrupted data
+     */
+    static BaseGeometry* loadObjFile(const std::string& filename);
+
     BaseGeometry* loadGeometryFromFile(const std::string& filename);
 };

@@ -19,5 +19,6 @@
 #include "common/geometry/cylinder.hpp"
 #include "common/geometry/flatRing.hpp"
 #include "common/geometry/icosphere.hpp"
+#include "common/geometry/obj.hpp"
 
 BaseGeometry* createGeometryFromKind(BaseGeometryKind kind, std::vector<Point3D> vertices);

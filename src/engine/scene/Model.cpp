@@ -68,7 +68,6 @@ BaseGeometry* Model::getOrLoadModel(std::string modelName) {
         geometry = Parser3D::load3DFile(modelName);
     } else if (modelName.size() > 4 && modelName.substr(modelName.size() - 4) == ".obj") {
         geometry = Parser3D::loadObjFile(modelName);
-        printf("aaa\n");
     } else {
         throw std::runtime_error("Unsupported file format: " + modelName);
     }

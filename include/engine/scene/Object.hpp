@@ -1,6 +1,24 @@
 #pragma once
 
+#include <vector>
+#include <optional>
 #include "engine/glContext.hpp"
+
+#define _TRANSFORM_IF3(transformer, source) if (source.has_value()) \
+    transformer(source.value().first, source.value().second, source.value().third)
+
+#define _TRANSFORM_IF4(transformer, source) if (source.has_value()) \
+    transformer(source.value().first, source.value().second, source.value().third, source.value().fourth)
+
+typedef enum transform_type {
+    TRANSFORM_RESET_ALL,
+    TRANSFORM_TRANSLATE,
+    TRANSFORM_TRANSLATE_RESET,
+    TRANSFORM_ROTATE,
+    TRANSFORM_ROTATE_RESET,
+    TRANSFORM_SCALE,
+    TRANSFORM_SCALE_RESET
+} TransformType;
 
 class Object {
     public:
@@ -148,4 +166,15 @@ class Object {
          * @param scale The vector representing the scale on each axis.
          */
         virtual void scaleTo(Vector3<float> scale) {};
+
+    protected:
+        // Transform
+        std::optional<Vector3<float>> translation;
+        std::optional<Vector4<float>> rotation;
+        std::optional<Vector3<float>> scale;
+        std::vector<TransformType> tfStack;
+
+        virtual void setTfStack(std::vector<TransformType> tfStack) {
+            this->tfStack = tfStack;
+        }
 };

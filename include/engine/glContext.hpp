@@ -44,6 +44,8 @@ class Vector3: public Vector<T> {
             this->first  += other.first;
             this->second += other.second;
             this->third  += other.third;
+
+            return *this;
         }
 };
 

@@ -7,21 +7,21 @@
 
 using namespace tinyxml2;
 
-#define _TRANSFORM_IF3(transformer, source) if (source.has_value()) \
-    transformer(source.value().first, source.value().second, source.value().third)
+// #define _TRANSFORM_IF3(transformer, source) if (source.has_value()) \
+//     transformer(source.value().first, source.value().second, source.value().third)
 
-#define _TRANSFORM_IF4(transformer, source) if (source.has_value()) \
-    transformer(source.value().first, source.value().second, source.value().third, source.value().fourth)
+// #define _TRANSFORM_IF4(transformer, source) if (source.has_value()) \
+//     transformer(source.value().first, source.value().second, source.value().third, source.value().fourth)
 
-typedef enum transform_type {
-    TRANSFORM_RESET_ALL,
-    TRANSFORM_TRANSLATE,
-    TRANSFORM_TRANSLATE_RESET,
-    TRANSFORM_ROTATE,
-    TRANSFORM_ROTATE_RESET,
-    TRANSFORM_SCALE,
-    TRANSFORM_SCALE_RESET
-} TransformType;
+// typedef enum transform_type {
+//     TRANSFORM_RESET_ALL,
+//     TRANSFORM_TRANSLATE,
+//     TRANSFORM_TRANSLATE_RESET,
+//     TRANSFORM_ROTATE,
+//     TRANSFORM_ROTATE_RESET,
+//     TRANSFORM_SCALE,
+//     TRANSFORM_SCALE_RESET
+// } TransformType;
 
 class Group: public Object {
     public:
@@ -303,13 +303,22 @@ class Group: public Object {
         std::vector<Model*> objects;
         std::vector<Group*> groups;
         
-        // Transform
-        std::optional<Vector3<float>> translation;
-        std::optional<Vector4<float>> rotation;
-        std::optional<Vector3<float>> scale;
-        std::vector<TransformType> tfStack;
+        // // Transform
+        // std::optional<Vector3<float>> translation;
+        // std::optional<Vector4<float>> rotation;
+        // std::optional<Vector3<float>> scale;
+        // std::vector<TransformType> tfStack;
 
-        void setTfStack(std::vector<TransformType> tfStack) {
-            this->tfStack = tfStack;
-        }
+        // void setTfStack(std::vector<TransformType> tfStack) {
+        //     this->tfStack = tfStack;
+        // }
+
+    // protected:
+    //     // Transform
+    //     std::optional<Vector3<float>> translation;
+    //     std::optional<Vector4<float>> rotation;
+    //     std::optional<Vector3<float>> scale;
+    //     std::vector<TransformType> tfStack;
+
+    //     void setTfStack(std::vector<TransformType> tfStack);
 };

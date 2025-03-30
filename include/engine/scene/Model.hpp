@@ -17,6 +17,15 @@ class Model: public Object {
         Model(const char* source);
 
         #pragma region ------- Overrides -------
+        void setPosition(float x, float y, float z) override;
+        void setPosition(Vector3<float> pos) override;
+        void moveTo(float x, float y, float z) override;
+        void moveTo(Vector3<float> pos) override;
+        void setRotation(float axisX, float axisY, float axisZ) override;
+        void rotateAlong(float axisX, float axisY, float axisZ, float angle) override;
+        void rotateAlong(Vector4<float> vec) override;
+        void setScale(Vector3<float> sv) override;
+        void scaleTo(Vector3<float> sv) override;
         void render() override;
         #pragma endregion ------- Overrides -------
 
@@ -38,4 +47,13 @@ class Model: public Object {
 
         static Map<BaseGeometry*, std::string> _geometryCache;
         static BaseGeometry* getOrLoadModel(std::string modelName);
+
+    protected:
+        // // Transform
+        // std::optional<Vector3<float>> translation;
+        // std::optional<Vector4<float>> rotation;
+        // std::optional<Vector3<float>> scale;
+        // std::vector<TransformType> tfStack;
+
+        // void setTfStack(std::vector<TransformType> tfStack);
 };

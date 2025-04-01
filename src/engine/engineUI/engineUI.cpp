@@ -5,6 +5,8 @@
 #include "engine/scene/SceneState.hpp"
 
 extern struct scenestate STATE;
+int timbase;
+float frames;
 
 EngineUI::EngineUI()
     : show_demo_window(false),
@@ -101,7 +103,7 @@ static void showPerformanceOverlay(bool* p_open) {
             if (p_open && ImGui::MenuItem("Close")) *p_open = false;
             ImGui::EndPopup();
         }
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / STATE.fps, STATE.fps);
         ImGui::Separator();
         char* cameraType;
         if (STATE.scene->getCamera()->getCameraMode() == CAMERA_EX) {

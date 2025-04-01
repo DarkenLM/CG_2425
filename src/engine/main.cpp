@@ -93,6 +93,16 @@ void validateGlutSettings() {
     }
 }
 
+void loadfps() {
+    STATE.frames++;
+    int time = glutGet(GLUT_ELAPSED_TIME);
+    if (time - STATE.timebase > 50) {
+        STATE.fps = STATE.frames * 1000 / (time - STATE.timebase);
+        STATE.timebase = time;
+        STATE.frames = 0;
+    }
+}
+
 void renderScene(void) {
     // Update ImGUI display size
     ImGuiIO& io = ImGui::GetIO();
@@ -104,6 +114,7 @@ void renderScene(void) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     validateGlutSettings();
+    loadfps();
 
     // set camera
     STATE.scene->setupCamera();
@@ -112,30 +123,18 @@ void renderScene(void) {
     glBegin(GL_LINES);
     // x in red
     glColor3f(1.0f, 0.0f, 0.0f);
-    glVertex3f(-100.f, 0.0f, 0.0f);
-    glVertex3f(100.0f, 0.0f, 0.0f);
+    glVertex3f(-1000.f, 0.0f, 0.0f);
+    glVertex3f(1000.0f, 0.0f, 0.0f);
     // y in green
     glColor3f(0.0f, 1.0f, 0.0f);
-    glVertex3f(0.0f, -100.0f, 0.0f);
-    glVertex3f(0.0f, 100.0f, 0.0f);
+    glVertex3f(0.0f, -1000.0f, 0.0f);
+    glVertex3f(0.0f, 1000.0f, 0.0f);
     // z in blue
     glColor3f(0.0f, 0.0f, 1.0f);
-    glVertex3f(0.f, 0.0f, -100.0f);
-    glVertex3f(0.0f, 0.0f, 100.0f);
+    glVertex3f(0.f, 0.0f, -1000.0f);
+    glVertex3f(0.0f, 0.0f, 1000.0f);
 
     // Changes color back to white
-    glColor3f(1.0f, 1.0f, 1.0f);
-    glEnd();
-
-    // Setup terrain
-    glBegin(GL_TRIANGLES);
-    glColor3f(0.6f, 0.5f, 0.4f);
-    glVertex3f(100.f, -10.0f, -100.0f);
-    glVertex3f(-100.0f, -10.0f, -100.0f);
-    glVertex3f(-100.0f, -10.0f, 100.0f);
-    glVertex3f(100.f, -10.0f, 100.0f);
-    glVertex3f(100.0f, -10.0f, -100.0f);
-    glVertex3f(-100.0f, -10.0f, 100.0f);
     glColor3f(1.0f, 1.0f, 1.0f);
     glEnd();
 
@@ -223,6 +222,9 @@ int main(int argc, char** argv) {
     glutInitWindowPosition(100, 100);
     glutInitWindowSize(STATE.scene->getWindowWidth(), STATE.scene->getWindowHeight());
     glutCreateWindow("CG@DI");
+
+    // Inicializar fps counter
+    STATE.timebase = glutGet(GLUT_ELAPSED_TIME);
 
     // Initialize ImGui
     engineUI.init();

@@ -8,6 +8,10 @@ struct scenestate {
     std::chrono::steady_clock::time_point lastUpdate;
     float deltaTime;
 
+    float timebase;
+    float frames;
+    float fps;
+
     // inner State (UI Validation)
     bool fullscreen = false;
     int polygonMode = 1;  // 0 - Fill; 1 - WireFrame; 2 - Points

@@ -356,7 +356,6 @@ void Camera::fpMovement(unsigned char key, int mx, int my) {
         }
         case 'i': {
             if (this->cameras[1].alpha < M_PI / 2 - this->ROTATION_SPEED) this->cameras[1].alpha += this->ROTATION_SPEED;
-            std::cout << "alpha" << this->cameras[1].alpha << std::endl;
             break;
         }
         case 'k': {

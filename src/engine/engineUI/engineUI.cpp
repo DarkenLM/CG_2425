@@ -102,8 +102,21 @@ static void showPerformanceOverlay(bool* p_open) {
             ImGui::EndPopup();
         }
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-        ImGui::Text("POS: %.2fx %.2fy %.2fz", STATE.scene->getCamera()->getPosX(), STATE.scene->getCamera()->getPosY(), STATE.scene->getCamera()->getPosZ());
-        ImGui::Text("LOOKAT: %.2fx %.2fy %.2fz", STATE.scene->getCamera()->getLookX(), STATE.scene->getCamera()->getLookY(), STATE.scene->getCamera()->getLookZ());
+        ImGui::Separator();
+        char* cameraType;
+        if (STATE.scene->getCamera()->getCameraMode() == CAMERA_EX) {
+            ImGui::Text("[Explorer Camera]");
+        } else if (STATE.scene->getCamera()->getCameraMode() == CAMERA_FP) {
+            ImGui::Text("[First Person Camera]");
+        } else if (STATE.scene->getCamera()->getCameraMode() == CAMERA_TP) {
+            ImGui::Text("[Third Person Camera]");
+        } else {
+            ImGui::Text("[ERROR]");
+        }
+        Vector3<float> position = STATE.scene->getCamera()->getCurrentPos();
+        Vector3<float> lookAt = STATE.scene->getCamera()->getCurrentLookAt();
+        ImGui::Text("POS: %.2fx %.2fy %.2fz", position.first, position.second, position.third);
+        ImGui::Text("LOOKAT: %.2fx %.2fy %.2fz", lookAt.first, lookAt.second, lookAt.third);
     }
     ImGui::End();
 }

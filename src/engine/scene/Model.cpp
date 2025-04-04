@@ -10,7 +10,7 @@ Model::Model(const char* source) {
     this->_loaded = false;
 }
 
-#pragma region ------- Overrides -------
+#pragma region------- Overrides -------
 void Model::setPosition(float x, float y, float z) {
     this->translation = Vector3(x, y, z);
 };
@@ -36,18 +36,18 @@ void Model::moveTo(Vector3<float> pos) {
 };
 
 /**
- * Sets the unit vector for the rotation axis.  
+ * Sets the unit vector for the rotation axis.
  * The axis is a unit vector, and it's parameters must be normalized.
- * 
+ *
  * @param axisX The X parameter of the axis vector.
  * @param axisY The Y parameter of the axis vector.
  * @param axisZ The Z parameter of the axis vector.
  */
 void Model::setRotation(float axisX, float axisY, float axisZ) {
     if (this->rotation.has_value()) {
-        this->rotation.value().first  = axisX;
+        this->rotation.value().first = axisX;
         this->rotation.value().second = axisY;
-        this->rotation.value().third  = axisZ;
+        this->rotation.value().third = axisZ;
     } else {
         this->rotation = Vector4(axisX, axisY, axisZ, 0.0f);
     }
@@ -80,8 +80,8 @@ void Model::scaleTo(Vector3<float> sv) {
 }
 
 void Model::render() {
-    std::vector<Point3D> vertices = this->geometry->getVertices();
-    
+    // std::vector<Point3D> vertices = this->geometry->getVertices();
+
     glPushMatrix();
     for (auto tt : this->tfStack) {
         switch (tt) {
@@ -93,10 +93,9 @@ void Model::render() {
                 if (this->rotation.has_value()) {
                     glRotatef(
                         this->rotation.value().fourth,
-                        this->rotation.value().first, 
-                        this->rotation.value().second, 
-                        this->rotation.value().third
-                    );
+                        this->rotation.value().first,
+                        this->rotation.value().second,
+                        this->rotation.value().third);
                 }
                 break;
             }
@@ -106,21 +105,29 @@ void Model::render() {
             }
         }
     }
-        
-    glBegin(GL_TRIANGLES);
-        for (Point3D vertex : vertices) {
-            glVertex3f(vertex.getX(), vertex.getY(), vertex.getZ());
-        }
-    glEnd();
+
+    // glBegin(GL_TRIANGLES);
+    // for (Point3D vertex : vertices) {
+    //     glVertex3f(vertex.getX(), vertex.getY(), vertex.getZ());
+    // }
+    // glEnd();
+    glBindBuffer(GL_ARRAY_BUFFER, this->_geometryVBO.get(this->source).value());
+    // std::cout << "A dar load do " << this->source << " com buffer em: " << this->_geometryVBO.get(this->source).value() << std::endl;
+    glVertexPointer(3, GL_FLOAT, 0, 0);
+    glDrawArrays(GL_TRIANGLES, 0, this->geometry->getVertices().size());
     glPopMatrix();
 }
-#pragma endregion ------- Overrides -------
+#pragma endregion-- -- -- -Overrides-- -- -- -
+
+const char* Model::getSource() {
+    return this->source.c_str();
+}
 
 const char* Model::getTexture() {
     return this->texture.c_str();
 }
 
-Model* Model::setTexture(const char *texture) {
+Model* Model::setTexture(const char* texture) {
     this->texture = texture;
     return this;
 }
@@ -129,7 +136,7 @@ const char* Model::getColor() {
     return this->color.c_str();
 }
 
-Model* Model::setColor(const char *color) {
+Model* Model::setColor(const char* color) {
     this->color = color;
     return this;
 }
@@ -192,13 +199,24 @@ void Model::load() {
     this->_loaded = true;
 }
 
+Map<BaseGeometry*, std::string> Model::getGeometryCache() {
+    return _geometryCache;
+}
+
+Map<GLuint, std::string> Model::getGeometryVBO() {
+    return _geometryVBO;
+}
+
 Map<BaseGeometry*, std::string> Model::_geometryCache;
+
+Map<GLuint, std::string> Model::_geometryVBO;
+
 BaseGeometry* Model::getOrLoadModel(std::string modelName) {
     auto model = _geometryCache.get(modelName);
     if (model.has_value()) return model.value();
 
     // BaseGeometry* geometry = new BaseGeometry();
-    BaseGeometry *geometry = nullptr;
+    BaseGeometry* geometry = nullptr;
     if (modelName.size() > 3 && modelName.substr(modelName.size() - 3) == ".3d") {
         geometry = Parser3D::load3DFile(modelName);
     } else if (modelName.size() > 4 && modelName.substr(modelName.size() - 4) == ".obj") {
@@ -210,6 +228,9 @@ BaseGeometry* Model::getOrLoadModel(std::string modelName) {
     if (geometry == nullptr) yeet std::string("Unable to load model.");
 
     _geometryCache.add(modelName, geometry);
+
+    // VBO GENERATION
+    _geometryVBO.add(modelName, _geometryVBO.size() + 1);
 
     return geometry;
 }

@@ -1,15 +1,13 @@
-#include "common/common.hpp"
+#ifndef GLUT
+#include <GL/glew.h>
+#include <GL/glut.h>
+#endif
+
 #include "common/geometry/BaseGeometry.hpp"
 #include "common/parser.hpp"
 #include "engine/engineUI/engineUI.hpp"
 #include "engine/scene/Scene.hpp"
 #include "engine/scene/SceneState.hpp"
-
-#ifdef __APPLE__
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -23,7 +21,6 @@
 #define TICK_MS 16  // ~ 60 FPS (16ms * 60 = 960ms, 17ms * 60 = 1020ms)
 
 struct scenestate STATE;
-
 EngineUI engineUI;
 
 double clamp(double value, double min, double max) {
@@ -56,6 +53,16 @@ void validateGlutSettings() {
             changeSize(STATE.scene->getWindowWidth(), STATE.scene->getWindowHeight());
         }
     }
+
+    // Vsync validation
+    if (STATE.vsync != engineUI.vsync) {
+        STATE.vsync = engineUI.vsync;
+        if (STATE.vsync) {
+            // glutswap(1);
+        } else {
+            // glutSwapInterval(0);
+        }
+    };
 
     // PolygonMode Validation
     if (STATE.polygonMode != engineUI.polygonMode) {
@@ -113,13 +120,17 @@ void renderScene(void) {
     // clear buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // Validates of glut is fullscreen or not
     validateGlutSettings();
+
+    // calculates the fps.
     loadfps();
 
     // set camera
     STATE.scene->setupCamera();
 
     // Setup Axis
+
     glBegin(GL_LINES);
     // x in red
     glColor3f(1.0f, 0.0f, 0.0f);
@@ -182,6 +193,46 @@ void loadScene(const char* sceneFile) {
     }
 }
 
+void genVBOs() {
+    Map<BaseGeometry*, std::string> geometrys = Model::getGeometryCache();
+    Map<GLuint, std::string> vboIndexes = Model::getGeometryVBO();
+    std::vector<std::string> keys = geometrys.getKeys();
+
+    // we need to resize vector before creating the vbos
+    STATE.vboBuffers.resize(keys.size());
+    // std::cout << STATE.vboBuffers.size() << std::endl;
+    glGenBuffers(keys.size(), STATE.vboBuffers.data());
+
+    // Iterar sobres os indexs com as keys, e
+    for (std::string k : keys) {
+        std::optional<GLuint> VBOindex = vboIndexes.get(k);
+        std::optional<BaseGeometry*> geometry = geometrys.get(k);
+        std::vector<Point3D> modelVerticesArray = geometry.value()->getVertices();
+
+        /*std::vector<float> modelVerticesArrayFloat;
+        for (Point3D p : modelVerticesArray) {
+            modelVerticesArrayFloat.push_back(p.getX());
+            modelVerticesArrayFloat.push_back(p.getY());
+            modelVerticesArrayFloat.push_back(p.getZ());
+        }*/
+        if (VBOindex) {
+            std::cout << "A criar vbo para: " << k << "com buffer em: " << VBOindex.value() << std::endl;
+            /*if (VBOindex.value() == 0) {
+                for (Point3D p : modelVerticesArray)
+                    std::cout << p << std::endl;
+            }*/
+            glBindBuffer(GL_ARRAY_BUFFER, VBOindex.value());
+            glBufferData(
+                GL_ARRAY_BUFFER,
+                sizeof(Point3D) * modelVerticesArray.size(),
+                modelVerticesArray.data(),
+                GL_STATIC_DRAW);
+        } else {
+            std::cout << "Error at loading the vbo for: " << k << std::endl;
+        }
+    }
+}
+
 void processKeys(unsigned char key, int x, int y) {
     ImGui_ImplGLUT_KeyboardFunc(key, x, y);
     STATE.scene->onKeypress2(key, x, y);
@@ -222,6 +273,10 @@ int main(int argc, char** argv) {
     glutInitWindowPosition(100, 100);
     glutInitWindowSize(STATE.scene->getWindowWidth(), STATE.scene->getWindowHeight());
     glutCreateWindow("CG@DI");
+    glewInit();
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    genVBOs();
 
     // Inicializar fps counter
     STATE.timebase = glutGet(GLUT_ELAPSED_TIME);

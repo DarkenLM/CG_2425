@@ -14,6 +14,7 @@ EngineUI::EngineUI()
       show_performance_window(true),
       clear_color(ImVec4(0.45f, 0.55f, 0.60f, 1.00f)),
       fullscreen(false),
+      vsync(false),
       polygonMode(1),
       cameraMode(0) {}
 
@@ -131,6 +132,7 @@ void EngineUI::settings() {
         }
         if (ImGui::CollapsingHeader("OpenGL Settings")) {
             ImGui::Checkbox("Fullscreen", &this->fullscreen);
+            ImGui::Checkbox("Vsync", &this->vsync);
             ImGui::RadioButton("Filled", &this->polygonMode, 0);
             ImGui::SameLine();
             ImGui::RadioButton("Wireframed", &this->polygonMode, 1);

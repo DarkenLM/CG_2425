@@ -14,6 +14,7 @@ class EngineUI {
 
     // Opengl Settings
     bool fullscreen;
+    bool vsync;
     int polygonMode;  // 0 - Fill; 1 - WireFrame; 2 - Points
     int cameraMode;   // 0 - Explorer; 1 - First Person; 2 - Third Person
 

@@ -27,7 +27,7 @@ Camera::Camera(
     this->MOVEMENT_SPEED = 10.0f;
     this->ROTATION_SPEED = 0.01f;
     this->ZOOM_STEP = 2.0f;
-    this->currentMode = CAMERA_FP;
+    this->currentMode = CAMERA_EX;
 
     // Calcular os valores do vetor direção
     float dirX = lookX - posX;
@@ -190,6 +190,7 @@ Vector3<float> Camera::getCurrentLookAt() {
             std::cout << "The camera mode is incorrect!";
             break;
     }
+    return Vector3(0.0f, 0.0f, 0.0f);
 };
 
 void Camera::setExPosition(float x, float y, float z) {

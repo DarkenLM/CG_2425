@@ -32,10 +32,15 @@ target_include_directories(${SUBPROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 # ============== Find OpenGL and FreeGLUT ==============
 set(OpenGL_GL_PREFERENCE "LEGACY")
 
+# Include glew for vbo usage
+find_package(GLEW REQUIRED)
+target_link_libraries(${SUBPROJECT_NAME} GLEW::GLEW)
+
 find_package(OpenGL REQUIRED)
 if(NOT OPENGL_FOUND)
     message(ERROR " OPENGL not found!")
 endif(NOT OPENGL_FOUND)
+
 
 # Include OpenGL directories
 target_include_directories(${SUBPROJECT_NAME} PUBLIC ${OpenGL_INCLUDE_DIRS})

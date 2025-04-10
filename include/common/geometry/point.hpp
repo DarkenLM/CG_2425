@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include "engine/glContext.hpp"
 
 /**
  *  @class Point3D
@@ -72,6 +73,10 @@ class Point3D {
      *  @return A new Point3D instance with identical coordinates.
      */
     Point3D copy();
+
+    Vector3<float> toVector3() {
+        return Vector3(this->x, this->y, this->z);
+    }
 
     /**
      * @brief Equality comparison operator

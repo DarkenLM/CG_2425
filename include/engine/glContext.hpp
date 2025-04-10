@@ -19,9 +19,11 @@ class Vector {
 };
 
 template <typename T>
-class Vector3 : public Vector<T> {
-   public:
-    T first, second, third;
+class Vector3: public Vector<T> {
+    public:
+        T first, second, third;
+
+        Vector3(): Vector<T>(3), first(0), second(0), third(0) {};
 
     Vector3(T first, T second, T third) : Vector<T>(3) {
         this->first = first;

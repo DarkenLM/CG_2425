@@ -64,8 +64,10 @@ class Group: public Object {
             } while ((_group = _group->NextSiblingElement("group")));
 
             // Load transforms, if they exist
-            std::optional<Vector3<float>> translate = std::nullopt;
-            std::optional<Vector4<float>> rotate = std::nullopt;
+            // std::optional<Vector3<float>> translate = std::nullopt;
+            std::optional<ObjectTranslation> translate = std::nullopt;
+            // std::optional<Vector4<float>> rotate = std::nullopt;
+            std::optional<ObjectRotation> rotate = std::nullopt;
             std::optional<Vector3<float>> scale = std::nullopt;
             std::vector<TransformType> tfStack;
 
@@ -75,19 +77,56 @@ class Group: public Object {
                 do {
                     std::string name = std::string(_tfProp->Name());
                     if (name == "translate") {
-                        GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "x", tx, float);
-                        GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "y", ty, float);
-                        GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "z", tz, float);
+                        // GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "x", tx, float);
+                        // GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "y", ty, float);
+                        // GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "z", tz, float);
 
-                        translate = Vector3(tx, ty, tz);
+                        // translate = Vector3(tx, ty, tz);
+                        // tfStack.push_back(TRANSFORM_TRANSLATE);
+                        
+                        ObjectTranslation _trans;
+
+                        GET_XML_ELEMENT_ATTRIB(_tfProp, "time", ttime, int)
+                        if (ttime != 0) {
+                            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "align", talign, bool);
+
+                            std::vector<Point3D> points;
+                            GET_XML_ELEMENT(_tfProp, "point", _point);
+                            do {
+                                if (!_point) break; // Element does not exist in XML.
+                                GET_XML_ELEMENT_ATTRIB_OR_FAIL(_point, "x", px, float);
+                                GET_XML_ELEMENT_ATTRIB_OR_FAIL(_point, "y", py, float);
+                                GET_XML_ELEMENT_ATTRIB_OR_FAIL(_point, "z", pz, float);
+
+                                Point3D point = Point3D(px, py, pz);
+                                points.push_back(point);
+                            } while ((_point = _point->NextSiblingElement("point")));
+
+                            _trans = ObjectTranslation(ttime, talign, points);
+                        } else {
+                            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "x", tx, float);
+                            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "y", ty, float);
+                            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "z", tz, float);
+
+                            // translate = Vector3(tx, ty, tz);
+                            _trans = ObjectTranslation(tx, ty, tz);
+                        }
+
+                        translate = _trans;
                         tfStack.push_back(TRANSFORM_TRANSLATE);
                     } else if (name == "rotate") {
-                        GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "angle", rangle, float);
                         GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "x", rx, float);
                         GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "y", ry, float);
                         GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "z", rz, float);
-
-                        rotate = Vector4(rx, ry, rz, rangle);
+                        
+                        GET_XML_ELEMENT_ATTRIB(_tfProp, "angle", rangle, float);
+                        if (rangle != 0) {
+                            rotate = ObjectRotation(rangle, rx, ry, rz);
+                        } else {
+                            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "time", rtime, int);
+                            rotate = ObjectRotation(rtime, rx, ry, rz);
+                        }
+                        // rotate = Vector4(rx, ry, rz, rangle);
                         tfStack.push_back(TRANSFORM_ROTATE);
                     } else if (name == "scale") {
                         GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "x", sx, float);
@@ -98,40 +137,12 @@ class Group: public Object {
                         tfStack.push_back(TRANSFORM_SCALE);
                     }
                 } while ((_tfProp = _tfProp->NextSiblingElement()));
-
-                // GET_XML_ELEMENT(_transform, "translate", _translate);
-                // if (_translate != NULL) {
-                //     GET_XML_ELEMENT_ATTRIB_OR_FAIL(_translate, "x", tx, float);
-                //     GET_XML_ELEMENT_ATTRIB_OR_FAIL(_translate, "y", ty, float);
-                //     GET_XML_ELEMENT_ATTRIB_OR_FAIL(_translate, "z", tz, float);
-
-                //     translate = Vector3(tx, ty, tz);
-                // }
-
-                // GET_XML_ELEMENT(_transform, "rotate", _rotate);
-                // if (_rotate != NULL) {
-                //     GET_XML_ELEMENT_ATTRIB_OR_FAIL(_rotate, "angle", rangle, float);
-                //     GET_XML_ELEMENT_ATTRIB_OR_FAIL(_rotate, "x", rx, float);
-                //     GET_XML_ELEMENT_ATTRIB_OR_FAIL(_rotate, "y", ry, float);
-                //     GET_XML_ELEMENT_ATTRIB_OR_FAIL(_rotate, "z", rz, float);
-
-                //     rotate = Vector4(rx, ry, rz, rangle);
-                // }
-
-                // GET_XML_ELEMENT(_transform, "scale", _scale);
-                // if (_scale != NULL) {
-                //     GET_XML_ELEMENT_ATTRIB_OR_FAIL(_scale, "x", sx, float);
-                //     GET_XML_ELEMENT_ATTRIB_OR_FAIL(_scale, "y", sy, float);
-                //     GET_XML_ELEMENT_ATTRIB_OR_FAIL(_scale, "z", sz, float);
-
-                //     scale = Vector3(sx, sy, sz);
-                // }
             }
 
             // Instantize a new instance
             Group* retGroup = new Group(models, groups);
-            if (translate.has_value()) retGroup->setPosition(translate.value());
-            if (rotate.has_value()) retGroup->rotateAlong(rotate.value());
+            if (translate.has_value()) retGroup->translation = translate;
+            if (rotate.has_value()) retGroup->rotation = rotate;
             if (scale.has_value()) retGroup->setScale(scale.value());
             retGroup->setTfStack(tfStack);
 
@@ -181,27 +192,59 @@ class Group: public Object {
         }
 
         #pragma region ------- Overrides -------
+        // void setPosition(float x, float y, float z) {
+        //     this->translation = Vector3(x, y, z);
+        // };
+
+        // void setPosition(Vector3<float> pos) {
+        //     this->translation = pos;
+        // };
+
+        // void moveTo(float x, float y, float z) {
+        //     if (this->translation.has_value()) {
+        //         this->translation.value() += Vector3(x, y, z);
+        //     } else {
+        //         this->translation = Vector3(x, y, z);
+        //     }
+        // };
+
+        // void moveTo(Vector3<float> pos) {
+        //     if (this->translation.has_value()) {
+        //         this->translation.value() += pos;
+        //     } else {
+        //         this->translation = pos;
+        //     }
+        // };
+
         void setPosition(float x, float y, float z) {
-            this->translation = Vector3(x, y, z);
+            if (this->translation.has_value()) {
+                if (!this->translation.value().isDynamic()) this->translation = ObjectTranslation(x, y, z);
+            } else {
+                this->translation = ObjectTranslation(x, y, z);
+            }
         };
 
         void setPosition(Vector3<float> pos) {
-            this->translation = pos;
+            if (this->translation.has_value()) {
+                if (!this->translation.value().isDynamic()) this->translation = ObjectTranslation(pos.first, pos.second, pos.third);
+            } else {
+                this->translation = ObjectTranslation(pos.first, pos.second, pos.third);
+            }
         };
 
         void moveTo(float x, float y, float z) {
             if (this->translation.has_value()) {
-                this->translation.value() += Vector3(x, y, z);
+                if (!this->translation.value().isDynamic()) this->translation.value() += Vector3<float>(x, y, z);
             } else {
-                this->translation = Vector3(x, y, z);
+                this->translation = ObjectTranslation(x, y, z);
             }
         };
 
         void moveTo(Vector3<float> pos) {
             if (this->translation.has_value()) {
-                this->translation.value() += pos;
+                if (!this->translation.value().isDynamic()) this->translation.value() += pos;
             } else {
-                this->translation = pos;
+                this->translation = ObjectTranslation(pos.first, pos.second, pos.third);
             }
         };
 
@@ -214,27 +257,41 @@ class Group: public Object {
          * @param axisZ The Z parameter of the axis vector.
          */
         void setRotation(float axisX, float axisY, float axisZ) {
-            if (this->rotation.has_value()) {
-                this->rotation.value().first  = axisX;
-                this->rotation.value().second = axisY;
-                this->rotation.value().third  = axisZ;
-            } else {
-                this->rotation = Vector4(axisX, axisY, axisZ, 0.0f);
-            }
+            // if (this->rotation.has_value()) {
+            //     this->rotation.value().first  = axisX;
+            //     this->rotation.value().second = axisY;
+            //     this->rotation.value().third  = axisZ;
+            // } else {
+            //     this->rotation = Vector4(axisX, axisY, axisZ, 0.0f);
+            // }
+
+            this->rotation = ObjectRotation(0.0f, axisX, axisY, axisZ);
         }
 
         void rotate(float angle) {
             if (this->rotation.has_value()) {
-                this->rotation.value().fourth = angle;
+                if (this->rotation.value().isDynamic()) this->rotation.value().setTime(angle);
+                else this->rotation.value().setAngle(angle);
             }
         }
 
         void rotateAlong(float axisX, float axisY, float axisZ, float angle) {
-            this->rotation = Vector4(axisX, axisY, axisZ, angle);
+            // this->rotation = Vector4(axisX, axisY, axisZ, angle);
+            if (this->rotation.has_value()) {
+                if (!this->rotation.value().isDynamic()) this->rotation = ObjectRotation(angle, axisX, axisY, axisZ);
+            } else {
+                this->rotation = ObjectRotation(angle, axisX, axisY, axisZ);
+            }
         }
 
         void rotateAlong(Vector4<float> vec) {
-            this->rotation = vec;
+            if (this->rotation.has_value()) {
+                if (!this->rotation.value().isDynamic()) {
+                    this->rotation = ObjectRotation(this->rotation.value().getAngle(), vec.first, vec.second, vec.third);
+                }
+            } else {
+                this->rotation = ObjectRotation(0.0f, vec.first, vec.second, vec.third);
+            }
         }
 
         void setScale(Vector3<float> sv) {
@@ -267,17 +324,33 @@ class Group: public Object {
             for (auto tt : this->tfStack) {
                 switch (tt) {
                     case TRANSFORM_TRANSLATE: {
-                        _TRANSFORM_IF3(glTranslatef, this->translation);
+                        // _TRANSFORM_IF3(glTranslatef, this->translation);
+                        if (this->translation.has_value()) {
+                            // TODO: Dynamic translation
+                            if (this->translation.value().isDynamic()) {
+                                yeet "Not implemented";
+                            } else {
+                                Vector3<float> vec = this->translation.value().getVector();
+                                glTranslatef(vec.first, vec.second, vec.third);
+                            }
+                        }
                         break;
                     }
                     case TRANSFORM_ROTATE: {
                         if (this->rotation.has_value()) {
-                            glRotatef(
-                                this->rotation.value().fourth,
-                                this->rotation.value().first, 
-                                this->rotation.value().second, 
-                                this->rotation.value().third
-                            );
+                            // glRotatef(
+                            //     this->rotation.value().fourth,
+                            //     this->rotation.value().first, 
+                            //     this->rotation.value().second, 
+                            //     this->rotation.value().third
+                            // );
+
+                            if (this->rotation.value().isDynamic()) {
+                                yeet "Not implemented";
+                            } else {
+                                Vector4<float> vec = this->rotation.value().getVector4();
+                                glRotatef(vec.first, vec.second, vec.third, vec.fourth);
+                            }
                         }
                         break;
                     }

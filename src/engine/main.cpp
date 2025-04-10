@@ -3,11 +3,18 @@
 #include <GL/glut.h>
 #endif
 
-#include "common/geometry/BaseGeometry.hpp"
 #include "common/parser.hpp"
+#include "common/geometry/BaseGeometry.hpp"
 #include "engine/engineUI/engineUI.hpp"
-#include "engine/scene/Scene.hpp"
 #include "engine/scene/SceneState.hpp"
+#include "engine/scene/Scene.hpp"
+#include "engine/input.hpp"
+
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -110,6 +117,29 @@ void loadfps() {
     }
 }
 
+void handleInputEvents(InputEvent* e) {
+    KeypressEvent* ke = (KeypressEvent*)(e);
+    if (e->isKeypressEvent() && ke->up) {
+        ImGui_ImplGLUT_KeyboardUpFunc(ke->key.key, ke->mouseX, ke->mouseY);
+        ke->process();
+    }
+
+    // if (InputManager::hasInput()) {
+    //     // Handle input
+    //     printf("KEYS: ");
+    //     for (Key k : InputManager::getKeys()) {
+    //         printf("%s, ", k.toString().c_str());
+
+    //         ImGui_ImplGLUT_KeyboardFunc(ke->key.key, ke->mouseX, ke->mouseY);
+    //         STATE.scene->onKeypress2(ke->key.key, ke->mouseX, ke->mouseY);
+    //         // InputManager::handleKey(k);
+    //     }
+    //     printf("\n");
+
+    //     glutPostRedisplay();
+    // }
+}
+
 void renderScene(void) {
     // Update ImGUI display size
     ImGuiIO& io = ImGui::GetIO();
@@ -165,7 +195,23 @@ void stepFunc(int timerId) {
     STATE.lastUpdate = now;
 
     STATE.scene->update(STATE.deltaTime);
+
+    if (InputManager::hasInput()) {
+        MouseEvent me = InputManager::getLastMousePos();
+
+        // Handle input
+        printf("STEP KEYS: ");
+        for (Key k : InputManager::getKeys()) {
+            printf("%s, ", k.toString().c_str());
+
+            ImGui_ImplGLUT_KeyboardFunc(k.key, me.mouseX, me.mouseY);
+            STATE.scene->onKeypress2(k.key, me.mouseX, me.mouseY);
+            // InputManager::handleKey(k);
+        }
+        printf("\n");
+    }
     glutPostRedisplay();
+    glutTimerFunc(16, stepFunc, 0);
 }
 
 void printInfo() {
@@ -196,7 +242,7 @@ void loadScene(const char* sceneFile) {
 void genVBOs() {
     Map<BaseGeometry*, std::string> geometrys = Model::getGeometryCache();
     Map<GLuint, std::string> vboIndexes = Model::getGeometryVBO();
-    std::vector<std::string> keys = geometrys.getKeys();
+    std::vector<std::string> keys = geometrys.keys();
 
     // we need to resize vector before creating the vbos
     STATE.vboBuffers.resize(keys.size());
@@ -291,8 +337,11 @@ int main(int argc, char** argv) {
     glutTimerFunc(16, stepFunc, 0);
 
     // Keyboard and mouse input
-    glutKeyboardFunc(processKeys);
-    glutSpecialFunc(processSpecialKeys);
+    // glutKeyboardFunc(processKeys);
+    // glutSpecialFunc(processSpecialKeys);
+    InputManager::listen(handleInputEvents);
+
+
     glutMouseFunc(processMouse);
     glutMotionFunc(motionFunc);
     glutPassiveMotionFunc(motionFunc);

@@ -12,26 +12,50 @@ Model::Model(const char* source) {
 
 #pragma region------- Overrides -------
 void Model::setPosition(float x, float y, float z) {
-    this->translation = Vector3(x, y, z);
+    if (this->translation.has_value()) {
+        if (!this->translation.value().isDynamic()) this->translation = ObjectTranslation(x, y, z);
+    } else {
+        this->translation = ObjectTranslation(x, y, z);
+    }
+
+    // this->translation = Vector3(x, y, z);
 };
 
 void Model::setPosition(Vector3<float> pos) {
-    this->translation = pos;
+    // this->translation = pos;
+
+    if (this->translation.has_value()) {
+        if (!this->translation.value().isDynamic()) this->translation = ObjectTranslation(pos.first, pos.second, pos.third);
+    } else {
+        this->translation = ObjectTranslation(pos.first, pos.second, pos.third);
+    }
 };
 
 void Model::moveTo(float x, float y, float z) {
+    // if (this->translation.has_value()) {
+    //     this->translation.value() += Vector3(x, y, z);
+    // } else {
+    //     this->translation = Vector3(x, y, z);
+    // }
+
     if (this->translation.has_value()) {
-        this->translation.value() += Vector3(x, y, z);
+        if (!this->translation.value().isDynamic()) this->translation.value() += Vector3<float>(x, y, z);
     } else {
-        this->translation = Vector3(x, y, z);
+        this->translation = ObjectTranslation(x, y, z);
     }
 };
 
 void Model::moveTo(Vector3<float> pos) {
+    // if (this->translation.has_value()) {
+    //     this->translation.value() += pos;
+    // } else {
+    //     this->translation = pos;
+    // }
+
     if (this->translation.has_value()) {
-        this->translation.value() += pos;
+        if (!this->translation.value().isDynamic()) this->translation.value() += pos;
     } else {
-        this->translation = pos;
+        this->translation = ObjectTranslation(pos.first, pos.second, pos.third);
     }
 };
 
@@ -44,13 +68,15 @@ void Model::moveTo(Vector3<float> pos) {
  * @param axisZ The Z parameter of the axis vector.
  */
 void Model::setRotation(float axisX, float axisY, float axisZ) {
-    if (this->rotation.has_value()) {
-        this->rotation.value().first = axisX;
-        this->rotation.value().second = axisY;
-        this->rotation.value().third = axisZ;
-    } else {
-        this->rotation = Vector4(axisX, axisY, axisZ, 0.0f);
-    }
+    // if (this->rotation.has_value()) {
+    //     this->rotation.value().first  = axisX;
+    //     this->rotation.value().second = axisY;
+    //     this->rotation.value().third  = axisZ;
+    // } else {
+    //     this->rotation = Vector4(axisX, axisY, axisZ, 0.0f);
+    // }
+
+    this->rotation = ObjectRotation(0.0f, axisX, axisY, axisZ);
 }
 
 // void Model::rotate(float angle) {
@@ -60,11 +86,23 @@ void Model::setRotation(float axisX, float axisY, float axisZ) {
 // }
 
 void Model::rotateAlong(float axisX, float axisY, float axisZ, float angle) {
-    this->rotation = Vector4(axisX, axisY, axisZ, angle);
+    // this->rotation = Vector4(axisX, axisY, axisZ, angle);
+    if (this->rotation.has_value()) {
+        if (!this->rotation.value().isDynamic()) this->rotation = ObjectRotation(angle, axisX, axisY, axisZ);
+    } else {
+        this->rotation = ObjectRotation(angle, axisX, axisY, axisZ);
+    }
 }
 
 void Model::rotateAlong(Vector4<float> vec) {
-    this->rotation = vec;
+    // this->rotation = vec;
+    if (this->rotation.has_value()) {
+        if (!this->rotation.value().isDynamic()) {
+            this->rotation = ObjectRotation(this->rotation.value().getAngle(), vec.first, vec.second, vec.third);
+        }
+    } else {
+        this->rotation = ObjectRotation(0.0f, vec.first, vec.second, vec.third);
+    }
 }
 
 void Model::setScale(Vector3<float> sv) {
@@ -86,16 +124,32 @@ void Model::render() {
     for (auto tt : this->tfStack) {
         switch (tt) {
             case TRANSFORM_TRANSLATE: {
-                _TRANSFORM_IF3(glTranslatef, this->translation);
+                if (this->translation.has_value()) {
+                    // TODO: Dynamic translation
+                    if (this->translation.value().isDynamic()) {
+                        yeet "Not implemented";
+                    } else {
+                        Vector3<float> vec = this->translation.value().getVector();
+                        glTranslatef(vec.first, vec.second, vec.third);
+                    }
+                }
                 break;
             }
             case TRANSFORM_ROTATE: {
                 if (this->rotation.has_value()) {
-                    glRotatef(
-                        this->rotation.value().fourth,
-                        this->rotation.value().first,
-                        this->rotation.value().second,
-                        this->rotation.value().third);
+                    // glRotatef(
+                    //     this->rotation.value().fourth,
+                    //     this->rotation.value().first, 
+                    //     this->rotation.value().second, 
+                    //     this->rotation.value().third
+                    // );
+
+                    if (this->rotation.value().isDynamic()) {
+                        yeet "Not implemented";
+                    } else {
+                        Vector4<float> vec = this->rotation.value().getVector4();
+                        glRotatef(vec.first, vec.second, vec.third, vec.fourth);
+                    }
                 }
                 break;
             }
@@ -147,10 +201,13 @@ Model* Model::fromXML(XMLElement* xml) {
     GET_XML_ELEMENT_ATTRIB(xml, "color", color, const char*);
 
     // Load transforms, if they exist
-    std::optional<Vector3<float>> translate = std::nullopt;
-    std::optional<Vector4<float>> rotate = std::nullopt;
+    // std::optional<Vector3<float>> translate = std::nullopt;
+    std::optional<ObjectTranslation> translate = std::nullopt;
+    std::optional<ObjectRotation> rotate = std::nullopt;
     std::optional<Vector3<float>> scale = std::nullopt;
     std::vector<TransformType> tfStack;
+    
+    std::optional<ObjectMaterial> material = std::nullopt;
 
     GET_XML_ELEMENT(xml, "transform", _transform);
     if (_transform != NULL) {
@@ -158,19 +215,47 @@ Model* Model::fromXML(XMLElement* xml) {
         do {
             std::string name = std::string(_tfProp->Name());
             if (name == "translate") {
-                GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "x", tx, float);
-                GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "y", ty, float);
-                GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "z", tz, float);
+                ObjectTranslation _trans;
 
-                translate = Vector3(tx, ty, tz);
+                GET_XML_ELEMENT_ATTRIB(_tfProp, "time", ttime, int)
+                if (ttime != 0) {
+                    GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "align", talign, float);
+
+                    std::vector<Point3D> points;
+                    GET_XML_ELEMENT(_transform, "point", _point);
+                    do {
+                        if (!_point) break; // Element does not exist in XML.
+                        GET_XML_ELEMENT_ATTRIB_OR_FAIL(_point, "x", px, float);
+                        GET_XML_ELEMENT_ATTRIB_OR_FAIL(_point, "y", py, float);
+                        GET_XML_ELEMENT_ATTRIB_OR_FAIL(_point, "z", pz, float);
+
+                        Point3D point = Point3D(px, py, pz);
+                        points.push_back(point);
+                    } while ((_point = _point->NextSiblingElement("point")));
+
+                    _trans = ObjectTranslation(ttime, talign, points);
+                } else {
+                    GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "x", tx, float);
+                    GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "y", ty, float);
+                    GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "z", tz, float);
+
+                    _trans = ObjectTranslation(tx, ty, tz);
+                }
+
+                translate = _trans;
                 tfStack.push_back(TRANSFORM_TRANSLATE);
             } else if (name == "rotate") {
-                GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "angle", rangle, float);
                 GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "x", rx, float);
                 GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "y", ry, float);
                 GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "z", rz, float);
 
-                rotate = Vector4(rx, ry, rz, rangle);
+                GET_XML_ELEMENT_ATTRIB(_tfProp, "angle", rangle, float);
+                if (rangle != 0) {
+                    rotate = ObjectRotation(rangle, rx, ry, rz);
+                } else {
+                    GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "time", rtime, int);
+                    rotate = ObjectRotation(rtime, rx, ry, rz);
+                }
                 tfStack.push_back(TRANSFORM_ROTATE);
             } else if (name == "scale") {
                 GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "x", sx, float);
@@ -183,13 +268,57 @@ Model* Model::fromXML(XMLElement* xml) {
         } while ((_tfProp = _tfProp->NextSiblingElement()));
     }
 
+    GET_XML_ELEMENT(xml, "color", _color);
+    if (_color != NULL) {
+        Vector3<int> diffuse, ambient, specular, emissive;
+        int shininess;
+
+        {
+            GET_XML_ELEMENT_OR_FAIL(_color, "diffuse", _diffuse)
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_diffuse, "R", _r, int);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_diffuse, "G", _g, int);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_diffuse, "B", _b, int);
+            diffuse = Vector3(_r, _g, _b);
+        }
+        {
+            GET_XML_ELEMENT_OR_FAIL(_color, "ambient", _ambient)
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_ambient, "R", _r, int);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_ambient, "G", _g, int);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_ambient, "B", _b, int);
+            ambient = Vector3(_r, _g, _b);
+        }
+        {
+            GET_XML_ELEMENT_OR_FAIL(_color, "specular", _specular)
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_specular, "R", _r, int);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_specular, "G", _g, int);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_specular, "B", _b, int);
+            specular = Vector3(_r, _g, _b);
+        }
+        {
+            GET_XML_ELEMENT_OR_FAIL(_color, "emissive", _emissive)
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_emissive, "R", _r, int);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_emissive, "G", _g, int);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_emissive, "B", _b, int);
+            emissive = Vector3(_r, _g, _b);
+        }
+        {
+            GET_XML_ELEMENT_OR_FAIL(_color, "shininess", _shininess)
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_shininess, "value", _svalue, int);
+            shininess = _svalue;
+        }
+
+        material = ObjectMaterial(diffuse, ambient, specular, emissive, shininess);
+    }
+
     Model* obj = new Model(file);
     if (texture) obj->setTexture(texture);
     if (color) obj->setTexture(color);
-    if (translate.has_value()) obj->setPosition(translate.value());
-    if (rotate.has_value()) obj->rotateAlong(rotate.value());
+    if (translate.has_value()) obj->translation = translate;
+    if (rotate.has_value()) obj->rotation = rotate;
     if (scale.has_value()) obj->setScale(scale.value());
     obj->setTfStack(tfStack);
+
+    if (material.has_value()) obj->material = material;
 
     return obj;
 }

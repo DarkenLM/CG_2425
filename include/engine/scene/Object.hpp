@@ -1,8 +1,12 @@
 #pragma once
 
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <vector>
 #include <optional>
+#include <algorithm>
 #include "engine/glContext.hpp"
+#include "common/geometry/point.hpp"
 
 #define _TRANSFORM_IF3(transformer, source) if (source.has_value()) \
     transformer(source.value().first, source.value().second, source.value().third)
@@ -20,6 +24,144 @@ typedef enum transform_type {
     TRANSFORM_SCALE_RESET
 } TransformType;
 
+class ObjectTranslation {
+    public:
+        ObjectTranslation(): _dynamic(false) {};
+        ObjectTranslation(float x, float y, float z): _dynamic(false), x(x), y(y), z(z) {};
+        ObjectTranslation(int time, bool align, std::vector<Point3D> points)
+            // : _dynamic(true), time(time), align(align), points(points) {};
+            {
+                this->_dynamic = true;
+                this->time = time;
+                this->align = align;
+                this->points = points;
+            }
+
+        bool isDynamic() const {
+            return this->_dynamic;
+        }
+
+        Point3D getPoint() const {
+            return Point3D(this->x, this->y, this->z);
+        }
+
+        Vector3<float> getVector() const {
+            return Vector3(this->x, this->y, this->z);
+        }
+
+        Point3D getPointAtTime(float time) {
+            int ind = std::min(
+                static_cast<int>(this->points.size() - 1), 
+                std::max(
+                    0, 
+                    static_cast<int>(std::floor((time * this->points.size()) / this->time))
+                )
+            );
+
+            return this->points[ind];
+        }
+
+        ObjectTranslation operator+(const Vector3<float>& other) {
+            if (!this->_dynamic) return ObjectTranslation(this->time, this->align, this->points);
+
+            return ObjectTranslation(
+                this->x + other.first,
+                this->y + other.second,
+                this->z + other.third
+            );
+        }
+
+        ObjectTranslation operator+=(const Vector3<float>& other) {
+            if (!this->_dynamic) *this;
+
+            this->x + other.first;
+            this->y + other.second;
+            this->z + other.third;
+
+            return *this;
+        }
+
+    // private:
+        bool _dynamic;
+
+        // Static
+        float x, y, z;
+
+        // Dynamic
+        int time;
+        bool align;
+        std::vector<Point3D> points;
+};
+
+class ObjectRotation {
+    public:
+        ObjectRotation(): _dynamic(false) {};
+        ObjectRotation(float angle, float x, float y, float z): _dynamic(false), angle(angle), x(x), y(y), z(z) {};
+        ObjectRotation(int time, float x, float y, float z)
+            : _dynamic(true), time(time), x(x), y(y), z(z) {};
+
+        bool isDynamic() const {
+            return this->_dynamic;
+        }
+
+        float getAngle() const {
+            return this->angle;
+        }
+
+        void setAngle(float angle) {
+            this->angle = angle;
+        }
+
+        void setTime(float time) {
+            this->time = time;
+        }
+
+        Vector4<float> getVector4() const {
+            return Vector4(this->angle, this->x, this->y, this->z);
+        }
+
+        float getRotationAngleAtTime(float time) {
+            return (time * 360.0f) / this->time;
+        }
+
+        Vector4<float> getVector4AtTime(float time) {
+            return Vector4(this->getRotationAngleAtTime(time), this->x, this->y, this->z);
+        }
+
+    private:
+        bool _dynamic;
+        float x, y, z;
+
+        // Static
+        float angle;
+
+        // Dynamic
+        int time;
+};
+
+class ObjectMaterial {
+    public:
+        ObjectMaterial(
+            Vector3<int> diffuse,
+            Vector3<int> ambient,
+            Vector3<int> specular,
+            Vector3<int> emissive,
+            int shininess
+        ): diffuse(diffuse), ambient(ambient), specular(specular), emissive(emissive), shininess(shininess) {};
+
+    Vector3<int> getDiffuse() { return this->diffuse; };
+    Vector3<int> getAmbient() { return this->ambient; };
+    Vector3<int> getSpecular() { return this->specular; };
+    Vector3<int> getEmissive() { return this->emissive; };
+    int getShininess() { return this->shininess; };
+
+    private:
+        Vector3<int> diffuse;
+        Vector3<int> ambient;
+        Vector3<int> specular;
+        Vector3<int> emissive;
+        int shininess;
+};
 class Object {
     public:
         virtual ~Object() = default;
@@ -167,12 +309,28 @@ class Object {
          */
         virtual void scaleTo(Vector3<float> scale) {};
 
+        virtual bool hasMaterial() {
+            return this->material.has_value();
+        }
+
+        virtual void setMaterial(ObjectMaterial material) {
+            this->material = material;
+        }
+
+        virtual ObjectMaterial getMaterial() {
+            return this->material.value();
+        }
+
     protected:
         // Transform
-        std::optional<Vector3<float>> translation;
-        std::optional<Vector4<float>> rotation;
+        // std::optional<Vector3<float>> translation;
+        std::optional<ObjectTranslation> translation;
+        // std::optional<Vector4<float>> rotation;
+        std::optional<ObjectRotation> rotation;
         std::optional<Vector3<float>> scale;
         std::vector<TransformType> tfStack;
+
+        std::optional<ObjectMaterial> material;
 
         virtual void setTfStack(std::vector<TransformType> tfStack) {
             this->tfStack = tfStack;

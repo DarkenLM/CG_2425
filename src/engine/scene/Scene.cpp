@@ -11,10 +11,11 @@
 namespace fs = std::filesystem;
 using namespace tinyxml2;
 
-Scene::Scene(Window* window, Camera* camera, std::vector<Group*> groups) {
+Scene::Scene(Window* window, Camera* camera, std::vector<Group*> groups, std::vector<Light*> lights) {
     this->window = window;
     this->camera = camera;
     this->groups = groups;
+    this->lights = lights;
 }
 
 int Scene::getWindowWidth() const { return this->window->getWidth(); }
@@ -49,8 +50,19 @@ Scene* Scene::fromFile(const char* filePath) {
     GET_XML_ELEMENT_OR_FAIL(root, "camera", camera);
     Camera* sceneCamera = Camera::fromXML(camera);
 
-    std::vector<Group*> groups;
+    GET_XML_ELEMENT(root, "lights", _lights);
+    std::vector<Light*> lights;
+    if (_lights != NULL) {
+        GET_XML_ELEMENT(_lights, "light", _light);
+        do {
+            Light* light = Light::fromXML(_light);
+            if (!light) return nullptr;  // TODO: Outright break or silently ignore?
 
+            lights.push_back(light);
+        } while ((_light = _light->NextSiblingElement("light")));
+    }
+
+    std::vector<Group*> groups;
     GET_XML_ELEMENT_OR_FAIL(root, "group", _group);
     do {
         Group* group = Group::fromXML(_group);
@@ -59,7 +71,7 @@ Scene* Scene::fromFile(const char* filePath) {
         groups.push_back(group);
     } while ((_group = _group->NextSiblingElement("group")));
 
-    Scene* scene = new Scene(sceneWindow, sceneCamera, groups);
+    Scene* scene = new Scene(sceneWindow, sceneCamera, groups, lights);
     return scene;
 }
 

@@ -27,70 +27,100 @@
 
 template <typename V, typename K = std::string>
 class Map {
-   public:
-    Map() = default;
-    Map(std::unordered_map<K, V> map) {
-        this->_map = map;
-    }
-
-    bool hasKey(K key) const {
-        auto _kvp{this->_map.find(key)};
-        return _kvp != std::end(this->_map);
-    }
-
-    std::optional<V> get(K key) const {
-        auto _kvp = this->_map.find(key);
-        if (_kvp == std::end(this->_map)) return std::nullopt;
-
-        // return std::optional<V> _kvp->second;
-        const auto& value{_kvp->second};
-        return value;
-    }
-
-    bool add(K key, V value) {
-        // auto res = this->_map.insert_or_assign(std::make_pair(key, value));
-
-        // auto res = this->_map.insert_or_assign(key, value);
-        // return res->second;
-
-        // this->_map.insert(std::make_pair(key, value));
-        this->_map.emplace(key, value);
-        return true;
-    }
-
-    // Paulo Functions, improve if necessary
-    /**
-     * This function should return an array with all values
-     */
-    std::vector<V> getValues() const {
-        std::vector<V> r;
-        for (const auto& [key, value] : this->_map) {
-            // std::cout << key << std::endl;
-            r.push_back(value);
+    public:
+        Map() = default;
+        Map(std::unordered_map<K, V> map) {
+            this->_map = map;
         }
-        return r;
-    }
-    /**
-     * This function should return an array with all keys
-     */
-    std::vector<K> getKeys() const {
-        std::vector<K> r;
-        for (const auto& [key, value] : this->_map) {
-            // std::cout << key << std::endl;
-            r.push_back(key);
+
+        bool isEmpty() {
+            return this->_map.empty();
         }
-        return r;
-    }
-    /**
-     * This function should return the amount of values in the map
-     */
-    int size() const {
-        int r = 0;
-        for (const auto& [key, value] : this->_map) {
-            r++;
+
+        /**
+         * This function should return the amount of values in the map
+         */
+        int size() const {
+            int r = 0;
+            for (const auto& [key, value] : this->_map) {
+                r++;
+            }
+            return r;
         }
-        return r;
-    }
+
+        bool hasKey(K key) const {
+            auto _kvp{this->_map.find(key)};
+            return _kvp != std::end(this->_map);
+        }
+
+        std::optional<V> get(K key) const {
+            auto _kvp = this->_map.find(key);
+            if (_kvp == std::end(this->_map)) return std::nullopt;
+
+            const auto& value{ _kvp->second };
+            return value;
+        }
+
+        std::vector<K> keys() const {
+            std::vector<K> keys;
+            for(auto it = this->_map.begin(); it != this->_map.end(); ++it) {
+                keys.push_back(it->first);
+            }
+
+            return keys;
+        }
+
+        std::vector<V> values() const {
+            std::vector<V> values;
+            for(auto it = this->_map.begin(); it != this->_map.end(); ++it) {
+                values.push_back(it->second);
+            }
+
+            return values;
+        }
+
+        bool add(K key, V value) {
+            this->_map.emplace(key, value);
+            return true;
+        }
+
+        void set(K key, V value) {
+            this->_map[key] = value;
+        }
+
+        bool remove(K key) {
+            auto it = this->_map.find(key);
+            if (it != this->_map.end()) {
+                this->_map.erase(it);
+                return true;
+            }
+
+            return false;
+        }
+
+    // // Paulo Functions, improve if necessary
+    // /**
+    //  * This function should return an array with all values
+    //  */
+    // std::vector<V> getValues() const {
+    //     std::vector<V> r;
+    //     for (const auto& [key, value] : this->_map) {
+    //         // std::cout << key << std::endl;
+    //         r.push_back(value);
+    //     }
+    //     return r;
+    // }
+    // /**
+    //  * This function should return an array with all keys
+    //  */
+    // std::vector<K> getKeys() const {
+    //     std::vector<K> r;
+    //     for (const auto& [key, value] : this->_map) {
+    //         // std::cout << key << std::endl;
+    //         r.push_back(key);
+    //     }
+    //     return r;
+    // }
 
    private:
     std::unordered_map<K, V> _map;

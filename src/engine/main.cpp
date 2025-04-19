@@ -3,12 +3,12 @@
 #include <GL/glut.h>
 #endif
 
-#include "common/parser.hpp"
 #include "common/geometry/BaseGeometry.hpp"
+#include "common/parser.hpp"
 #include "engine/engineUI/engineUI.hpp"
-#include "engine/scene/SceneState.hpp"
-#include "engine/scene/Scene.hpp"
 #include "engine/input.hpp"
+#include "engine/scene/Scene.hpp"
+#include "engine/scene/SceneState.hpp"
 
 #ifdef __APPLE__
 #include <GLUT/glut.h>
@@ -241,38 +241,46 @@ void loadScene(const char* sceneFile) {
 
 void genVBOs() {
     Map<BaseGeometry*, std::string> geometrys = Model::getGeometryCache();
-    Map<GLuint, std::string> vboIndexes = Model::getGeometryVBO();
+    Map<GLuint, std::string>& VBOids = Model::getGeometryVBO();
+    Map<GLuint, std::string>& IBOids = Model::getGeometryIBO();
     std::vector<std::string> keys = geometrys.keys();
 
-    // we need to resize vector before creating the vbos
-    STATE.vboBuffers.resize(keys.size());
-    // std::cout << STATE.vboBuffers.size() << std::endl;
-    glGenBuffers(keys.size(), STATE.vboBuffers.data());
+    // Prepare buffers
+    STATE.VBObuffers.resize(keys.size());
+    STATE.IBObuffers.resize(keys.size());
 
-    // Iterar sobres os indexs com as keys, e
+    // Generate VBOs
+    glGenBuffers(keys.size(), STATE.VBObuffers.data());
+    // Generate IBO
+    glGenBuffers(keys.size(), STATE.IBObuffers.data());
+
+    // Assign buffers
+    for (int i = 0; i < keys.size(); i++) {
+        VBOids.add(keys[i], STATE.VBObuffers[i]);
+        IBOids.add(keys[i], STATE.IBObuffers[i]);
+    }
+
     for (std::string k : keys) {
-        std::optional<GLuint> VBOindex = vboIndexes.get(k);
+        std::optional<GLuint> VBOindex = VBOids.get(k);
+        std::optional<GLuint> IBOindex = IBOids.get(k);
         std::optional<BaseGeometry*> geometry = geometrys.get(k);
         std::vector<Point3D> modelVerticesArray = geometry.value()->getVertices();
+        std::vector<unsigned int> modelIndicesArray = geometry.value()->getIndices();
+        if (VBOindex.value()) {
+            std::cout << "A criar vbo para: " << k << " com buffer em: " << VBOindex.value() << std::endl;
 
-        /*std::vector<float> modelVerticesArrayFloat;
-        for (Point3D p : modelVerticesArray) {
-            modelVerticesArrayFloat.push_back(p.getX());
-            modelVerticesArrayFloat.push_back(p.getY());
-            modelVerticesArrayFloat.push_back(p.getZ());
-        }*/
-        if (VBOindex) {
-            std::cout << "A criar vbo para: " << k << "com buffer em: " << VBOindex.value() << std::endl;
-            /*if (VBOindex.value() == 0) {
-                for (Point3D p : modelVerticesArray)
-                    std::cout << p << std::endl;
-            }*/
             glBindBuffer(GL_ARRAY_BUFFER, VBOindex.value());
             glBufferData(
                 GL_ARRAY_BUFFER,
                 sizeof(Point3D) * modelVerticesArray.size(),
                 modelVerticesArray.data(),
                 GL_STATIC_DRAW);
+
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBOindex.value());
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                         sizeof(unsigned int) * modelIndicesArray.size(),
+                         modelIndicesArray.data(),
+                         GL_STATIC_DRAW);
         } else {
             std::cout << "Error at loading the vbo for: " << k << std::endl;
         }
@@ -340,7 +348,6 @@ int main(int argc, char** argv) {
     // glutKeyboardFunc(processKeys);
     // glutSpecialFunc(processSpecialKeys);
     InputManager::listen(handleInputEvents);
-
 
     glutMouseFunc(processMouse);
     glutMotionFunc(motionFunc);

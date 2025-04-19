@@ -1,15 +1,15 @@
 #pragma once
+#include <cstdint>
 #include <string>
 #include <vector>
-#include <cstdint>
 
-#include "common/geometry/point.hpp"
 #include "common/geometry/BaseGeometry.hpp"
+#include "common/geometry/point.hpp"
 
 /**
  *  @brief File format version number (1 byte)
  */
-constexpr uint8_t PARSER_VERSION = 3;
+constexpr uint8_t PARSER_VERSION = 5;
 
 /**
  *  @class Parser3D

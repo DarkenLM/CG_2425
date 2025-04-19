@@ -4,7 +4,8 @@
 
 struct scenestate {
     Scene* scene;
-    std::vector<GLuint> vboBuffers;
+    std::vector<GLuint> VBObuffers;
+    std::vector<GLuint> IBObuffers;
 
     std::chrono::steady_clock::time_point lastUpdate;
     float deltaTime;

@@ -45,6 +45,7 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp",
         "sstream": "cpp",
+<<<<<<< Updated upstream
         "iostream": "cpp",
         "fstream": "cpp",
         "istream": "cpp",
@@ -56,5 +57,10 @@
         "iomanip": "cpp",
         "map": "cpp",
         "optional": "cpp"
+=======
+        "fstream": "cpp",
+        "iostream": "cpp",
+        "istream": "cpp"
+>>>>>>> Stashed changes
     }
 }

@@ -5,8 +5,8 @@
 #include <vector>
 
 #include "common/common.hpp"
-#include "common/geometry/sphere.hpp"
 #include "common/geometry/point.hpp"
+#include "common/geometry/sphere.hpp"
 
 SphereGeometry::~SphereGeometry() = default;
 
@@ -24,7 +24,7 @@ SphereGeometry::SphereGeometry(float radius, int slices, int stacks) {
     std::vector<std::vector<Point3D>> points;
 
     for (int i = 0; i <= stacks; ++i) {
-        stackAngle = M_PI / 2 - i * stackStep; // de π/2 a -π/2
+        stackAngle = M_PI / 2 - i * stackStep;  // de π/2 a -π/2
         xy = radius * cosf(stackAngle);
         z = radius * sinf(stackAngle);
 
@@ -59,11 +59,31 @@ SphereGeometry::SphereGeometry(float radius, int slices, int stacks) {
     }
 }
 
-std::vector<Point3D> SphereGeometry::serialize() {
+std::vector<Point3D> SphereGeometry::serielizeVertices() {
     std::vector<Point3D> ret;
 
     for (auto i : this->vertices) {
         ret.push_back(i.copy());
+    }
+
+    return ret;
+}
+
+std::vector<Vector3<float>> SphereGeometry::serielizeNormals() {
+    std::vector<Vector3<float>> ret;
+
+    for (auto i : this->normals) {
+        ret.push_back(i.copy());
+    }
+
+    return ret;
+}
+
+std::vector<unsigned int> SphereGeometry::serielizeIndices() {
+    std::vector<unsigned> ret;
+
+    for (auto i : this->indices) {
+        ret.push_back(i);
     }
 
     return ret;

@@ -39,7 +39,8 @@ class Model : public Object {
     static Model* fromXML(XMLElement* xml);
     void load();
 
-    static Map<GLuint, std::string> getGeometryVBO();
+    static Map<GLuint, std::string>& getGeometryVBO();
+    static Map<GLuint, std::string>& getGeometryIBO();
     static Map<BaseGeometry*, std::string> getGeometryCache();
 
    private:
@@ -51,6 +52,7 @@ class Model : public Object {
 
     static Map<BaseGeometry*, std::string> _geometryCache;
     static Map<GLuint, std::string> _geometryVBO;
+    static Map<GLuint, std::string> _geometryIBO;
     static BaseGeometry* getOrLoadModel(std::string modelName);
 
    protected:

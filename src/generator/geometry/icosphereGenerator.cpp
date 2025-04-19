@@ -147,12 +147,31 @@ IcosphereGeometry::IcosphereGeometry(int radius, int subdivisions) {
         this->vertices.push_back(vertices[indices[i]]);
     }
 }
-
-std::vector<Point3D> IcosphereGeometry::serialize() {
+std::vector<Point3D> IcosphereGeometry::serielizeVertices() {
     std::vector<Point3D> ret;
 
     for (auto i : this->vertices) {
         ret.push_back(i.copy());
+    }
+
+    return ret;
+}
+
+std::vector<Vector3<float>> IcosphereGeometry::serielizeNormals() {
+    std::vector<Vector3<float>> ret;
+
+    for (auto i : this->normals) {
+        ret.push_back(i.copy());
+    }
+
+    return ret;
+}
+
+std::vector<unsigned int> IcosphereGeometry::serielizeIndices() {
+    std::vector<unsigned> ret;
+
+    for (auto i : this->indices) {
+        ret.push_back(i);
     }
 
     return ret;

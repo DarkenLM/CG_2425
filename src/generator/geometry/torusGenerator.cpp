@@ -53,11 +53,31 @@ TorusGeometry::TorusGeometry(int majorRadius, int minorRadius, int slices, int s
     }
 }
 
-std::vector<Point3D> TorusGeometry::serialize() {
+std::vector<Point3D> TorusGeometry::serielizeVertices() {
     std::vector<Point3D> ret;
 
     for (auto i : this->vertices) {
         ret.push_back(i.copy());
+    }
+
+    return ret;
+}
+
+std::vector<Vector3<float>> TorusGeometry::serielizeNormals() {
+    std::vector<Vector3<float>> ret;
+
+    for (auto i : this->normals) {
+        ret.push_back(i.copy());
+    }
+
+    return ret;
+}
+
+std::vector<unsigned int> TorusGeometry::serielizeIndices() {
+    std::vector<unsigned> ret;
+
+    for (auto i : this->indices) {
+        ret.push_back(i);
     }
 
     return ret;

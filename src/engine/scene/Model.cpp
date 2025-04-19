@@ -139,8 +139,8 @@ void Model::render() {
                 if (this->rotation.has_value()) {
                     // glRotatef(
                     //     this->rotation.value().fourth,
-                    //     this->rotation.value().first, 
-                    //     this->rotation.value().second, 
+                    //     this->rotation.value().first,
+                    //     this->rotation.value().second,
                     //     this->rotation.value().third
                     // );
 
@@ -159,18 +159,31 @@ void Model::render() {
             }
         }
     }
+    glEnableClientState(GL_VERTEX_ARRAY);
 
-    // glBegin(GL_TRIANGLES);
-    // for (Point3D vertex : vertices) {
-    //     glVertex3f(vertex.getX(), vertex.getY(), vertex.getZ());
-    // }
-    // glEnd();
     glBindBuffer(GL_ARRAY_BUFFER, this->_geometryVBO.get(this->source).value());
-    // std::cout << "A dar load do " << this->source << " com buffer em: " << this->_geometryVBO.get(this->source).value() << std::endl;
     glVertexPointer(3, GL_FLOAT, 0, 0);
-    glDrawArrays(GL_TRIANGLES, 0, this->geometry->getVertices().size());
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_geometryIBO.get(this->source).value());
+
+    size_t indexCount = this->_geometryCache.get(this->source).value()->getIndices().size();
+
+    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+
+    glDisableClientState(GL_VERTEX_ARRAY);
+
+    // Test normals
+    // glBegin(GL_LINES);
+    // glColor3f(0.6f, 0.6f, 0.0f);
+    // for (auto vertex : this->_geometryCache.get(this->source).value()->getVertices()) {
+    //    glVertex3f(vertex.getX(), vertex.getY(), vertex.getZ());
+    //    glVertex3f(vertex.getX(), 1.0f, vertex.getZ());
+    //}
+    // glEnd();
+
     glPopMatrix();
 }
+
 #pragma endregion-- -- -- -Overrides-- -- -- -
 
 const char* Model::getSource() {
@@ -206,7 +219,7 @@ Model* Model::fromXML(XMLElement* xml) {
     std::optional<ObjectRotation> rotate = std::nullopt;
     std::optional<Vector3<float>> scale = std::nullopt;
     std::vector<TransformType> tfStack;
-    
+
     std::optional<ObjectMaterial> material = std::nullopt;
 
     GET_XML_ELEMENT(xml, "transform", _transform);
@@ -224,7 +237,7 @@ Model* Model::fromXML(XMLElement* xml) {
                     std::vector<Point3D> points;
                     GET_XML_ELEMENT(_transform, "point", _point);
                     do {
-                        if (!_point) break; // Element does not exist in XML.
+                        if (!_point) break;  // Element does not exist in XML.
                         GET_XML_ELEMENT_ATTRIB_OR_FAIL(_point, "x", px, float);
                         GET_XML_ELEMENT_ATTRIB_OR_FAIL(_point, "y", py, float);
                         GET_XML_ELEMENT_ATTRIB_OR_FAIL(_point, "z", pz, float);
@@ -332,13 +345,19 @@ Map<BaseGeometry*, std::string> Model::getGeometryCache() {
     return _geometryCache;
 }
 
-Map<GLuint, std::string> Model::getGeometryVBO() {
+Map<GLuint, std::string>& Model::getGeometryVBO() {
     return _geometryVBO;
+}
+
+Map<GLuint, std::string>& Model::getGeometryIBO() {
+    return _geometryIBO;
 }
 
 Map<BaseGeometry*, std::string> Model::_geometryCache;
 
 Map<GLuint, std::string> Model::_geometryVBO;
+
+Map<GLuint, std::string> Model::_geometryIBO;
 
 BaseGeometry* Model::getOrLoadModel(std::string modelName) {
     auto model = _geometryCache.get(modelName);
@@ -357,9 +376,6 @@ BaseGeometry* Model::getOrLoadModel(std::string modelName) {
     if (geometry == nullptr) yeet std::string("Unable to load model.");
 
     _geometryCache.add(modelName, geometry);
-
-    // VBO GENERATION
-    _geometryVBO.add(modelName, _geometryVBO.size() + 1);
 
     return geometry;
 }

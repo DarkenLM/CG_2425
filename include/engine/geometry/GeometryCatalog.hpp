@@ -9,16 +9,15 @@
 */
 
 #include "common/geometry/BaseGeometry.hpp"
-#include "common/geometry/point.hpp"
-
 #include "common/geometry/box.hpp"
 #include "common/geometry/cone.hpp"
-#include "common/geometry/torus.hpp"
-#include "common/geometry/plane.hpp"
-#include "common/geometry/sphere.hpp"
 #include "common/geometry/cylinder.hpp"
 #include "common/geometry/flatRing.hpp"
 #include "common/geometry/icosphere.hpp"
 #include "common/geometry/obj.hpp"
+#include "common/geometry/plane.hpp"
+#include "common/geometry/point.hpp"
+#include "common/geometry/sphere.hpp"
+#include "common/geometry/torus.hpp"
 
-BaseGeometry* createGeometryFromKind(BaseGeometryKind kind, std::vector<Point3D> vertices);
+BaseGeometry* createGeometryFromKind(BaseGeometryKind kind, std::vector<Point3D> vertices, std::vector<Vector3<float>> normals, std::vector<unsigned int> indices);

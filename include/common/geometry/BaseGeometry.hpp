@@ -41,14 +41,21 @@ class BaseGeometry {
    protected:
     BaseGeometryKind _kind = _GEOMETRY_BASE;
     std::vector<Point3D> vertices;
+    std::vector<Vector3<float>> normals;
+    std::vector<unsigned int> indices;
 
    public:
     virtual ~BaseGeometry() = default;
     std::vector<Point3D> getVertices() const { return this->vertices; };
+    std::vector<Vector3<float>> getNormals() const { return this->normals; };
+    std::vector<unsigned int> getIndices() const { return this->indices; };
 
     BaseGeometryKind getKind() const { return this->_kind; };
 
-    virtual std::vector<Point3D> serialize() = 0;
+    virtual std::vector<Point3D> serielizeVertices() = 0;
+    virtual std::vector<Vector3<float>> serielizeNormals() = 0;
+    virtual std::vector<unsigned int> serielizeIndices() = 0;
+
     static BaseGeometry* deserialize(std::string filePath) { return nullptr; };
 
     //     static void registerType(BaseGeometryKind kind, std::unique_ptr<BaseGeometry> (*creator)(std::vector<Point3D>)) {

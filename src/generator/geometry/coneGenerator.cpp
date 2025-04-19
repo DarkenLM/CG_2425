@@ -53,11 +53,31 @@ ConeGeometry::ConeGeometry(int radius, int height, int slices, int stacks) {
     }
 }
 
-std::vector<Point3D> ConeGeometry::serialize() {
+std::vector<Point3D> ConeGeometry::serielizeVertices() {
     std::vector<Point3D> ret;
 
     for (auto i : this->vertices) {
         ret.push_back(i.copy());
+    }
+
+    return ret;
+}
+
+std::vector<Vector3<float>> ConeGeometry::serielizeNormals() {
+    std::vector<Vector3<float>> ret;
+
+    for (auto i : this->normals) {
+        ret.push_back(i.copy());
+    }
+
+    return ret;
+}
+
+std::vector<unsigned int> ConeGeometry::serielizeIndices() {
+    std::vector<unsigned> ret;
+
+    for (auto i : this->indices) {
+        ret.push_back(i);
     }
 
     return ret;

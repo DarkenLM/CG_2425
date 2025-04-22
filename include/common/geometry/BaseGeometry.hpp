@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "common/util/maputil.hpp"
+#include "engine/glContext.hpp"
 #include "point.hpp"
 
 typedef enum basegeometry_kind : uint8_t {

@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include "engine/geometry/GeometryCatalog.hpp"
+#include "engine/glContext.hpp"
 
 struct _parser3d_load_result {
     uint8_t _guard;

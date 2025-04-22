@@ -13,33 +13,44 @@ SphereGeometry::~SphereGeometry() = default;
 SphereGeometry::SphereGeometry(float radius, int slices, int stacks) {
     this->_kind = GEOMETRY_SPHERE;
 
-    float x, y, z, xy;
-    float nx, ny, nz, lengthInv = 1.0f / radius;
-    float s, t;
+    std::unordered_map<VertexKey, unsigned int> vertexMap;
 
-    float sliceStep = 2 * M_PI / slices;
+    auto addVertex = [&](const Point3D& pos) {
+        Vector3<float> normal = Vector3<float>(pos.getX(), pos.getY(), pos.getZ()).normalized();
+        VertexKey key{pos, normal};
+        auto it = vertexMap.find(key);
+        if (it != vertexMap.end()) return it->second;
+
+        unsigned int index = static_cast<unsigned int>(this->vertices.size());
+        vertexMap[key] = index;
+        this->vertices.push_back(pos);
+        this->normals.push_back(normal);
+        return index;
+    };
+
+    float sliceStep = 2.0f * M_PI / slices;
     float stackStep = M_PI / stacks;
-    float sectorAngle, stackAngle;
 
     std::vector<std::vector<Point3D>> points;
 
+    // Build points on a Y-up sphere
     for (int i = 0; i <= stacks; ++i) {
-        stackAngle = M_PI / 2 - i * stackStep;  // de π/2 a -π/2
-        xy = radius * cosf(stackAngle);
-        z = radius * sinf(stackAngle);
+        float stackAngle = M_PI / 2 - i * stackStep;  // From π/2 (top) to -π/2 (bottom)
+        float xy = radius * cosf(stackAngle);         // r * cos(φ)
+        float y = radius * sinf(stackAngle);          // r * sin(φ)
 
         std::vector<Point3D> row;
         for (int j = 0; j <= slices; ++j) {
-            sectorAngle = j * sliceStep;
+            float sectorAngle = j * sliceStep;  // θ angle
 
-            x = xy * cosf(sectorAngle);
-            y = xy * sinf(sectorAngle);
+            float x = xy * cosf(sectorAngle);
+            float z = xy * sinf(sectorAngle);
             row.push_back(Point3D(x, y, z));
         }
         points.push_back(row);
     }
 
-    // Criar os triângulos da esfera
+    // Build triangles
     for (int i = 0; i < stacks; ++i) {
         for (int j = 0; j < slices; ++j) {
             Point3D p1 = points[i][j];
@@ -47,14 +58,17 @@ SphereGeometry::SphereGeometry(float radius, int slices, int stacks) {
             Point3D p3 = points[i][j + 1];
             Point3D p4 = points[i + 1][j + 1];
 
-            // Criar dois triângulos para cada face da esfera
-            this->vertices.push_back(p1);
-            this->vertices.push_back(p2);
-            this->vertices.push_back(p3);
+            // Triangle 1 (top-left triangle)
+            unsigned int i1 = addVertex(p1);
+            unsigned int i2 = addVertex(p3);
+            unsigned int i3 = addVertex(p2);
+            this->indices.insert(this->indices.end(), {i1, i2, i3});
 
-            this->vertices.push_back(p3);
-            this->vertices.push_back(p2);
-            this->vertices.push_back(p4);
+            // Triangle 2 (bottom-right triangle)
+            unsigned int i4 = addVertex(p3);
+            unsigned int i5 = addVertex(p4);
+            unsigned int i6 = addVertex(p2);
+            this->indices.insert(this->indices.end(), {i4, i5, i6});
         }
     }
 }

@@ -1,15 +1,27 @@
 #include "common/geometry/point.hpp"
 
 Point3D::Point3D() : x(0), y(0), z(0) {}
-Point3D::Point3D(double x, double y, double z) : x(x), y(y), z(z) {}
+Point3D::Point3D(float x, float y, float z) : x(x), y(y), z(z) {}
 
-void Point3D::setX(double xVal) { x = xVal; }
-void Point3D::setY(double yVal) { y = yVal; }
-void Point3D::setZ(double zVal) { z = zVal; }
-void Point3D::set(double xVal, double yVal, double zVal) {
+void Point3D::setX(float xVal) { x = xVal; }
+void Point3D::setY(float yVal) { y = yVal; }
+void Point3D::setZ(float zVal) { z = zVal; }
+void Point3D::set(float xVal, float yVal, float zVal) {
     x = xVal;
     y = yVal;
     z = zVal;
+}
+
+Point3D Point3D::withY(float y) const {
+    return Point3D(this->x, y, this->z);
+}
+
+Point3D Point3D::withX(float x) const {
+    return Point3D(x, this->y, this->z);
+}
+
+Point3D Point3D::withZ(float z) const {
+    return Point3D(this->x, this->y, z);
 }
 
 Point3D Point3D::copy() {
@@ -22,6 +34,10 @@ bool Point3D::operator==(const Point3D& other) const {
 
 bool Point3D::operator!=(const Point3D& other) const {
     return !(*this == other);
+}
+
+Point3D Point3D::operator-(const Point3D& other) const {
+    return Point3D(x - other.x, y - other.y, z - other.z);
 }
 
 // Output Stream Overload

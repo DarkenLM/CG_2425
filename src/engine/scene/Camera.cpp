@@ -24,7 +24,7 @@ Camera::Camera(
 
         this->cameras[i].aspectRatio = 1.0f;
     }
-    this->MOVEMENT_SPEED = 10.0f;
+    this->MOVEMENT_SPEED = 2.0f;
     this->ROTATION_SPEED = 0.01f;
     this->ZOOM_STEP = 2.0f;
     this->currentMode = CAMERA_EX;

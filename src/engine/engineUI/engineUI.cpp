@@ -13,7 +13,7 @@ EngineUI::EngineUI()
       show_another_window(false),
       show_performance_window(true),
       clear_color(ImVec4(0.45f, 0.55f, 0.60f, 1.00f)),
-      fullscreen(false),
+      fullscreen(true),
       vsync(false),
       polygonMode(1),
       cameraMode(0) {}

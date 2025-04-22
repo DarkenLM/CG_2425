@@ -12,49 +12,61 @@ FlatRingGeometry::~FlatRingGeometry() = default;
 FlatRingGeometry::FlatRingGeometry(int majorRadius, int minorRadius, int slices) {
     this->_kind = GEOMETRY_FLATRING;
 
-    float x1, y1, z1;
-    float x2, y2, z2;
-    float x3, y3, z3;
-    float x4, y4, z4;
     float slicesJump = 2 * M_PI / slices;
-    float beta;
+
+    std::unordered_map<VertexKey, unsigned int> vertexMap;
+
+    auto addVertex = [&](const Point3D& pos, const Vector3<float>& normal) {
+        VertexKey key{pos, normal};
+        auto it = vertexMap.find(key);
+        if (it != vertexMap.end()) return it->second;
+
+        unsigned int index = static_cast<unsigned int>(this->vertices.size());
+        vertexMap[key] = index;
+        this->vertices.push_back(pos);
+        this->normals.push_back(normal);
+        return index;
+    };
 
     for (int i = 0; i < slices; i++) {
-        beta = slicesJump * i;
+        float beta1 = i * slicesJump;
+        float beta2 = (i + 1) * slicesJump;
 
-        x1 = (majorRadius + minorRadius) * cos(beta);
-        y1 = 0.0f;
-        z1 = (majorRadius + minorRadius) * sin(beta);
+        float outerX1 = (majorRadius + minorRadius) * cos(beta1);
+        float outerZ1 = (majorRadius + minorRadius) * sin(beta1);
+        float outerX2 = (majorRadius + minorRadius) * cos(beta2);
+        float outerZ2 = (majorRadius + minorRadius) * sin(beta2);
 
-        x2 = (majorRadius + minorRadius) * cos(beta + slicesJump);
-        y2 = 0.0f;
-        z2 = (majorRadius + minorRadius) * sin(beta + slicesJump);
+        float innerX1 = (majorRadius - minorRadius) * cos(beta1);
+        float innerZ1 = (majorRadius - minorRadius) * sin(beta1);
+        float innerX2 = (majorRadius - minorRadius) * cos(beta2);
+        float innerZ2 = (majorRadius - minorRadius) * sin(beta2);
 
-        x3 = (majorRadius - minorRadius) * cos(beta);
-        y3 = 0.0f;
-        z3 = (majorRadius - minorRadius) * sin(beta);
+        Point3D p1(innerX1, 0.0f, innerZ1);
+        Point3D p2(outerX1, 0.0f, outerZ1);
+        Point3D p3(outerX2, 0.0f, outerZ2);
+        Point3D p4(innerX2, 0.0f, innerZ2);
 
-        x4 = (majorRadius - minorRadius) * cos(beta + slicesJump);
-        y4 = 0.0f;
-        z4 = (majorRadius - minorRadius) * sin(beta + slicesJump);
+        Vector3<float> up(0.0f, 1.0f, 0.0f);
+        Vector3<float> down(0.0f, -1.0f, 0.0f);
 
-        // Upper
-        this->vertices.push_back(Point3D(x3, y3, z3));
-        this->vertices.push_back(Point3D(x1, y1, z1));
-        this->vertices.push_back(Point3D(x2, y2, z2));
+        // --- Top face (CCW)
+        unsigned int i1 = addVertex(p1, up);
+        unsigned int i2 = addVertex(p2, up);
+        unsigned int i3 = addVertex(p3, up);
+        unsigned int i4 = addVertex(p4, up);
 
-        this->vertices.push_back(Point3D(x3, y3, z3));
-        this->vertices.push_back(Point3D(x2, y2, z2));
-        this->vertices.push_back(Point3D(x4, y4, z4));
+        this->indices.insert(this->indices.end(), {i1, i3, i2});
+        this->indices.insert(this->indices.end(), {i1, i4, i3});
 
-        // Down
-        this->vertices.push_back(Point3D(x3, y3, z3));
-        this->vertices.push_back(Point3D(x4, y4, z4));
-        this->vertices.push_back(Point3D(x2, y2, z2));
+        // --- Bottom face (CW, so we flip the order for correct culling)
+        unsigned int i5 = addVertex(p1, down);
+        unsigned int i6 = addVertex(p4, down);
+        unsigned int i7 = addVertex(p3, down);
+        unsigned int i8 = addVertex(p2, down);
 
-        this->vertices.push_back(Point3D(x1, y1, z1));
-        this->vertices.push_back(Point3D(x3, y3, z3));
-        this->vertices.push_back(Point3D(x2, y2, z2));
+        this->indices.insert(this->indices.end(), {i5, i7, i6});
+        this->indices.insert(this->indices.end(), {i5, i8, i7});
     }
 }
 

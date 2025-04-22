@@ -7,6 +7,7 @@
 #include "common/common.hpp"
 #include "common/geometry/plane.hpp"
 #include "common/geometry/point.hpp"
+#include "engine/glContext.hpp"
 
 PlaneGeometry::~PlaneGeometry() = default;
 

@@ -17,6 +17,7 @@ struct scenestate {
     // inner State (UI Validation)
     bool vsync = false;
     bool fullscreen = false;
+    bool showCurves = false;
     int polygonMode = 1;  // 0 - Fill; 1 - WireFrame; 2 - Points
     int cameraMode = 0;   // 0 - Explorer; 1 - First Person; 2 - Third Person
 };

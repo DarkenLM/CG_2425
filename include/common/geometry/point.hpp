@@ -105,3 +105,16 @@ class Point3D {
 
     float* data() { return &x; }
 };
+
+// Outside of the Point3D class
+inline Point3D operator*(const Point3D& point, float scalar) {
+    return Point3D(point.getX() * scalar, point.getY() * scalar, point.getZ() * scalar);
+}
+
+inline Point3D operator+(const Point3D& a, const Point3D& b) {
+    return Point3D(a.getX() + b.getX(), a.getY() + b.getY(), a.getZ() + b.getZ());
+}
+
+inline Point3D operator*(float scalar, const Point3D& point) {
+    return point * scalar;  // use the other overload
+}

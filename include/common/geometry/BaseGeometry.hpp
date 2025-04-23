@@ -20,6 +20,7 @@ typedef enum basegeometry_kind : uint8_t {
     GEOMETRY_TORUS,
     GEOMETRY_FLATRING,
     GEOMETRY_ICOSPHERE,
+    GEOMETRY_BEZIER,
     _GEOMETRY_KIND_UPPER_BOUND,
     GEOMETRY_OBJ
 } BaseGeometryKind;

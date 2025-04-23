@@ -9,6 +9,7 @@
 */
 
 #include "common/geometry/BaseGeometry.hpp"
+#include "common/geometry/bezier.hpp"
 #include "common/geometry/box.hpp"
 #include "common/geometry/cone.hpp"
 #include "common/geometry/cylinder.hpp"

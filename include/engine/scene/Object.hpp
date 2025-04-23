@@ -74,7 +74,7 @@ class ObjectTranslation {
 
         Vector3<float> up = {0.0f, 1.0f, 0.0f};
         if (front.first < 0) {
-            up.second = -1.0f;
+            // up.second = -1.0f;
         }
 
         Vector3<float> right = front.cross(up);

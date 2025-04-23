@@ -1,22 +1,23 @@
 #include <stdio.h>
 
 #include <cstdlib>
+#include <filesystem>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <filesystem>
 
 namespace fs = std::filesystem;
 
 #include "common/common.hpp"
+#include "common/geometry/bezier.hpp"
 #include "common/geometry/box.hpp"
 #include "common/geometry/cone.hpp"
-#include "common/geometry/sphere.hpp"
 #include "common/geometry/cylinder.hpp"
 #include "common/geometry/flatRing.hpp"
 #include "common/geometry/icosphere.hpp"
 #include "common/geometry/plane.hpp"
 #include "common/geometry/point.hpp"
+#include "common/geometry/sphere.hpp"
 #include "common/geometry/torus.hpp"
 #include "common/parser.hpp"
 
@@ -175,6 +176,17 @@ int main(int argc, char* argv[]) {
         Parser3D::saveToFile(argv[4], &IcosphereGeometry);
 
         std::cout << "Icosphere information stored at Models/" << argv[4] << std::endl;
+        return 0;
+    } else if (figure == "bezier") {
+        if (argc < 5) {
+            std::cerr << "Usage: " << argv[1] << " <patch_file> <tesselation_level> <output_file>\n";
+            return 1;
+        }
+
+        BezierGeometry bezier = BezierGeometry(argv[2], atoi(argv[3]));
+
+        Parser3D::saveToFile(argv[4], &bezier);  // Save to output file
+        std::cout << "Bezier model stored at Models/" << argv[4] << std::endl;
         return 0;
     } else {
         std::cerr << "Error: Primitive not supported.\n";

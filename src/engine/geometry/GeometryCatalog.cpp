@@ -26,6 +26,9 @@ BaseGeometry* createGeometryFromKind(BaseGeometryKind kind, std::vector<Point3D>
         case GEOMETRY_ICOSPHERE:
             return new IcosphereGeometry(vertices, normals, indices);
             break;
+        case GEOMETRY_BEZIER:
+            return new BezierGeometry(vertices, normals, indices);
+            break;
         case GEOMETRY_OBJ:
             return new ObjGeometry(vertices, normals, indices);
             break;

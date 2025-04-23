@@ -186,26 +186,26 @@ void Model::render() {
     glDisableClientState(GL_VERTEX_ARRAY);
 
     // Test normals
-    glBegin(GL_LINES);
-    glColor3f(1.0f, 0.0f, 0.0f);  // Bright red normals for visibility
-
-    auto geometry = this->_geometryCache.get(this->source).value();
-    const std::vector<Point3D>& vertices = geometry->getVertices();
-    const std::vector<Vector3<float>>& normals = geometry->getNormals();
-
-    float normalLength = 0.5f;  // Adjust for visual clarity
-
-    for (size_t i = 0; i < vertices.size(); ++i) {
-        const Point3D& v = vertices[i];
-        const Vector3<float>& n = normals[i];
-
-        glVertex3f(v.getX(), v.getY(), v.getZ());  // start point
-        glVertex3f(v.getX() + n.first * normalLength,
-                   v.getY() + n.second * normalLength,
-                   v.getZ() + n.third * normalLength);  // end point
-    }
-    glColor3f(1.0f, 1.0f, 1.0f);  // Bright red normals for visibility
-    glEnd();
+    // glBegin(GL_LINES);
+    // glColor3f(1.0f, 0.0f, 0.0f);  // Bright red normals for visibility
+    //
+    // auto geometry = this->_geometryCache.get(this->source).value();
+    // const std::vector<Point3D>& vertices = geometry->getVertices();
+    // const std::vector<Vector3<float>>& normals = geometry->getNormals();
+    //
+    // float normalLength = 0.5f;  // Adjust for visual clarity
+    //
+    // for (size_t i = 0; i < vertices.size(); ++i) {
+    //    const Point3D& v = vertices[i];
+    //    const Vector3<float>& n = normals[i];
+    //
+    //    glVertex3f(v.getX(), v.getY(), v.getZ());  // start point
+    //    glVertex3f(v.getX() + n.first * normalLength,
+    //               v.getY() + n.second * normalLength,
+    //               v.getZ() + n.third * normalLength);  // end point
+    //}
+    // glColor3f(1.0f, 1.0f, 1.0f);  // Bright red normals for visibility
+    // glEnd();
     glPopMatrix();
 }
 

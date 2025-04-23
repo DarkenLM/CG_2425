@@ -22,7 +22,7 @@
         <!-- Mercury -->
         <group>
             <transform>
-                <rotate time="88" x="0" y="1" z="0" />
+                <rotate time="15" x="0" y="1" z="0" />
                 <translate x="70" y="0" z="0" />
                 <scale x="0.5" y="0.5" z="0.5" />
             </transform>
@@ -34,7 +34,7 @@
         <!-- Venus -->
         <group>
             <transform>
-                <rotate time="225" x="0" y="1" z="0" />
+                <rotate time="38" x="0" y="1" z="0" />
                 <translate x="100" y="0" z="0" />
                 <scale x="0.9" y="0.9" z="0.9" />
             </transform>
@@ -46,7 +46,7 @@
         <!-- Earth -->
         <group>
             <transform>
-                <rotate time="365" x="0" y="1" z="0" />
+                <rotate time="60" x="0" y="1" z="0" />
                 <translate x="140" y="0" z="0" />
                 <scale x="1" y="1" z="1" />
             </transform>
@@ -57,20 +57,18 @@
             <!-- Moon -->
             <group>
                 <transform>
-                    <rotate time="28" x="0" y="1" z="0" />
+                    <rotate time="5" x="0" y="1" z="0" />
                     <translate x="15" y="0" z="0" />
                     <scale x="0.3" y="0.3" z="0.3" />
                 </transform>
-                <models>
-                    <model file="planet.3d" />
-                </models>
+                <models><model file="planet.3d" /></models>
             </group>
         </group>
 
         <!-- Mars -->
         <group>
             <transform>
-                <rotate time="687" x="0" y="1" z="0" />
+                <rotate time="115" x="0" y="1" z="0" />
                 <translate x="180" y="0" z="0" />
                 <scale x="0.7" y="0.7" z="0.7" />
             </transform>
@@ -82,18 +80,16 @@
         <!-- Jupiter -->
         <group>
             <transform>
-                <rotate time="4330" x="0" y="1" z="0" />
+                <rotate time="720" x="0" y="1" z="0" />
                 <translate x="240" y="0" z="0" />
                 <scale x="2.5" y="2.5" z="2.5" />
             </transform>
-            <models>
-                <model file="planet.3d" />
-            </models>
+            <models><model file="planet.3d" /></models>
 
             <!-- Moons -->
             <group>
                 <transform>
-                    <rotate time="15" x="0" y="1" z="0" />
+                    <rotate time="3" x="0" y="1" z="0" />
                     <translate x="8" y="0" z="0" />
                     <scale x="0.3" y="0.3" z="0.3" />
                 </transform>
@@ -101,7 +97,7 @@
             </group>
             <group>
                 <transform>
-                    <rotate time="20" x="0" y="1" z="0" />
+                    <rotate time="4" x="0" y="1" z="0" />
                     <translate x="14" y="0" z="0" />
                     <scale x="0.25" y="0.25" z="0.25" />
                 </transform>
@@ -109,7 +105,7 @@
             </group>
             <group>
                 <transform>
-                    <rotate time="35" x="0" y="1" z="0" />
+                    <rotate time="6" x="0" y="1" z="0" />
                     <translate x="19" y="0" z="0" />
                     <scale x="0.2" y="0.2" z="0.2" />
                 </transform>
@@ -120,13 +116,11 @@
         <!-- Saturn -->
         <group>
             <transform>
-                <rotate time="10750" x="0" y="1" z="0" />
+                <rotate time="1800" x="0" y="1" z="0" />
                 <translate x="310" y="0" z="0" />
                 <scale x="2" y="2" z="2" />
             </transform>
-            <models>
-                <model file="planet.3d" />
-            </models>
+            <models><model file="planet.3d" /></models>
 
             <!-- Tilted ring -->
             <group>
@@ -134,27 +128,23 @@
                     <rotate angle="27" x="1" y="0" z="0" />
                     <scale x="3" y="0.1" z="3" />
                 </transform>
-                <models>
-                    <model file="ring.3d" />
-                </models>
+                <models><model file="ring.3d" /></models>
             </group>
         </group>
 
         <!-- Uranus -->
         <group>
             <transform>
-                <rotate time="30660" x="0" y="1" z="0" />
+                <rotate time="5110" x="0" y="1" z="0" />
                 <translate x="380" y="0" z="0" />
                 <scale x="1.2" y="1.2" z="1.2" />
             </transform>
-            <models>
-                <model file="planet.3d" />
-            </models>
+            <models><model file="planet.3d" /></models>
 
             <!-- Moon -->
             <group>
                 <transform>
-                    <rotate time="30" x="0" y="1" z="0" />
+                    <rotate time="5" x="0" y="1" z="0" />
                     <translate x="18" y="0" z="0" />
                     <scale x="0.2" y="0.2" z="0.2" />
                 </transform>
@@ -165,18 +155,16 @@
         <!-- Neptune -->
         <group>
             <transform>
-                <rotate time="60225" x="0" y="1" z="0" />
+                <rotate time="10040" x="0" y="1" z="0" />
                 <translate x="450" y="0" z="0" />
                 <scale x="1.1" y="1.1" z="1.1" />
             </transform>
-            <models>
-                <model file="planet.3d" />
-            </models>
+            <models><model file="planet.3d" /></models>
 
             <!-- Moon -->
             <group>
                 <transform>
-                    <rotate time="32" x="0" y="1" z="0" />
+                    <rotate time="6" x="0" y="1" z="0" />
                     <translate x="16" y="0" z="0" />
                     <scale x="0.15" y="0.15" z="0.15" />
                 </transform>
@@ -184,10 +172,10 @@
             </group>
         </group>
 
-        <!-- Comet -->
+        <!-- Comet (slow path) -->
         <group>
             <transform>
-                <translate time="60" align="true">
+                <translate time="90" align="true">
                     <point x="-300" y="400" z="500" />
                     <point x="0" y="200" z="0" />
                     <point x="300" y="0" z="-500" />
@@ -197,9 +185,7 @@
                 <rotate angle="-90" x="1" y="0" z="0" />
                 <scale x="0.7" y="0.7" z="0.7" />
             </transform>
-            <models>
-                <model file="comet.3d" />
-            </models>
+            <models><model file="comet.3d" /></models>
         </group>
 
         <!-- Teapot in space -->
@@ -209,9 +195,7 @@
                 <rotate angle="-90" x="1" y="0" z="0" />
                 <scale x="1" y="1" z="1" />
             </transform>
-            <models>
-                <model file="bezier_10.3d" />
-            </models>
+            <models><model file="bezier_10.3d" /></models>
         </group>
     </group>
 </world>

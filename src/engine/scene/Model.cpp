@@ -119,19 +119,32 @@ void Model::scaleTo(Vector3<float> sv) {
 
 void Model::render() {
     // std::vector<Point3D> vertices = this->geometry->getVertices();
-    std::cout << "HEREEE";
-
     glPushMatrix();
     for (auto tt : this->tfStack) {
         switch (tt) {
             case TRANSFORM_TRANSLATE: {
                 if (this->translation.has_value()) {
-                    // TODO: Dynamic translation
-                    if (this->translation.value().isDynamic()) {
-                        std::cout << "I wanna movee";
-                    } else {
-                        Vector3<float> vec = this->translation.value().getVector();
-                        glTranslatef(vec.first, vec.second, vec.third);
+                    float pos[3], deriv[3];
+                    float rotationMatrix[4][4];
+                    float xAxis[3], yAxis[3], zAxis[3];
+
+                    float elapsedTime = (float)glutGet(GLUT_ELAPSED_TIME) / (1000.0f * this->translation.value().time);
+                    this->translation.value().getInterpolatedPosition(pos, deriv, elapsedTime);
+                    this->translation.value().getCurrentRotation(xAxis, yAxis, zAxis, deriv, &rotationMatrix[0][0]);
+
+                    // TODO: Implement the ui for this
+                    if (true) {
+                        this->translation.value().curve.renderCatmullRomCurve();
+                    }
+                    // TODO: Implement the ui for this
+                    if (true) {
+                        this->translation.value().drawMyCordSystem(pos, xAxis, yAxis, zAxis);
+                    }
+
+                    glTranslatef(pos[0], pos[1], pos[2]);
+
+                    if (this->translation.value().align) {
+                        glMultMatrixf(&rotationMatrix[0][0]);
                     }
                 }
                 break;
@@ -146,7 +159,6 @@ void Model::render() {
                     // );
 
                     if (this->rotation.value().isDynamic()) {
-                        std::cout << "I wanna rotate";
                     } else {
                         Vector4<float> vec = this->rotation.value().getVector4();
                         glRotatef(vec.first, vec.second, vec.third, vec.fourth);

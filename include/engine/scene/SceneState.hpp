@@ -1,3 +1,5 @@
+#pragma once
+
 #include <chrono>
 
 #include "engine/scene/Scene.hpp"
@@ -9,6 +11,7 @@ struct scenestate {
 
     std::chrono::steady_clock::time_point lastUpdate;
     float deltaTime;
+    float ellapsedTime;
 
     float timebase;
     float frames;
@@ -17,7 +20,7 @@ struct scenestate {
     // inner State (UI Validation)
     bool vsync = false;
     bool fullscreen = false;
-    bool showCurves = false;
+    bool showGroupCurves = false;
     int polygonMode = 1;  // 0 - Fill; 1 - WireFrame; 2 - Points
     int cameraMode = 0;   // 0 - Explorer; 1 - First Person; 2 - Third Person
 };

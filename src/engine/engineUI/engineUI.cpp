@@ -5,6 +5,7 @@
 #include "engine/scene/SceneState.hpp"
 
 extern struct scenestate STATE;
+
 int timbase;
 float frames;
 

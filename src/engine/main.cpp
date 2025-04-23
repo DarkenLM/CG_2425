@@ -10,6 +10,8 @@
 #include "engine/scene/Scene.hpp"
 #include "engine/scene/SceneState.hpp"
 
+struct scenestate STATE;
+
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
@@ -27,7 +29,6 @@
 #define MAX_TICK 10000000
 #define TICK_MS 16  // ~ 60 FPS (16ms * 60 = 960ms, 17ms * 60 = 1020ms)
 
-struct scenestate STATE;
 EngineUI engineUI;
 
 double clamp(double value, double min, double max) {
@@ -195,6 +196,7 @@ void stepFunc(int timerId) {
     STATE.lastUpdate = now;
 
     STATE.scene->update(STATE.deltaTime);
+    STATE.ellapsedTime += STATE.deltaTime;
 
     if (InputManager::hasInput()) {
         MouseEvent me = InputManager::getLastMousePos();

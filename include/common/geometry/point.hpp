@@ -102,4 +102,6 @@ class Point3D {
      * @return Output stream with formatted point string "(x, y, z)"
      */
     friend std::ostream& operator<<(std::ostream& os, const Point3D& point);
+
+    float* data() { return &x; }
 };

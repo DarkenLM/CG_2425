@@ -68,7 +68,7 @@
         <!-- Mars -->
         <group>
             <transform>
-                <rotate time="115" x="0" y="1" z="0" />
+                <rotate time="113" x="0" y="1" z="0" />
                 <translate x="425" y="0" z="0" />
                 <scale x="1" y="1" z="1" />
             </transform>
@@ -116,7 +116,7 @@
         <!-- Saturn -->
         <group>
             <transform>
-                <rotate time="1800" x="0" y="1" z="0" />
+                <rotate time="1768" x="0" y="1" z="0" />
                 <translate x="900" y="0" z="0" />
                 <scale x="3" y="3" z="3" />
             </transform>
@@ -135,7 +135,7 @@
         <!-- Uranus -->
         <group>
             <transform>
-                <rotate time="5110" x="0" y="1" z="0" />
+                <rotate time="5044" x="0" y="1" z="0" />
                 <translate x="1100" y="0" z="0" />
                 <scale x="1.8" y="1.8" z="1.8" />
             </transform>
@@ -155,7 +155,7 @@
         <!-- Neptune -->
         <group>
             <transform>
-                <rotate time="10040" x="0" y="1" z="0" />
+                <rotate time="9884" x="0" y="1" z="0" />
                 <translate x="1300" y="0" z="0" />
                 <scale x="1.65" y="1.65" z="1.65" />
             </transform>

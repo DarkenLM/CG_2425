@@ -12,7 +12,7 @@
         <group>
             <transform>
                 <rotate time="25" x="0" y="1" z="0" />
-                <scale x="10" y="10" z="10" />
+                <scale x="15" y="15" z="15" />
             </transform>
             <models>
                 <model file="sun.3d" />
@@ -23,8 +23,8 @@
         <group>
             <transform>
                 <rotate time="15" x="0" y="1" z="0" />
-                <translate x="70" y="0" z="0" />
-                <scale x="0.5" y="0.5" z="0.5" />
+                <translate x="200" y="0" z="0" />
+                <scale x="0.75" y="0.75" z="0.75" />
             </transform>
             <models>
                 <model file="planet.3d" />
@@ -35,8 +35,8 @@
         <group>
             <transform>
                 <rotate time="38" x="0" y="1" z="0" />
-                <translate x="100" y="0" z="0" />
-                <scale x="0.9" y="0.9" z="0.9" />
+                <translate x="275" y="0" z="0" />
+                <scale x="1.4" y="1.4" z="1.4" />
             </transform>
             <models>
                 <model file="planet.3d" />
@@ -47,8 +47,8 @@
         <group>
             <transform>
                 <rotate time="60" x="0" y="1" z="0" />
-                <translate x="140" y="0" z="0" />
-                <scale x="1" y="1" z="1" />
+                <translate x="350" y="0" z="0" />
+                <scale x="1.5" y="1.5" z="1.5" />
             </transform>
             <models>
                 <model file="planet.3d" />
@@ -58,8 +58,8 @@
             <group>
                 <transform>
                     <rotate time="5" x="0" y="1" z="0" />
-                    <translate x="15" y="0" z="0" />
-                    <scale x="0.3" y="0.3" z="0.3" />
+                    <translate x="25" y="0" z="0" />
+                    <scale x="0.5" y="0.5" z="0.5" />
                 </transform>
                 <models><model file="planet.3d" /></models>
             </group>
@@ -69,8 +69,8 @@
         <group>
             <transform>
                 <rotate time="115" x="0" y="1" z="0" />
-                <translate x="180" y="0" z="0" />
-                <scale x="0.7" y="0.7" z="0.7" />
+                <translate x="425" y="0" z="0" />
+                <scale x="1" y="1" z="1" />
             </transform>
             <models>
                 <model file="planet.3d" />
@@ -81,8 +81,8 @@
         <group>
             <transform>
                 <rotate time="720" x="0" y="1" z="0" />
-                <translate x="240" y="0" z="0" />
-                <scale x="2.5" y="2.5" z="2.5" />
+                <translate x="625" y="0" z="0" />
+                <scale x="3.75" y="3.75" z="3.75" />
             </transform>
             <models><model file="planet.3d" /></models>
 
@@ -90,24 +90,24 @@
             <group>
                 <transform>
                     <rotate time="3" x="0" y="1" z="0" />
-                    <translate x="8" y="0" z="0" />
-                    <scale x="0.3" y="0.3" z="0.3" />
+                    <translate x="10" y="0" z="0" />
+                    <scale x="0.45" y="0.45" z="0.45" />
                 </transform>
                 <models><model file="planet.3d" /></models>
             </group>
             <group>
                 <transform>
                     <rotate time="4" x="0" y="1" z="0" />
-                    <translate x="14" y="0" z="0" />
-                    <scale x="0.25" y="0.25" z="0.25" />
+                    <translate x="25" y="0" z="0" />
+                    <scale x="0.375" y="0.375" z="0.375" />
                 </transform>
                 <models><model file="planet.3d" /></models>
             </group>
             <group>
                 <transform>
                     <rotate time="6" x="0" y="1" z="0" />
-                    <translate x="19" y="0" z="0" />
-                    <scale x="0.2" y="0.2" z="0.2" />
+                    <translate x="30" y="0" z="0" />
+                    <scale x="0.3" y="0.3" z="0.3" />
                 </transform>
                 <models><model file="planet.3d" /></models>
             </group>
@@ -117,8 +117,8 @@
         <group>
             <transform>
                 <rotate time="1800" x="0" y="1" z="0" />
-                <translate x="310" y="0" z="0" />
-                <scale x="2" y="2" z="2" />
+                <translate x="900" y="0" z="0" />
+                <scale x="3" y="3" z="3" />
             </transform>
             <models><model file="planet.3d" /></models>
 
@@ -136,8 +136,8 @@
         <group>
             <transform>
                 <rotate time="5110" x="0" y="1" z="0" />
-                <translate x="380" y="0" z="0" />
-                <scale x="1.2" y="1.2" z="1.2" />
+                <translate x="1100" y="0" z="0" />
+                <scale x="1.8" y="1.8" z="1.8" />
             </transform>
             <models><model file="planet.3d" /></models>
 
@@ -145,8 +145,8 @@
             <group>
                 <transform>
                     <rotate time="5" x="0" y="1" z="0" />
-                    <translate x="18" y="0" z="0" />
-                    <scale x="0.2" y="0.2" z="0.2" />
+                    <translate x="20" y="0" z="0" />
+                    <scale x="0.3" y="0.3" z="0.3" />
                 </transform>
                 <models><model file="planet.3d" /></models>
             </group>
@@ -156,8 +156,8 @@
         <group>
             <transform>
                 <rotate time="10040" x="0" y="1" z="0" />
-                <translate x="450" y="0" z="0" />
-                <scale x="1.1" y="1.1" z="1.1" />
+                <translate x="1300" y="0" z="0" />
+                <scale x="1.65" y="1.65" z="1.65" />
             </transform>
             <models><model file="planet.3d" /></models>
 
@@ -165,8 +165,8 @@
             <group>
                 <transform>
                     <rotate time="6" x="0" y="1" z="0" />
-                    <translate x="16" y="0" z="0" />
-                    <scale x="0.15" y="0.15" z="0.15" />
+                    <translate x="20" y="0" z="0" />
+                    <scale x="0.225" y="0.225" z="0.225" />
                 </transform>
                 <models><model file="planet.3d" /></models>
             </group>
@@ -183,7 +183,7 @@
                     <point x="-300" y="400" z="500" />
                 </translate>
                 <rotate angle="-90" x="1" y="0" z="0" />
-                <scale x="0.7" y="0.7" z="0.7" />
+                <scale x="1.05" y="1.05" z="1.05" />
             </transform>
             <models><model file="comet.3d" /></models>
         </group>

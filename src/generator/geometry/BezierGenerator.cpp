@@ -12,7 +12,7 @@
 #include "common/common.hpp"
 #include "common/geometry/bezier.hpp"
 #include "common/geometry/point.hpp"
-#include "engine/glContext.hpp"
+#include "common/util/vectors.hpp"
 
 BezierGeometry::~BezierGeometry() = default;
 
@@ -189,7 +189,7 @@ void BezierGeometry::tessellateBezierPatch(
     }
 }
 
-std::vector<Point3D> BezierGeometry::serielizeVertices() {
+std::vector<Point3D> BezierGeometry::copyVertices() {
     std::vector<Point3D> ret;
 
     for (auto i : this->vertices) {
@@ -199,7 +199,7 @@ std::vector<Point3D> BezierGeometry::serielizeVertices() {
     return ret;
 }
 
-std::vector<Vector3<float>> BezierGeometry::serielizeNormals() {
+std::vector<Vector3<float>> BezierGeometry::copyNormals() {
     std::vector<Vector3<float>> ret;
 
     for (auto i : this->normals) {
@@ -209,7 +209,7 @@ std::vector<Vector3<float>> BezierGeometry::serielizeNormals() {
     return ret;
 }
 
-std::vector<unsigned int> BezierGeometry::serielizeIndices() {
+std::vector<unsigned int> BezierGeometry::copyIndices() {
     std::vector<unsigned> ret;
 
     for (auto i : this->indices) {
@@ -226,9 +226,4 @@ BezierGeometry::BezierGeometry(std::vector<Point3D> vertices,
     this->vertices = std::move(vertices);
     this->normals = std::move(normals);
     this->indices = std::move(indices);
-}
-
-BezierGeometry* BezierGeometry::deserialize(std::string filePath) {
-    // Implementation would depend on your serialization format
-    throw std::runtime_error("Deserialization not yet implemented");
 }

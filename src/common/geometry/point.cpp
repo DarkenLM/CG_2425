@@ -36,8 +36,20 @@ bool Point3D::operator!=(const Point3D& other) const {
     return !(*this == other);
 }
 
+Point3D operator+(const Point3D& a, const Point3D& b) {
+    return Point3D(a.getX() + b.getX(), a.getY() + b.getY(), a.getZ() + b.getZ());
+}
+
 Point3D Point3D::operator-(const Point3D& other) const {
     return Point3D(x - other.x, y - other.y, z - other.z);
+}
+
+Point3D operator*(const Point3D& point, float scalar) {
+    return Point3D(point.getX() * scalar, point.getY() * scalar, point.getZ() * scalar);
+}
+
+Point3D operator*(float scalar, const Point3D& point) {
+    return point * scalar;
 }
 
 // Output Stream Overload

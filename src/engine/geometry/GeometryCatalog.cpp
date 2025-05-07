@@ -33,6 +33,5 @@ BaseGeometry* createGeometryFromKind(BaseGeometryKind kind, std::vector<Point3D>
             return new ObjGeometry(vertices, normals, indices);
             break;
     }
-
     return nullptr;
 }

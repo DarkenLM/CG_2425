@@ -116,7 +116,7 @@ IcosphereGeometry::IcosphereGeometry(int radius, int subdivisions) {
     }
 }
 
-std::vector<Point3D> IcosphereGeometry::serielizeVertices() {
+std::vector<Point3D> IcosphereGeometry::copyVertices() {
     std::vector<Point3D> ret;
 
     for (auto i : this->vertices) {
@@ -126,7 +126,7 @@ std::vector<Point3D> IcosphereGeometry::serielizeVertices() {
     return ret;
 }
 
-std::vector<Vector3<float>> IcosphereGeometry::serielizeNormals() {
+std::vector<Vector3<float>> IcosphereGeometry::copyNormals() {
     std::vector<Vector3<float>> ret;
 
     for (auto i : this->normals) {
@@ -136,7 +136,7 @@ std::vector<Vector3<float>> IcosphereGeometry::serielizeNormals() {
     return ret;
 }
 
-std::vector<unsigned int> IcosphereGeometry::serielizeIndices() {
+std::vector<unsigned int> IcosphereGeometry::copyIndices() {
     std::vector<unsigned> ret;
 
     for (auto i : this->indices) {

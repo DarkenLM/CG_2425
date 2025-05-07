@@ -4,124 +4,105 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
-// /**
-//  * Checks if a given key x exists within a map m.
-//  * Also creates a reference to the KVP with the name defined by the macro `MAPUTIL_NAME`
-//  *
-//  * @param m The map to search.
-//  * @param k The key to search for.
-//  */
-// #define HAS_AND_CAPTURE_KEY(m, k) auto MAPUTIL_NAME{ m.find(k) }; MAPUTIL_NAME != std::end( m )
-
-// #define PREPARE_KVP(MAPUTIL_NAME) const auto&[ key_##MAPUTIL_NAME, value_##MAPUTIL_NAME ] { *MAPUTIL_NAME };
-// #define PREPARE_KVP_DESTRUCTED() const auto& kvp_##MAPUTIL_NAME { *MAPUTIL_NAME };
-// // #define PREPARE_KEY() const auto& key{ MAPUTIL_NAME->first };
-// // #define PREPARE_VALUE() const auto& value{ MAPUTIL_NAME->second };
-
-// #define GET_KVP(MAPUTIL_NAME) kvp_##MAPUTIL_NAME
-// #define GET_KEY(MAPUTIL_NAME) key_##MAPUTIL_NAME
-// #define GET_VALUE(MAPUTIL_NAME) value_##MAPUTIL_NAME
-
-// #define GENERATE_FUNCTION(RET,NAM,...) RET func_##NAM(__VA_ARGS__)
-
+/**
+ * @brief A generic key-value map wrapper.
+ *
+ * This class wraps around std::unordered_map to provide simplified
+ * key-value storage operations with convenience methods.
+ *
+ * @tparam V The value type.
+ * @tparam K The key type (default is std::string).
+ */
 template <typename V, typename K = std::string>
 class Map {
-    public:
-        Map() = default;
-        Map(std::unordered_map<K, V> map) {
-            this->_map = map;
-        }
+   public:
+    /**
+     * @brief Default constructor.
+     *
+     * Initializes an empty map.
+     */
+    Map();
 
-        bool isEmpty() {
-            return this->_map.empty();
-        }
+    /**
+     * @brief Constructs a map from an existing unordered_map.
+     *
+     * @param map The unordered_map to use as the initial data.
+     */
+    Map(std::unordered_map<K, V> map);
 
-        /**
-         * This function should return the amount of values in the map
-         */
-        int size() const {
-            int r = 0;
-            for (const auto& [key, value] : this->_map) {
-                r++;
-            }
-            return r;
-        }
+    /**
+     * @brief Checks if the map is empty.
+     *
+     * @return true if the map has no elements, false otherwise.
+     */
+    bool isEmpty();
 
-        bool hasKey(K key) const {
-            auto _kvp{this->_map.find(key)};
-            return _kvp != std::end(this->_map);
-        }
+    /**
+     * @brief Returns the number of key-value pairs in the map.
+     *
+     * @return The size of the map.
+     */
+    int size() const;
 
-        std::optional<V> get(K key) const {
-            auto _kvp = this->_map.find(key);
-            if (_kvp == std::end(this->_map)) return std::nullopt;
+    /**
+     * @brief Checks whether the specified key exists in the map.
+     *
+     * @param key The key to look up.
+     * @return true if the key is present, false otherwise.
+     */
+    bool hasKey(K key) const;
 
-            const auto& value{ _kvp->second };
-            return value;
-        }
+    /**
+     * @brief Gets the value associated with the given key.
+     *
+     * @param key The key to retrieve the value for.
+     * @return An optional containing the value if found, or std::nullopt.
+     */
+    std::optional<V> get(K key) const;
 
-        std::vector<K> keys() const {
-            std::vector<K> keys;
-            for(auto it = this->_map.begin(); it != this->_map.end(); ++it) {
-                keys.push_back(it->first);
-            }
+    /**
+     * @brief Retrieves a list of all keys in the map.
+     *
+     * @return A vector containing all keys.
+     */
+    std::vector<K> keys() const;
 
-            return keys;
-        }
+    /**
+     * @brief Retrieves a list of all values in the map.
+     *
+     * @return A vector containing all values.
+     */
+    std::vector<V> values() const;
 
-        std::vector<V> values() const {
-            std::vector<V> values;
-            for(auto it = this->_map.begin(); it != this->_map.end(); ++it) {
-                values.push_back(it->second);
-            }
+    /**
+     * @brief Adds a key-value pair to the map.
+     *
+     * @param key The key to insert.
+     * @param value The value to insert.
+     * @return true if insertion was successful, false otherwise.
+     */
+    bool add(K key, V value);
 
-            return values;
-        }
+    /**
+     * @brief Sets the value for a key (overwrites if key exists).
+     *
+     * @param key The key to set the value for.
+     * @param value The new value.
+     */
+    void set(K key, V value);
 
-        bool add(K key, V value) {
-            this->_map.emplace(key, value);
-            return true;
-        }
-
-        void set(K key, V value) {
-            this->_map[key] = value;
-        }
-
-        bool remove(K key) {
-            auto it = this->_map.find(key);
-            if (it != this->_map.end()) {
-                this->_map.erase(it);
-                return true;
-            }
-
-            return false;
-        }
-
-    // // Paulo Functions, improve if necessary
-    // /**
-    //  * This function should return an array with all values
-    //  */
-    // std::vector<V> getValues() const {
-    //     std::vector<V> r;
-    //     for (const auto& [key, value] : this->_map) {
-    //         // std::cout << key << std::endl;
-    //         r.push_back(value);
-    //     }
-    //     return r;
-    // }
-    // /**
-    //  * This function should return an array with all keys
-    //  */
-    // std::vector<K> getKeys() const {
-    //     std::vector<K> r;
-    //     for (const auto& [key, value] : this->_map) {
-    //         // std::cout << key << std::endl;
-    //         r.push_back(key);
-    //     }
-    //     return r;
-    // }
+    /**
+     * @brief Removes a key-value pair from the map.
+     *
+     * @param key The key to remove.
+     * @return true if the key was found and removed, false otherwise.
+     */
+    bool remove(K key);
 
    private:
-    std::unordered_map<K, V> _map;
+    std::unordered_map<K, V> _map;  ///< Internal map storage
 };
+
+#include <common/util/maputil.tpp>

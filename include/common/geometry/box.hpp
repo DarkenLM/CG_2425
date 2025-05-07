@@ -2,15 +2,51 @@
 
 #include "common/geometry/BaseGeometry.hpp"
 
+/**
+ * @brief Geometry class representing a 3D box.
+ *
+ * This class provides functionality to generate a box shape with configurable
+ * dimensions and tessellation granularity.
+ */
 class BoxGeometry : public BaseGeometry {
    public:
+    /**
+     * @brief Destructor.
+     */
     virtual ~BoxGeometry();
+
+    /**
+     * @brief Constructs a box with the given size and grid resolution.
+     *
+     * @param length Length of the box along each axis.
+     * @param grid_size Number of subdivisions along each face.
+     */
     BoxGeometry(int length, int grid_size);
+
+    /**
+     * @brief Constructs a box geometry from precomputed data.
+     *
+     * @param vertices List of vertex positions.
+     * @param normals List of normal vectors.
+     * @param indices List of triangle indices.
+     */
     BoxGeometry(std::vector<Point3D> vertices, std::vector<Vector3<float>> normals, std::vector<unsigned int> indices);
 
-    virtual std::vector<Point3D> serielizeVertices() override;
-    virtual std::vector<Vector3<float>> serielizeNormals() override;
-    virtual std::vector<unsigned int> serielizeIndices() override;
+    /**
+     * @brief Returns a copy of the geometry's vertices.
+     * @return Vector of copied 3D points.
+     */
+    virtual std::vector<Point3D> copyVertices() override;
 
-    static BoxGeometry* deserialize(std::string filePath);
+    /**
+     * @brief Returns a copy of the geometry's normals.
+     * @return Vector of copied normal vectors.
+     */
+    virtual std::vector<Vector3<float>> copyNormals() override;
+
+    /**
+     * @brief Returns a copy of the geometry's indices.
+     * @return Vector of copied indices.
+     */
+    virtual std::vector<unsigned int> copyIndices() override;
 };

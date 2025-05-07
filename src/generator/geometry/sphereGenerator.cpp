@@ -73,7 +73,7 @@ SphereGeometry::SphereGeometry(float radius, int slices, int stacks) {
     }
 }
 
-std::vector<Point3D> SphereGeometry::serielizeVertices() {
+std::vector<Point3D> SphereGeometry::copyVertices() {
     std::vector<Point3D> ret;
 
     for (auto i : this->vertices) {
@@ -83,7 +83,7 @@ std::vector<Point3D> SphereGeometry::serielizeVertices() {
     return ret;
 }
 
-std::vector<Vector3<float>> SphereGeometry::serielizeNormals() {
+std::vector<Vector3<float>> SphereGeometry::copyNormals() {
     std::vector<Vector3<float>> ret;
 
     for (auto i : this->normals) {
@@ -93,7 +93,7 @@ std::vector<Vector3<float>> SphereGeometry::serielizeNormals() {
     return ret;
 }
 
-std::vector<unsigned int> SphereGeometry::serielizeIndices() {
+std::vector<unsigned int> SphereGeometry::copyIndices() {
     std::vector<unsigned> ret;
 
     for (auto i : this->indices) {

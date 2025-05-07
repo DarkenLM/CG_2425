@@ -17,13 +17,9 @@ void Model::setPosition(float x, float y, float z) {
     } else {
         this->translation = ObjectTranslation(x, y, z);
     }
-
-    // this->translation = Vector3(x, y, z);
 };
 
 void Model::setPosition(Vector3<float> pos) {
-    // this->translation = pos;
-
     if (this->translation.has_value()) {
         if (!this->translation.value().isDynamic()) this->translation = ObjectTranslation(pos.first, pos.second, pos.third);
     } else {
@@ -32,12 +28,6 @@ void Model::setPosition(Vector3<float> pos) {
 };
 
 void Model::moveTo(float x, float y, float z) {
-    // if (this->translation.has_value()) {
-    //     this->translation.value() += Vector3(x, y, z);
-    // } else {
-    //     this->translation = Vector3(x, y, z);
-    // }
-
     if (this->translation.has_value()) {
         if (!this->translation.value().isDynamic()) this->translation.value() += Vector3<float>(x, y, z);
     } else {
@@ -46,12 +36,6 @@ void Model::moveTo(float x, float y, float z) {
 };
 
 void Model::moveTo(Vector3<float> pos) {
-    // if (this->translation.has_value()) {
-    //     this->translation.value() += pos;
-    // } else {
-    //     this->translation = pos;
-    // }
-
     if (this->translation.has_value()) {
         if (!this->translation.value().isDynamic()) this->translation.value() += pos;
     } else {
@@ -59,34 +43,15 @@ void Model::moveTo(Vector3<float> pos) {
     }
 };
 
-/**
- * Sets the unit vector for the rotation axis.
- * The axis is a unit vector, and it's parameters must be normalized.
- *
- * @param axisX The X parameter of the axis vector.
- * @param axisY The Y parameter of the axis vector.
- * @param axisZ The Z parameter of the axis vector.
- */
 void Model::setRotation(float axisX, float axisY, float axisZ) {
-    // if (this->rotation.has_value()) {
-    //     this->rotation.value().first  = axisX;
-    //     this->rotation.value().second = axisY;
-    //     this->rotation.value().third  = axisZ;
-    // } else {
-    //     this->rotation = Vector4(axisX, axisY, axisZ, 0.0f);
-    // }
-
     this->rotation = ObjectRotation(0.0f, axisX, axisY, axisZ);
 }
 
-// void Model::rotate(float angle) {
-//     if (this->rotation.has_value()) {
-//         this->rotation.value().fourth = angle;
-//     }
-// }
+void Model::setTfStack(std::vector<TransformType> tfstack) {
+    this->tfStack = tfstack;
+}
 
 void Model::rotateAlong(float axisX, float axisY, float axisZ, float angle) {
-    // this->rotation = Vector4(axisX, axisY, axisZ, angle);
     if (this->rotation.has_value()) {
         if (!this->rotation.value().isDynamic()) this->rotation = ObjectRotation(angle, axisX, axisY, axisZ);
     } else {
@@ -95,7 +60,6 @@ void Model::rotateAlong(float axisX, float axisY, float axisZ, float angle) {
 }
 
 void Model::rotateAlong(Vector4<float> vec) {
-    // this->rotation = vec;
     if (this->rotation.has_value()) {
         if (!this->rotation.value().isDynamic()) {
             this->rotation = ObjectRotation(this->rotation.value().getAngle(), vec.first, vec.second, vec.third);
@@ -118,7 +82,6 @@ void Model::scaleTo(Vector3<float> sv) {
 }
 
 void Model::render() {
-    // std::vector<Point3D> vertices = this->geometry->getVertices();
     glPushMatrix();
     for (auto tt : this->tfStack) {
         switch (tt) {
@@ -128,13 +91,13 @@ void Model::render() {
                     float rotationMatrix[4][4];
                     float xAxis[3], yAxis[3], zAxis[3];
 
-                    float elapsedTime = (float)glutGet(GLUT_ELAPSED_TIME) / (1000.0f * this->translation.value().time);
+                    float elapsedTime = (float)glutGet(GLUT_ELAPSED_TIME) / (1000.0f * this->translation.value().getTime());
                     this->translation.value().getInterpolatedPosition(pos, deriv, elapsedTime);
                     this->translation.value().getCurrentRotation(xAxis, yAxis, zAxis, deriv, &rotationMatrix[0][0]);
 
                     // TODO: Implement the ui for this
                     if (true) {
-                        this->translation.value().curve.renderCatmullRomCurve();
+                        this->translation.value().getCurve().renderCatmullRomCurve();
                     }
                     // TODO: Implement the ui for this
                     if (true) {
@@ -143,7 +106,7 @@ void Model::render() {
 
                     glTranslatef(pos[0], pos[1], pos[2]);
 
-                    if (this->translation.value().align) {
+                    if (this->translation.value().getAlign()) {
                         glMultMatrixf(&rotationMatrix[0][0]);
                     }
                 }
@@ -151,13 +114,6 @@ void Model::render() {
             }
             case TRANSFORM_ROTATE: {
                 if (this->rotation.has_value()) {
-                    // glRotatef(
-                    //     this->rotation.value().fourth,
-                    //     this->rotation.value().first,
-                    //     this->rotation.value().second,
-                    //     this->rotation.value().third
-                    // );
-
                     if (this->rotation.value().isDynamic()) {
                     } else {
                         Vector4<float> vec = this->rotation.value().getVector4();

@@ -6,126 +6,231 @@
 #include "engine/scene/Object.hpp"
 using namespace tinyxml2;
 
+/**
+ * @struct cameraSettings
+ * @brief Represents the configuration parameters of a camera.
+ */
 typedef struct cameraSettings {
-    float posX;
-    float posY;
-    float posZ;
-    float lookX;
-    float lookY;
-    float lookZ;
-    float upX;
-    float upY;
-    float upZ;
-    float fov;
-    float near;
-    float far;
-    float alpha, beta;  // alpha vertical angle / beta horizontal angle
-    float zoom;
-    float aspectRatio;
+    float posX;         ///< X position of the camera.
+    float posY;         ///< Y position of the camera.
+    float posZ;         ///< Z position of the camera.
+    float lookX;        ///< X coordinate of the look-at vector.
+    float lookY;        ///< Y coordinate of the look-at vector.
+    float lookZ;        ///< > coordinate of the look-at vector.
+    float upX;          ///< X component of the up vector.
+    float upY;          ///< Y component of the up vector.
+    float upZ;          ///< Z component of the up vector.
+    float fov;          ///< Field of view.
+    float near;         ///< Near clipping plane.
+    float far;          ///< Far clipping plane.
+    float alpha, beta;  ///< Vertical (alpha) and horizontal (beta) rotation angles.
+    float zoom;         ///< Zoom level.
+    float aspectRatio;  ///< Aspect ratio (width / height).
 } cameraSettings;
 
+/**
+ * @enum CameraMode
+ * @brief Enum for the camera operating modes.
+ */
 enum CameraMode {
-    CAMERA_EX,  // Explorer Mode
-    CAMERA_FP,  // First Person Mode
-    CAMERA_TP   // Third Person Mode
+    CAMERA_EX,  ///< Explorer Mode
+    CAMERA_FP,  ///< First Person Mode
+    CAMERA_TP   ///< Third Person Mode
 };
 
+/**
+ * @class Camera
+ * @brief Handles multiple camera modes (Explorer, First Person, Third Person) and their respective transformations.
+ */
 class Camera : public Object {
    public:
-    float ROTATION_SPEED;
-    float MOVEMENT_SPEED;
-    float ZOOM_STEP;
+    float ROTATION_SPEED;  ///< Speed of rotation for camera controls.
+    float MOVEMENT_SPEED;  ///< Speed of translation for FP mode.
+    float ZOOM_STEP;       ///< Zoom increment for Explorer mode.
 
+    /**
+     * @brief Constructor to initialize the camera with position, orientation and projection parameters.
+     */
     Camera(
         float posX, float posY, float posZ,
         float lookX, float lookY, float lookZ,
         float upX, float upY, float upZ,
         float fov, float near, float far);
 
+    /**
+     * @brief Returns the current camera mode.
+     */
     CameraMode getCameraMode();
 
+    /**
+     * @brief Gets Explorer mode camera position.
+     */
     Vector3<float> getPosEX();
 
+    /**
+     * @brief Gets First Person mode camera position.
+     */
     Vector3<float> getPosFP();
 
+    /**
+     * @brief Gets Third Person mode camera position.
+     */
     Vector3<float> getPosTP();
 
+    /**
+     * @brief Gets current camera position based on the active mode.
+     */
     Vector3<float> getCurrentPos();
 
+    /**
+     * @brief Gets Explorer mode look-at vector.
+     */
     Vector3<float> getLookAtEX();
 
+    /**
+     * @brief Gets First Person mode look-at vector.
+     */
     Vector3<float> getLookAtFP();
 
+    /**
+     * @brief Gets Third Person mode look-at vector.
+     */
     Vector3<float> getLookAtTP();
 
+    /**
+     * @brief Gets current look-at vector based on the active mode.
+     */
     Vector3<float> getCurrentLookAt();
 
 #pragma region------- Overrides -------
+    /**
+     * @brief Renders the camera object (override from Object class).
+     */
     void render();
 
     /**
-     * Sets the camera center position.
-     * The center position is the pivot of the camera. To move the camera around this point, use
-     * @ref Camera::setRotation "Camera::setRotation".
+     * @brief Sets the Explorer mode position.
+     * @param x X coordinate.
+     * @param y Y coordinate.
+     * @param z Z coordinate.
      */
     void setExPosition(float x, float y, float z);
 
+    /**
+     * @brief Sets the First Person mode position.
+     * @param x X coordinate.
+     * @param y Y coordinate.
+     * @param z Z coordinate.
+     */
     void setFpPosition(float x, float y, float z);
 
+    /**
+     * @brief Sets the Third Person mode position.
+     * @param x X coordinate.
+     * @param y Y coordinate.
+     * @param z Z coordinate.
+     */
     void setTpPosition(float x, float y, float z);
 
+    /**
+     * @brief Sets the Explorer mode look-at point.
+     * @param x X coordinate.
+     * @param y Y coordinate.
+     * @param z Z coordinate.
+     */
     void setExLookAt(float x, float y, float z);
 
+    /**
+     * @brief Sets the First Person mode look-at point.
+     * @param x X coordinate.
+     * @param y Y coordinate.
+     * @param z Z coordinate.
+     */
     void setFpLookAt(float x, float y, float z);
 
+    /**
+     * @brief Sets the Third Person mode look-at point.
+     * @param x X coordinate.
+     * @param y Y coordinate.
+     * @param z Z coordinate.
+     */
     void setTpLookAt(float x, float y, float z);
 
     /**
-     * Sets the distance the camera is from it's target point.
+     * @brief Sets the zoom distance for Explorer mode.
+     * @param zoom Zoom level.
      */
     void setExZoom(float zoom);
 
     /**
-     * Sets the camera mode to be used by this camera and normalizes the camera variables
+     * @brief Sets the current camera mode.
+     * @param mode The camera mode to set.
      */
     void setCameraMode(CameraMode mode);
 
+    /**
+     * @brief Sets the aspect ratio for the camera's projection.
+     * @param aspectRatio Width/height ratio.
+     */
     void setAspectRatio(float aspectRatio);
 
 #pragma endregion
-
+    /**
+     * @brief Constructs a Camera instance from an XML element.
+     * @param xml Pointer to the XML element.
+     * @return A new Camera object.
+     */
     static Camera* fromXML(XMLElement* xml);
 
     /**
-     * This function processes the input for the Explorer camera.
+     * @brief Processes input keys in Explorer mode
+     * @param key Unsigned char corresponding to the pressed key code.
+     * @param mx Integer corresponding to the mouse x location.
+     * @param my Integer corresponding to the mouse y location.
      */
     void exMovement(unsigned char key, int mx, int my);
 
     /**
-     * This function processes the input for the first person camera.
+     * @brief Processes input keys in First Person mode
+     * @param key Unsigned char corresponding to the pressed key code.
+     * @param mx Integer corresponding to the mouse x location.
+     * @param my Integer corresponding to the mouse y location.
      */
     void fpMovement(unsigned char key, int mx, int my);
 
     /**
-     * This function processes the input for the third person camera.
+     * @brief Processes input keys in Third Person mode
+     * @param key Unsigned char corresponding to the pressed key code.
+     * @param mx Integer corresponding to the mouse x location.
+     * @param my Integer corresponding to the mouse y location.
      */
     void tpMovement(unsigned char key, int mx, int my);
 
     /**
-     * This function evaluates the camera mode and executes the action associated to the par key/mode
-     * (e.g The 'k' key may have a behavior in one camera mode, and a different one in another)
+     * @brief Dispatches movement commands based on current camera mode.
+     * @param key Unsigned char corresponding to the pressed key code.
+     * @param mx Integer corresponding to the mouse x location.
+     * @param my Integer corresponding to the mouse y location.
      */
     void processMovement(unsigned char key, int mx, int my);
 
    private:
-    // Esta função devolve o produto externo de dois vetores (o vetor que lhes é prependicular)
+    // TODO: Remove this (this function already exist elsewhere)
+    /**
+     * @brief Computes the cross product of two vectors.
+     */
     void cross(float dx, float dy, float dz, float fx, float fy, float fz, float& rx, float& ry, float& rz);
 
-    // Esta função devolve o produto interno de dois vetores (o angulo entre eles)
+    /**
+     * @brief Computes the dot product of two vectors.
+     */
     float dotProduct(float ax, float ay, float az, float bx, float by, float bz);
 
+    /**
+     * @brief Finds a vector perpendicular to the input.
+     */
     void findPerpendicularVector(float x, float y, float z, float& px, float& py, float& pz);
 
-    cameraSettings cameras[3];  // 0 - Explorer | 1 - First Person | 2 - Third Person
-    CameraMode currentMode;
+    cameraSettings cameras[3];  ///< Stores settings for all camera modes.
+    CameraMode currentMode;     ///< Currently active camera mode.
 };

@@ -12,14 +12,14 @@ ObjGeometry::ObjGeometry(std::vector<Point3D> vertices, std::vector<Vector3<floa
     this->_kind = GEOMETRY_OBJ;
 }
 
-std::vector<Point3D> ObjGeometry::serielizeVertices() {
+std::vector<Point3D> ObjGeometry::copyVertices() {
     throw 1;
 }
 
-std::vector<Vector3<float>> ObjGeometry::serielizeNormals() {
+std::vector<Vector3<float>> ObjGeometry::copyNormals() {
     throw 1;
 }
 
-std::vector<unsigned int> ObjGeometry::serielizeIndices() {
+std::vector<unsigned int> ObjGeometry::copyIndices() {
     throw 1;
 }

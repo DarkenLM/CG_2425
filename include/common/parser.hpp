@@ -15,10 +15,16 @@ constexpr uint8_t PARSER_VERSION = 5;
  *  @class Parser3D
  *  @brief Handles serialization and deserialization of 3D geometry data in binary format.
  *
+ * //TODO
+ * \attention Needs updating (nao esta de acordo com  a nova versao)
+ *
  * The binary file format includes:
  * - 1 byte version number
+ *
  * - 2 byte triangle count
+ *
  * - 3 vertices per triangle
+ *
  * - 3 floats per vertex (x, y, z coordinates)
  */
 class Parser3D {
@@ -60,6 +66,4 @@ class Parser3D {
      *         - Corrupted data
      */
     static BaseGeometry* loadObjFile(const std::string& filename);
-
-    BaseGeometry* loadGeometryFromFile(const std::string& filename);
 };

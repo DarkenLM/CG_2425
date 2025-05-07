@@ -161,6 +161,7 @@ Vector3<float> Camera::getCurrentPos() {
             std::cout << "The camera mode is incorrect!";
             break;
     }
+    return Vector3<float>(0.0f, 0.0f, 0.0f);
 };
 
 Vector3<float> Camera::getLookAtEX() {

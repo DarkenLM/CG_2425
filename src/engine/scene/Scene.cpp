@@ -116,7 +116,7 @@ void Scene::update(float deltaTime) {
 /**
  * This Function serves as a bridge inside the scene, to send keyboard input from the main(glut) to the camera object
  */
-void Scene::onKeypress2(unsigned char key, int mx, int my) {
+void Scene::onKeypress(unsigned char key, int mx, int my) {
     this->camera->processMovement(key, mx, my);
     return;
 }

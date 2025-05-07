@@ -1,408 +1,217 @@
 #pragma once
 
-#include "common/geometry/BaseGeometry.hpp"
-#include "common/util/xmlutil.hpp"
+#include <optional>
+#include <string>
+#include <vector>
+
 #include "engine/scene/Model.hpp"
 
 using namespace tinyxml2;
 
-// #define _TRANSFORM_IF3(transformer, source) if (source.has_value()) \
-//     transformer(source.value().first, source.value().second, source.value().third)
-
-// #define _TRANSFORM_IF4(transformer, source) if (source.has_value()) \
-//     transformer(source.value().first, source.value().second, source.value().third, source.value().fourth)
-
-// typedef enum transform_type {
-//     TRANSFORM_RESET_ALL,
-//     TRANSFORM_TRANSLATE,
-//     TRANSFORM_TRANSLATE_RESET,
-//     TRANSFORM_ROTATE,
-//     TRANSFORM_ROTATE_RESET,
-//     TRANSFORM_SCALE,
-//     TRANSFORM_SCALE_RESET
-// } TransformType;
-
+/**
+ * @class Group
+ * @brief Represents a group of 3D models and nested groups in a scene graph.
+ *
+ * Supports hierarchical transformations and animation via XML configuration.
+ */
 class Group : public Object {
    public:
-    Group() = default;
-    Group(std::vector<Model*> objects) {
-        this->objects = objects;
-    };
-    Group(std::vector<Model*> objects, std::vector<Group*> groups) {
-        this->objects = objects;
-        this->groups = groups;
-    };
-
-    // TODO: Read nested groups
-    static Group* fromXML(XMLElement* xml) {
-        // GET_XML_ELEMENT_OR_FAIL(xml, "transform", transform);
-
-        // Load all models from the "models" tag.
-        GET_XML_ELEMENT(xml, "models", modelsElem);
-        std::vector<Model*> models;
-        if (modelsElem != NULL) {
-            GET_XML_ELEMENT(modelsElem, "model", _model);
-            do {
-                if (!_model) break;  // Element does not exist in XML.
-                Model* model = Model::fromXML(_model);
-                if (!model) return nullptr;  // Element exists, but has errors.1
-
-                models.push_back(model);
-            } while ((_model = _model->NextSiblingElement("model")));
-        }
-
-        // Load all group children
-        std::vector<Group*> groups;
-        GET_XML_ELEMENT(xml, "group", _group);
-        do {
-            if (!_group) break;  // Element does not exist in XML.
-            Group* group = Group::fromXML(_group);
-            if (!group) return nullptr;  // Element exists, but has errors.
-
-            groups.push_back(group);
-        } while ((_group = _group->NextSiblingElement("group")));
-
-        // Load transforms, if they exist
-        // std::optional<Vector3<float>> translate = std::nullopt;
-        std::optional<ObjectTranslation> translate = std::nullopt;
-        // std::optional<Vector4<float>> rotate = std::nullopt;
-        std::optional<ObjectRotation> rotate = std::nullopt;
-        std::optional<Vector3<float>> scale = std::nullopt;
-        std::vector<TransformType> tfStack;
-
-        GET_XML_ELEMENT(xml, "transform", _transform);
-        if (_transform != NULL) {
-            XMLElement* _tfProp = _transform->FirstChildElement();
-            do {
-                std::string name = std::string(_tfProp->Name());
-                if (name == "translate") {
-                    // GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "x", tx, float);
-                    // GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "y", ty, float);
-                    // GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "z", tz, float);
-
-                    // translate = Vector3(tx, ty, tz);
-                    // tfStack.push_back(TRANSFORM_TRANSLATE);
-
-                    ObjectTranslation _trans;
-
-                    GET_XML_ELEMENT_ATTRIB(_tfProp, "time", ttime, int)
-                    if (ttime != 0) {
-                        GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "align", talign, bool);
-
-                        std::vector<Point3D> points;
-                        GET_XML_ELEMENT(_tfProp, "point", _point);
-                        do {
-                            if (!_point) break;  // Element does not exist in XML.
-                            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_point, "x", px, float);
-                            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_point, "y", py, float);
-                            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_point, "z", pz, float);
-
-                            Point3D point = Point3D(px, py, pz);
-                            points.push_back(point);
-                        } while ((_point = _point->NextSiblingElement("point")));
-
-                        _trans = ObjectTranslation(ttime, talign, points);
-                    } else {
-                        GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "x", tx, float);
-                        GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "y", ty, float);
-                        GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "z", tz, float);
-
-                        // translate = Vector3(tx, ty, tz);
-                        _trans = ObjectTranslation(tx, ty, tz);
-                    }
-
-                    translate = _trans;
-                    tfStack.push_back(TRANSFORM_TRANSLATE);
-                } else if (name == "rotate") {
-                    GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "x", rx, float);
-                    GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "y", ry, float);
-                    GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "z", rz, float);
-
-                    GET_XML_ELEMENT_ATTRIB(_tfProp, "angle", rangle, float);
-                    if (rangle != 0) {
-                        rotate = ObjectRotation(rangle, rx, ry, rz);
-                    } else {
-                        GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "time", rtime, int);
-                        rotate = ObjectRotation(rtime, rx, ry, rz);
-                    }
-                    // rotate = Vector4(rx, ry, rz, rangle);
-                    tfStack.push_back(TRANSFORM_ROTATE);
-                } else if (name == "scale") {
-                    GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "x", sx, float);
-                    GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "y", sy, float);
-                    GET_XML_ELEMENT_ATTRIB_OR_FAIL(_tfProp, "z", sz, float);
-
-                    scale = Vector3(sx, sy, sz);
-                    tfStack.push_back(TRANSFORM_SCALE);
-                }
-            } while ((_tfProp = _tfProp->NextSiblingElement()));
-        }
-
-        // Instantize a new instance
-        Group* retGroup = new Group(models, groups);
-        if (translate.has_value()) retGroup->translation = translate;
-        if (rotate.has_value()) retGroup->rotation = rotate;
-        if (scale.has_value()) retGroup->setScale(scale.value());
-        retGroup->setTfStack(tfStack);
-
-        return retGroup;
-    }
-
-    void addModel(Model* object) {
-        this->objects.push_back(object);
-    }
-
-    void addModelsFrom(std::vector<Model*> objects) {
-        this->objects.insert(this->objects.end(), objects.begin(), objects.end());
-    }
-
-    void setModels(std::vector<Model*> objects) {
-        this->objects = objects;
-    }
-
-    void addGroup(Group* group) {
-        this->groups.push_back(group);
-    }
-
-    void addGroupsFrom(std::vector<Group*> groups) {
-        this->groups.insert(this->groups.end(), groups.begin(), groups.end());
-    }
-
-    void setGroups(std::vector<Group*> groups) {
-        this->groups = groups;
-    }
-
-    void load() {
-        for (Model* m : this->objects) {
-            fuckAround {
-                m->load();
-            }
-            findOut(std::string e) {
-                yeet e;
-            }
-        }
-
-        for (Group* g : this->groups) {
-            fuckAround {
-                g->load();
-            }
-            findOut(std::string e) {
-                yeet std::string("Unable to load subgroup: ") + e;
-            }
-        }
-    }
-
-#pragma region------- Overrides -------
-    // void setPosition(float x, float y, float z) {
-    //     this->translation = Vector3(x, y, z);
-    // };
-
-    // void setPosition(Vector3<float> pos) {
-    //     this->translation = pos;
-    // };
-
-    // void moveTo(float x, float y, float z) {
-    //     if (this->translation.has_value()) {
-    //         this->translation.value() += Vector3(x, y, z);
-    //     } else {
-    //         this->translation = Vector3(x, y, z);
-    //     }
-    // };
-
-    // void moveTo(Vector3<float> pos) {
-    //     if (this->translation.has_value()) {
-    //         this->translation.value() += pos;
-    //     } else {
-    //         this->translation = pos;
-    //     }
-    // };
-
-    void setPosition(float x, float y, float z) {
-        if (this->translation.has_value()) {
-            if (!this->translation.value().isDynamic()) this->translation = ObjectTranslation(x, y, z);
-        } else {
-            this->translation = ObjectTranslation(x, y, z);
-        }
-    };
-
-    void setPosition(Vector3<float> pos) {
-        if (this->translation.has_value()) {
-            if (!this->translation.value().isDynamic()) this->translation = ObjectTranslation(pos.first, pos.second, pos.third);
-        } else {
-            this->translation = ObjectTranslation(pos.first, pos.second, pos.third);
-        }
-    };
-
-    void moveTo(float x, float y, float z) {
-        if (this->translation.has_value()) {
-            if (!this->translation.value().isDynamic()) this->translation.value() += Vector3<float>(x, y, z);
-        } else {
-            this->translation = ObjectTranslation(x, y, z);
-        }
-    };
-
-    void moveTo(Vector3<float> pos) {
-        if (this->translation.has_value()) {
-            if (!this->translation.value().isDynamic()) this->translation.value() += pos;
-        } else {
-            this->translation = ObjectTranslation(pos.first, pos.second, pos.third);
-        }
-    };
+    /**
+     * @brief Default constructor.
+     */
+    Group();
 
     /**
-     * Sets the unit vector for the rotation axis.
-     * The axis is a unit vector, and it's parameters must be normalized.
-     *
-     * @param axisX The X parameter of the axis vector.
-     * @param axisY The Y parameter of the axis vector.
-     * @param axisZ The Z parameter of the axis vector.
+     * @brief Constructs a Group with a given set of models.
+     * @param objects Vector of Model pointers to include in the group.
      */
-    void setRotation(float axisX, float axisY, float axisZ) {
-        // if (this->rotation.has_value()) {
-        //     this->rotation.value().first  = axisX;
-        //     this->rotation.value().second = axisY;
-        //     this->rotation.value().third  = axisZ;
-        // } else {
-        //     this->rotation = Vector4(axisX, axisY, axisZ, 0.0f);
-        // }
+    Group(std::vector<Model*> objects);
 
-        this->rotation = ObjectRotation(0.0f, axisX, axisY, axisZ);
-    }
+    /**
+     * @brief Constructs a Group with models and nested groups.
+     * @param objects Vector of Model pointers.
+     * @param groups Vector of Group pointers (nested groups).
+     */
+    Group(std::vector<Model*> objects, std::vector<Group*> groups);
 
-    void rotate(float angle) {
-        if (this->rotation.has_value()) {
-            if (this->rotation.value().isDynamic())
-                this->rotation.value().setTime(angle);
-            else
-                this->rotation.value().setAngle(angle);
-        }
-    }
+    /**
+     * @brief Constructs a Group from an XML element.
+     * @param xml Pointer to the XML element defining the group.
+     * @return Pointer to the created Group or nullptr on failure.
+     */
+    static Group* fromXML(XMLElement* xml);
 
-    void rotateAlong(float axisX, float axisY, float axisZ, float angle) {
-        // this->rotation = Vector4(axisX, axisY, axisZ, angle);
-        if (this->rotation.has_value()) {
-            if (!this->rotation.value().isDynamic()) this->rotation = ObjectRotation(angle, axisX, axisY, axisZ);
-        } else {
-            this->rotation = ObjectRotation(angle, axisX, axisY, axisZ);
-        }
-    }
+    /**
+     * @brief Define a transformação de translação para o grupo.
+     *
+     * Este método substitui qualquer translação existente, seja estática ou dinâmica.
+     *
+     * @param t A nova translação a aplicar. Pode ser std::nullopt para remover a translação.
+     */
+    void setTranslation(std::optional<ObjectTranslation> t);
 
-    void rotateAlong(Vector4<float> vec) {
-        if (this->rotation.has_value()) {
-            if (!this->rotation.value().isDynamic()) {
-                this->rotation = ObjectRotation(this->rotation.value().getAngle(), vec.first, vec.second, vec.third);
-            }
-        } else {
-            this->rotation = ObjectRotation(0.0f, vec.first, vec.second, vec.third);
-        }
-    }
+    /**
+     * @brief Define a transformação de rotação para o grupo.
+     *
+     * Este método substitui qualquer rotação existente, seja estática ou dinâmica.
+     *
+     * @param r A nova rotação a aplicar. Pode ser std::nullopt para remover a rotação.
+     */
+    void setRotation(std::optional<ObjectRotation> r);
 
-    void setScale(Vector3<float> sv) {
-        this->scale = sv;
-    }
+    /**
+     * @brief Sets the transformation stack for the group.
+     *
+     * This stack defines the order and types of transformations (translate, rotate, scale)
+     * that should be applied when rendering this group.
+     *
+     * @param tfstack A vector of TransformType enums representing the transformation sequence.
+     */
+    void setTfStack(std::vector<TransformType> tfstack);
 
-    void scaleTo(Vector3<float> sv) {
-        if (this->scale.has_value()) {
-            this->scale.value() += sv;
-        } else {
-            this->scale = sv;
-        }
-    }
+    /**
+     * @brief Adds a model to the group.
+     * @param object Pointer to the Model to add.
+     */
+    void addModel(Model* object);
 
-    void render() override {
-        // TODO: Push transformation matrices and pop them at the end.
-        glPushMatrix();
+    /**
+     * @brief Adds multiple models to the group.
+     * @param objects Vector of Model pointers to add.
+     */
+    void addModelsFrom(std::vector<Model*> objects);
 
-        for (auto tt : this->tfStack) {
-            switch (tt) {
-                case TRANSFORM_TRANSLATE: {
-                    // _TRANSFORM_IF3(glTranslatef, this->translation);
-                    if (this->translation.has_value()) {
-                        if (this->translation.value().isDynamic()) {
-                            float pos[3], deriv[3];
-                            float rotationMatrix[4][4];
-                            float xAxis[3], yAxis[3], zAxis[3];
+    /**
+     * @brief Replaces all models in the group.
+     * @param objects Vector of Model pointers.
+     */
+    void setModels(std::vector<Model*> objects);
 
-                            float elapsedTime = (float)glutGet(GLUT_ELAPSED_TIME) / (1000.0f * this->translation.value().time);
-                            this->translation.value().getInterpolatedPosition(pos, deriv, elapsedTime);
-                            this->translation.value().getCurrentRotation(xAxis, yAxis, zAxis, deriv, &rotationMatrix[0][0]);
+    /**
+     * @brief Adds a nested group.
+     * @param group Pointer to the Group to add.
+     */
+    void addGroup(Group* group);
 
-                            // TODO: Implement the ui for this
-                            if (true) {
-                                this->translation.value().curve.renderCatmullRomCurve();
-                            }
-                            // TODO: Implement the ui for this
-                            if (true) {
-                                this->translation.value().drawMyCordSystem(pos, xAxis, yAxis, zAxis);
-                            }
+    /**
+     * @brief Adds multiple nested groups.
+     * @param groups Vector of Group pointers to add.
+     */
+    void addGroupsFrom(std::vector<Group*> groups);
 
-                            glTranslatef(pos[0], pos[1], pos[2]);
+    /**
+     * @brief Replaces all nested groups.
+     * @param groups Vector of Group pointers.
+     */
+    void setGroups(std::vector<Group*> groups);
 
-                            if (this->translation.value().align) {
-                                glMultMatrixf(&rotationMatrix[0][0]);
-                            }
-                        } else {
-                            Vector3<float> vec = this->translation.value().getVector();
-                            glTranslatef(vec.first, vec.second, vec.third);
-                        }
-                    }
-                    break;
-                }
-                case TRANSFORM_ROTATE: {
-                    if (this->rotation.has_value()) {
-                        if (this->rotation.value().isDynamic()) {
-                            float elapsedTime = (float)glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
-                            float t = this->rotation.value().getTime();  // Duration in seconds to complete 360
-                            float angle = fmodf((elapsedTime / t) * 360.0f, 360.0f);
-                            this->rotation.value().setAngle(angle);
+    /**
+     * @brief Loads all models and nested groups, with error handling.
+     * @throws std::string if a model or group fails to load.
+     */
+    void load();
 
-                            Vector4<float> vec = this->rotation.value().getVector4();
-                            glRotatef(vec.first, vec.second, vec.third, vec.fourth);
-                        } else {
-                            Vector4<float> vec = this->rotation.value().getVector4();
-                            glRotatef(vec.first, vec.second, vec.third, vec.fourth);
-                        }
-                    }
-                    break;
-                }
-                case TRANSFORM_SCALE: {
-                    _TRANSFORM_IF3(glScalef, this->scale);
-                    break;
-                }
-            }
-        }
+    /**
+     * @brief Sets static translation position.
+     * @param x X coordinate.
+     * @param y Y coordinate.
+     * @param z Z coordinate.
+     */
+    void setPosition(float x, float y, float z);
 
-        for (Model* m : this->objects) {
-            m->render();
-        }
+    /**
+     * @brief Sets static translation position.
+     * @param pos 3D vector representing the new position.
+     */
+    void setPosition(Vector3<float> pos);
 
-        for (Group* g : this->groups) {
-            g->render();
-        }
-        glPopMatrix();
-    };
-#pragma endregion-- -- -- -Overrides-- -- -- -
+    /**
+     * @brief Moves the group by a relative offset.
+     * @param x Offset in X.
+     * @param y Offset in Y.
+     * @param z Offset in Z.
+     */
+    void moveTo(float x, float y, float z);
+
+    /**
+     * @brief Moves the group by a relative offset.
+     * @param pos 3D vector representing the offset.
+     */
+    void moveTo(Vector3<float> pos);
+
+    /**
+     * @brief Sets the rotation axis with a zero angle (used for animation setup).
+     * @param axisX X component of axis.
+     * @param axisY Y component of axis.
+     * @param axisZ Z component of axis.
+     */
+    void setRotation(float axisX, float axisY, float axisZ);
+
+    /**
+     * @brief Rotates the group by the given angle on the current axis.
+     *        For animated rotations, updates the time-based rotation.
+     * @param angle Rotation angle in degrees.
+     */
+    void rotate(float angle);
+
+    /**
+     * @brief Sets a new static rotation with angle and axis.
+     * @param axisX X component of axis.
+     * @param axisY Y component of axis.
+     * @param axisZ Z component of axis.
+     * @param angle Rotation angle in degrees.
+     */
+    void rotateAlong(float axisX, float axisY, float axisZ, float angle);
+
+    /**
+     * @brief Sets rotation using a 4D vector (angle + axis).
+     * @param vec Vector containing (angle, x, y, z).
+     */
+    void rotateAlong(Vector4<float> vec);
+
+    /**
+     * @brief Sets the scale factors for the group.
+     * @param sv Vector representing (scaleX, scaleY, scaleZ).
+     */
+    void setScale(Vector3<float> sv);
+
+    /**
+     * @brief Scales the group incrementally by a given vector.
+     * @param sv Vector representing incremental scale values.
+     */
+    void scaleTo(Vector3<float> sv);
+
+    // Override render method from Object
+    void render() override;
 
    private:
+    /**
+     * @brief Models contained in this group.
+     */
     std::vector<Model*> objects;
+
+    /**
+     * @brief Nested child groups.
+     */
     std::vector<Group*> groups;
 
-    // // Transform
-    // std::optional<Vector3<float>> translation;
-    // std::optional<Vector4<float>> rotation;
-    // std::optional<Vector3<float>> scale;
-    // std::vector<TransformType> tfStack;
+    /**
+     * @brief Optional translation (static or dynamic).
+     */
+    std::optional<ObjectTranslation> translation = std::nullopt;
 
-    // void setTfStack(std::vector<TransformType> tfStack) {
-    //     this->tfStack = tfStack;
-    // }
+    /**
+     * @brief Optional rotation (static or time-based).
+     */
+    std::optional<ObjectRotation> rotation = std::nullopt;
 
-    // protected:
-    //     // Transform
-    //     std::optional<Vector3<float>> translation;
-    //     std::optional<Vector4<float>> rotation;
-    //     std::optional<Vector3<float>> scale;
-    //     std::vector<TransformType> tfStack;
+    /**
+     * @brief Optional scaling vector.
+     */
+    std::optional<Vector3<float>> scale = std::nullopt;
 
-    //     void setTfStack(std::vector<TransformType> tfStack);
+    /**
+     * @brief Ordered list of transformations to apply.
+     */
+    std::vector<TransformType> tfStack;
 };

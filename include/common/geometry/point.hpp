@@ -3,7 +3,10 @@
 
 /**
  *  @class Point3D
- *  @brief Represents a 3D point with float-precision(float) coordinates (x,y,z).
+ *  @brief Represents a 3D point with float-precision (x, y, z) coordinates.
+ *
+ *  The Point3D class stores the coordinates of a point in 3D space. It provides
+ *  methods for setting, getting, and manipulating the coordinates.
  */
 class Point3D {
    private:
@@ -67,10 +70,25 @@ class Point3D {
      */
     void set(float xVal, float yVal, float zVal);
 
+    /**
+     *  @brief Create a copy of this point with a new Y value.
+     *  @param y New Y-coordinate value.
+     *  @return A new Point3D instance with the updated Y value and other coordinates unchanged.
+     */
     Point3D withY(float y) const;
 
+    /**
+     *  @brief Create a copy of this point with a new X value.
+     *  @param x New X-coordinate value.
+     *  @return A new Point3D instance with the updated X value and other coordinates unchanged.
+     */
     Point3D withX(float x) const;
 
+    /**
+     *  @brief Create a copy of this point with a new Z value.
+     *  @param z New Z-coordinate value.
+     *  @return A new Point3D instance with the updated Z value and other coordinates unchanged.
+     */
     Point3D withZ(float z) const;
 
     /**
@@ -93,7 +111,36 @@ class Point3D {
      */
     bool operator!=(const Point3D& other) const;
 
+    /**
+     * @brief Addition operator.
+     * @param a First Point to add.
+     * @param b Second Point to add.
+     * @return A new Point3D instance representing the sum of both points.
+     */
+    friend Point3D operator+(const Point3D& a, const Point3D& b);
+
+    /**
+     * @brief Subtraction operator.
+     * @param other Point to subtract from the current point.
+     * @return A new Point3D instance representing the difference.
+     */
     Point3D operator-(const Point3D& other) const;
+
+    /**
+     * @brief Scalar multiplication operator (point * scalar).
+     * @param point The point to multiply.
+     * @param scalar The scalar value to multiply the point by.
+     * @return A new Point3D instance with each coordinate multiplied by the scalar.
+     */
+    friend Point3D operator*(const Point3D& point, float scalar);
+
+    /**
+     * @brief Scalar multiplication operator (scalar * point).
+     * @param scalar The scalar value to multiply.
+     * @param point The point to multiply.
+     * @return A new Point3D instance with each coordinate multiplied by the scalar.
+     */
+    friend Point3D operator*(float scalar, const Point3D& point);
 
     /**
      * @brief Stream insertion operator overload
@@ -103,18 +150,9 @@ class Point3D {
      */
     friend std::ostream& operator<<(std::ostream& os, const Point3D& point);
 
+    /**
+     * @brief Return the raw coordinate data as a float array.
+     * @return Pointer to the internal coordinate data (x, y, z).
+     */
     float* data() { return &x; }
 };
-
-// Outside of the Point3D class
-inline Point3D operator*(const Point3D& point, float scalar) {
-    return Point3D(point.getX() * scalar, point.getY() * scalar, point.getZ() * scalar);
-}
-
-inline Point3D operator+(const Point3D& a, const Point3D& b) {
-    return Point3D(a.getX() + b.getX(), a.getY() + b.getY(), a.getZ() + b.getZ());
-}
-
-inline Point3D operator*(float scalar, const Point3D& point) {
-    return point * scalar;  // use the other overload
-}

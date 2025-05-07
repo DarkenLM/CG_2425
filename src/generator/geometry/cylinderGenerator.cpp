@@ -78,7 +78,7 @@ CylinderGeometry::CylinderGeometry(int radius, int height, int slices) {
     }
 }
 
-std::vector<Point3D> CylinderGeometry::serielizeVertices() {
+std::vector<Point3D> CylinderGeometry::copyVertices() {
     std::vector<Point3D> ret;
 
     for (auto i : this->vertices) {
@@ -88,7 +88,7 @@ std::vector<Point3D> CylinderGeometry::serielizeVertices() {
     return ret;
 }
 
-std::vector<Vector3<float>> CylinderGeometry::serielizeNormals() {
+std::vector<Vector3<float>> CylinderGeometry::copyNormals() {
     std::vector<Vector3<float>> ret;
 
     for (auto i : this->normals) {
@@ -98,7 +98,7 @@ std::vector<Vector3<float>> CylinderGeometry::serielizeNormals() {
     return ret;
 }
 
-std::vector<unsigned int> CylinderGeometry::serielizeIndices() {
+std::vector<unsigned int> CylinderGeometry::copyIndices() {
     std::vector<unsigned> ret;
 
     for (auto i : this->indices) {

@@ -7,7 +7,7 @@
 #include "common/common.hpp"
 #include "common/geometry/plane.hpp"
 #include "common/geometry/point.hpp"
-#include "engine/glContext.hpp"
+#include "common/util/vectors.hpp"
 
 PlaneGeometry::~PlaneGeometry() = default;
 
@@ -49,7 +49,7 @@ PlaneGeometry::PlaneGeometry(int length, int gridSize) {
     }
 }
 
-std::vector<Point3D> PlaneGeometry::serielizeVertices() {
+std::vector<Point3D> PlaneGeometry::copyVertices() {
     std::vector<Point3D> ret;
 
     for (auto i : this->vertices) {
@@ -59,7 +59,7 @@ std::vector<Point3D> PlaneGeometry::serielizeVertices() {
     return ret;
 }
 
-std::vector<Vector3<float>> PlaneGeometry::serielizeNormals() {
+std::vector<Vector3<float>> PlaneGeometry::copyNormals() {
     std::vector<Vector3<float>> ret;
 
     for (auto i : this->normals) {
@@ -69,7 +69,7 @@ std::vector<Vector3<float>> PlaneGeometry::serielizeNormals() {
     return ret;
 }
 
-std::vector<unsigned int> PlaneGeometry::serielizeIndices() {
+std::vector<unsigned int> PlaneGeometry::copyIndices() {
     std::vector<unsigned> ret;
 
     for (auto i : this->indices) {

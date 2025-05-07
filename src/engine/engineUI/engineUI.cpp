@@ -4,17 +4,14 @@
 
 #include "engine/scene/SceneState.hpp"
 
-extern struct scenestate STATE;
-
-int timbase;
-float frames;
+extern struct scenestate STATE;  ///< External reference to the global scene state
 
 EngineUI::EngineUI()
     : show_demo_window(false),
       show_another_window(false),
       show_performance_window(true),
       clear_color(ImVec4(0.45f, 0.55f, 0.60f, 1.00f)),
-      fullscreen(true),
+      fullscreen(false),
       vsync(false),
       polygonMode(1),
       cameraMode(0) {}
@@ -24,7 +21,7 @@ EngineUI::~EngineUI() {
 }
 
 /**
- *  @brief Sets up te style for ImGUI(rounded edges,etc).
+ * @brief Sets up the ImGui style (rounded edges, padding, etc.).
  */
 void setupStyle() {
     ImGui::StyleColorsClassic();
@@ -47,7 +44,6 @@ void setupStyle() {
     style.GrabMinSize = 18.0f;
 }
 
-// Creates the context and init the GUI
 void EngineUI::init() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -62,12 +58,19 @@ void EngineUI::init() {
     ImGui_ImplOpenGL3_Init();
 }
 
-// Creates an overlay with permormance information
-// TODO: FrameRate needs to change to what we learned at school
+/**
+ * @brief Displays the performance overlay with FPS and camera information.
+ *
+ * @param p_open Pointer to a boolean that controls whether the overlay is open.
+ */
 static void showPerformanceOverlay(bool* p_open) {
     static int location = 1;
     ImGuiIO& io = ImGui::GetIO();
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration |
+                                    ImGuiWindowFlags_AlwaysAutoResize |
+                                    ImGuiWindowFlags_NoSavedSettings |
+                                    ImGuiWindowFlags_NoFocusOnAppearing |
+                                    ImGuiWindowFlags_NoNav;
     if (location >= 0) {
         const float PAD = 10.0f;
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -81,7 +84,6 @@ static void showPerformanceOverlay(bool* p_open) {
         ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
         window_flags |= ImGuiWindowFlags_NoMove;
     } else if (location == -2) {
-        // Center window
         ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
         window_flags |= ImGuiWindowFlags_NoMove;
     }
@@ -191,18 +193,7 @@ void EngineUI::render() {
 
     ImGui::SetWindowPos(ImVec2(0, 0), ImGuiCond_Always);
 
-    /*
-    ImGui::Text("This is some useful text.");           // Display some text (you can use a format strings too)
-    ImGui::Checkbox("Demo Window", &show_demo_window);  // Edit bools storing our window open/close state
-
-    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);             // Edit 1 float using a slider from 0.0f to 1.0f
-    ImGui::ColorEdit3("clear color", (float*)&clear_color);  // Edit 3 floats representing a color
-
-    if (ImGui::Button("Button"))  // Buttons return true when clicked (most widgets return true when edited/activated)
-    counter++;
-    ImGui::SameLine();
-    ImGui::Text("counter = %d", counter);
-    */
+    // ImGui::Checkbox("Demo Window", &show_demo_window);  // Edit bools storing our window open/close state
 
     if (this->show_performance_window) {
         showPerformanceOverlay(&this->show_performance_window);

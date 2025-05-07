@@ -7,7 +7,7 @@
 #include "common/common.hpp"
 #include "common/geometry/cone.hpp"
 #include "common/geometry/point.hpp"
-#include "engine/glContext.hpp"
+#include "common/util/vectors.hpp"
 
 ConeGeometry::~ConeGeometry() = default;
 
@@ -96,7 +96,7 @@ ConeGeometry::ConeGeometry(int radius, int height, int slices, int stacks) {
     }
 }
 
-std::vector<Point3D> ConeGeometry::serielizeVertices() {
+std::vector<Point3D> ConeGeometry::copyVertices() {
     std::vector<Point3D> ret;
 
     for (auto i : this->vertices) {
@@ -106,7 +106,7 @@ std::vector<Point3D> ConeGeometry::serielizeVertices() {
     return ret;
 }
 
-std::vector<Vector3<float>> ConeGeometry::serielizeNormals() {
+std::vector<Vector3<float>> ConeGeometry::copyNormals() {
     std::vector<Vector3<float>> ret;
 
     for (auto i : this->normals) {
@@ -116,7 +116,7 @@ std::vector<Vector3<float>> ConeGeometry::serielizeNormals() {
     return ret;
 }
 
-std::vector<unsigned int> ConeGeometry::serielizeIndices() {
+std::vector<unsigned int> ConeGeometry::copyIndices() {
     std::vector<unsigned> ret;
 
     for (auto i : this->indices) {

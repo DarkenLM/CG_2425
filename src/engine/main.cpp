@@ -124,21 +124,6 @@ void handleInputEvents(InputEvent* e) {
         ImGui_ImplGLUT_KeyboardUpFunc(ke->key.key, ke->mouseX, ke->mouseY);
         ke->process();
     }
-
-    // if (InputManager::hasInput()) {
-    //     // Handle input
-    //     printf("KEYS: ");
-    //     for (Key k : InputManager::getKeys()) {
-    //         printf("%s, ", k.toString().c_str());
-
-    //         ImGui_ImplGLUT_KeyboardFunc(ke->key.key, ke->mouseX, ke->mouseY);
-    //         STATE.scene->onKeypress2(ke->key.key, ke->mouseX, ke->mouseY);
-    //         // InputManager::handleKey(k);
-    //     }
-    //     printf("\n");
-
-    //     glutPostRedisplay();
-    // }
 }
 
 void renderScene(void) {
@@ -202,15 +187,13 @@ void stepFunc(int timerId) {
         MouseEvent me = InputManager::getLastMousePos();
 
         // Handle input
-        printf("STEP KEYS: ");
+        // printf("STEP KEYS: ");
         for (Key k : InputManager::getKeys()) {
-            printf("%s, ", k.toString().c_str());
+            // printf("%s, ", k.toString().c_str());
 
             ImGui_ImplGLUT_KeyboardFunc(k.key, me.mouseX, me.mouseY);
-            STATE.scene->onKeypress2(k.key, me.mouseX, me.mouseY);
-            // InputManager::handleKey(k);
+            STATE.scene->onKeypress(k.key, me.mouseX, me.mouseY);
         }
-        printf("\n");
     }
     glutPostRedisplay();
     glutTimerFunc(16, stepFunc, 0);
@@ -291,7 +274,7 @@ void genVBOs() {
 
 void processKeys(unsigned char key, int x, int y) {
     ImGui_ImplGLUT_KeyboardFunc(key, x, y);
-    STATE.scene->onKeypress2(key, x, y);
+    STATE.scene->onKeypress(key, x, y);
 
     glutPostRedisplay();
 }

@@ -7,9 +7,12 @@
 #include <vector>
 
 #include "common/util/maputil.hpp"
-#include "engine/glContext.hpp"
+#include "common/util/vectors.hpp"
 #include "point.hpp"
 
+/**
+ * @brief Enumerates different kinds of geometric primitives.
+ */
 typedef enum basegeometry_kind : uint8_t {
     _GEOMETRY_BASE,
     GEOMETRY_CONE,
@@ -25,53 +28,68 @@ typedef enum basegeometry_kind : uint8_t {
     GEOMETRY_OBJ
 } BaseGeometryKind;
 
-// #define REGISTER_GEOMETRY(ClassName, KindValue) \
-//     static struct ClassName##Register { \
-//         ClassName##Register() { \
-//             registry[KindValue] = []() -> std::unique_ptr<BaseGeometry> { return std::make_unique<ClassName>(); }; \
-//         } \
-//     } ClassName##Instance;
-
-// #define REGISTER_GEOMETRY(className, kind) \
-//     /*static_block {*/ \
-//         BaseGeometry::registerType(kind, [](std::vector<Point3D> vertices) -> std::unique_ptr<BaseGeometry> { \
-//             return std::make_unique<className>(vertices); \
-//         }); \
-//     /*}*/
-
+/**
+ * @brief Abstract base class for 3D geometric primitives.
+ *
+ * This class provides the base interface for managing and accessing
+ * geometry data such as vertices, normals, and indices.
+ */
 class BaseGeometry {
    protected:
+    /**< Type of geometry */
     BaseGeometryKind _kind = _GEOMETRY_BASE;
+    /**< Vertex positions */
     std::vector<Point3D> vertices;
+    /**< Normal vectors */
     std::vector<Vector3<float>> normals;
+    /**< Triangle indices */
     std::vector<unsigned int> indices;
 
    public:
+    /**
+     * @brief Virtual destructor.
+     */
     virtual ~BaseGeometry() = default;
+
+    /**
+     * @brief Get the geometry's vertices.
+     * @return Vector of 3D points representing vertices.
+     */
     std::vector<Point3D> getVertices() const { return this->vertices; };
+
+    /**
+     * @brief Get the geometry's normals.
+     * @return Vector of 3D float vectors representing normals.
+     */
     std::vector<Vector3<float>> getNormals() const { return this->normals; };
+
+    /**
+     * @brief Get the geometry's triangle indices.
+     * @return Vector of unsigned integers representing indices.
+     */
     std::vector<unsigned int> getIndices() const { return this->indices; };
 
+    /**
+     * @brief Get the type of geometry.
+     * @return BaseGeometryKind enum value.
+     */
     BaseGeometryKind getKind() const { return this->_kind; };
 
-    virtual std::vector<Point3D> serielizeVertices() = 0;
-    virtual std::vector<Vector3<float>> serielizeNormals() = 0;
-    virtual std::vector<unsigned int> serielizeIndices() = 0;
+    /**
+     * @brief Create a copy of the vertex data.
+     * @return Vector of copied 3D points.
+     */
+    virtual std::vector<Point3D> copyVertices() = 0;
 
-    static BaseGeometry* deserialize(std::string filePath) { return nullptr; };
+    /**
+     * @brief Create a copy of the normal data.
+     * @return Vector of copied normals.
+     */
+    virtual std::vector<Vector3<float>> copyNormals() = 0;
 
-    //     static void registerType(BaseGeometryKind kind, std::unique_ptr<BaseGeometry> (*creator)(std::vector<Point3D>)) {
-    //         registry[kind] = creator;
-    //     }
-
-    //     static std::unique_ptr<BaseGeometry> create(BaseGeometryKind kind, std::vector<Point3D> vertices) {
-    //         if (registry.find(kind) != registry.end()) {
-    //             return registry[kind](vertices);
-    //         }
-
-    //         return nullptr;
-    //     }
-
-    // private:
-    //     static std::unordered_map<BaseGeometryKind, std::unique_ptr<BaseGeometry> (*)(std::vector<Point3D>)> registry;
+    /**
+     * @brief Create a copy of the index data.
+     * @return Vector of copied indices.
+     */
+    virtual std::vector<unsigned int> copyIndices() = 0;
 };

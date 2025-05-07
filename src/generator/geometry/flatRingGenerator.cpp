@@ -70,7 +70,7 @@ FlatRingGeometry::FlatRingGeometry(int majorRadius, int minorRadius, int slices)
     }
 }
 
-std::vector<Point3D> FlatRingGeometry::serielizeVertices() {
+std::vector<Point3D> FlatRingGeometry::copyVertices() {
     std::vector<Point3D> ret;
 
     for (auto i : this->vertices) {
@@ -80,7 +80,7 @@ std::vector<Point3D> FlatRingGeometry::serielizeVertices() {
     return ret;
 }
 
-std::vector<Vector3<float>> FlatRingGeometry::serielizeNormals() {
+std::vector<Vector3<float>> FlatRingGeometry::copyNormals() {
     std::vector<Vector3<float>> ret;
 
     for (auto i : this->normals) {
@@ -90,7 +90,7 @@ std::vector<Vector3<float>> FlatRingGeometry::serielizeNormals() {
     return ret;
 }
 
-std::vector<unsigned int> FlatRingGeometry::serielizeIndices() {
+std::vector<unsigned int> FlatRingGeometry::copyIndices() {
     std::vector<unsigned> ret;
 
     for (auto i : this->indices) {

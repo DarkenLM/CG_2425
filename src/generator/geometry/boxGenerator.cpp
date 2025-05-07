@@ -6,7 +6,7 @@
 #include "common/common.hpp"
 #include "common/geometry/box.hpp"
 #include "common/geometry/point.hpp"
-#include "engine/glContext.hpp"
+#include "common/util/vectors.hpp"
 
 BoxGeometry::~BoxGeometry() = default;
 
@@ -105,7 +105,7 @@ BoxGeometry::BoxGeometry(int length, int gridSize) {
             Vector3<float>(-1, 0, 0));
 }
 
-std::vector<Point3D> BoxGeometry::serielizeVertices() {
+std::vector<Point3D> BoxGeometry::copyVertices() {
     std::vector<Point3D> ret;
 
     for (auto i : this->vertices) {
@@ -115,7 +115,7 @@ std::vector<Point3D> BoxGeometry::serielizeVertices() {
     return ret;
 }
 
-std::vector<Vector3<float>> BoxGeometry::serielizeNormals() {
+std::vector<Vector3<float>> BoxGeometry::copyNormals() {
     std::vector<Vector3<float>> ret;
 
     for (auto i : this->normals) {
@@ -125,7 +125,7 @@ std::vector<Vector3<float>> BoxGeometry::serielizeNormals() {
     return ret;
 }
 
-std::vector<unsigned int> BoxGeometry::serielizeIndices() {
+std::vector<unsigned int> BoxGeometry::copyIndices() {
     std::vector<unsigned> ret;
 
     for (auto i : this->indices) {

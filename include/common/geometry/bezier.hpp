@@ -1,12 +1,8 @@
 #pragma once
 
-#include <array>
 #include <functional>
-#include <string>
-#include <vector>
 
 #include "common/geometry/BaseGeometry.hpp"
-#include "common/geometry/point.hpp"
 
 /**
  * @brief Geometry class representing a tessellated Bezier surface.

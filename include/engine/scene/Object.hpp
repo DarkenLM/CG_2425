@@ -64,6 +64,14 @@ class ObjectTranslation {
     bool isDynamic() const;   /**< Checks whether the translation is dynamic. */
     Point3D getPoint() const; /**< Returns the static translation point. */
 
+    bool getShowCurve() const;         /**< Returns the boolean value associated with the curve being visible or not. */
+    void setShowCurve(bool showCurve); /**< Sets the boolean value that defines if curve is visible or not. */
+
+    // In ObjectTranslation class
+    bool* getShowCurvePtr() {
+        return &showCurve;
+    }
+
     int getTime() const;    /**< Returns the total duration of the animation. */
     void setTime(int time); /**< Sets the duration of the animation. */
 
@@ -121,6 +129,7 @@ class ObjectTranslation {
 
    private:
     bool _dynamic;               /**< Indicates whether the translation is dynamic (animated) or static. */
+    bool showCurve;              /**< Indicates whether the curve is visivel or not. */
     float x, y, z;               /**< Coordinates for static translation. */
     int time;                    /**< Duration (in seconds or frames) for dynamic translation along the curve. */
     bool align;                  /**< Indicates whether the object should align its orientation to the path curve. */

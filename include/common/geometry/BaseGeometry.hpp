@@ -1,14 +1,9 @@
 #pragma once
 
-#include <cstdint>
-#include <memory>
-#include <string>
-#include <unordered_map>
 #include <vector>
 
-#include "common/util/maputil.hpp"
+#include "common/geometry/point.hpp"
 #include "common/util/vectors.hpp"
-#include "point.hpp"
 
 /**
  * @brief Enumerates different kinds of geometric primitives.

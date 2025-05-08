@@ -1,7 +1,5 @@
 #include "common/geometry/cone.hpp"
 
-#include "common/parser.hpp"
-
 ConeGeometry::~ConeGeometry() = default;
 
 ConeGeometry::ConeGeometry(std::vector<Point3D> vertices, std::vector<Vector3<float>> normals, std::vector<unsigned int> indices) {

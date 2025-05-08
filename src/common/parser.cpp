@@ -1,11 +1,9 @@
 #include "common/parser.hpp"
-// #include "common/geometry/GeometryCatalog.hpp"
+
 #include <fstream>
-#include <iostream>
 #include <sstream>
 
-#include "common/util/vectors.hpp"
-#include "engine/geometry/GeometryCatalog.hpp"
+#include "common/geometry/GeometryCatalog.hpp"
 
 struct _parser3d_load_result {
     uint8_t _guard;

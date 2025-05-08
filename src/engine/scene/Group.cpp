@@ -125,9 +125,29 @@ Group* Group::fromXML(XMLElement* xml) {
     return retGroup;
 }
 
+const std::vector<Group*>& Group::getGroups() const {
+    return this->groups;
+}
+
+const std::vector<Model*>& Group::getObjects() const {
+    return this->objects;
+}
+
+const std::vector<TransformType>& Group::getTransformations() const {
+    return this->tfStack;
+}
+
+std::optional<ObjectTranslation>& Group::getTranslation() {
+    return this->translation;
+};
+
 void Group::setTranslation(std::optional<ObjectTranslation> t) {
     this->translation = t;
 }
+
+std::optional<ObjectRotation>& Group::getRotation() {
+    return this->rotation;
+};
 
 void Group::setRotation(std::optional<ObjectRotation> r) {
     this->rotation = r;
@@ -278,7 +298,7 @@ void Group::render() {
                         this->translation.value().getCurrentRotation(xAxis, yAxis, zAxis, deriv, &rotationMatrix[0][0]);
 
                         // TODO: Implement the ui for this
-                        if (true) {
+                        if (this->translation.value().getShowCurve()) {
                             this->translation.value().getCurve().renderCatmullRomCurve();
                         }
                         // TODO: Implement the ui for this

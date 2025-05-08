@@ -1,7 +1,5 @@
 #include "common/geometry/torus.hpp"
 
-#include "common/parser.hpp"
-
 TorusGeometry::~TorusGeometry() = default;
 
 TorusGeometry::TorusGeometry(std::vector<Point3D> vertices, std::vector<Vector3<float>> normals, std::vector<unsigned int> indices) {

@@ -1,7 +1,5 @@
 #include "common/geometry/flatRing.hpp"
 
-#include "common/parser.hpp"
-
 FlatRingGeometry::~FlatRingGeometry() = default;
 
 FlatRingGeometry::FlatRingGeometry(std::vector<Point3D> vertices, std::vector<Vector3<float>> normals, std::vector<unsigned int> indices) {

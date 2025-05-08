@@ -1,7 +1,5 @@
 #include "common/geometry/obj.hpp"
 
-#include "common/parser.hpp"
-
 ObjGeometry::~ObjGeometry() = default;
 
 ObjGeometry::ObjGeometry(std::vector<Point3D> vertices, std::vector<Vector3<float>> normals, std::vector<unsigned int> indices) {

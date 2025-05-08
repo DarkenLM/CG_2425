@@ -1,4 +1,4 @@
-#include "engine/geometry/GeometryCatalog.hpp"
+#include "common/geometry/GeometryCatalog.hpp"
 
 BaseGeometry* createGeometryFromKind(BaseGeometryKind kind, std::vector<Point3D> vertices, std::vector<Vector3<float>> normals, std::vector<unsigned int> indices) {
     switch (kind) {

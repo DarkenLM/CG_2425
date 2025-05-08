@@ -1,7 +1,5 @@
 #include "common/geometry/icosphere.hpp"
 
-#include "common/parser.hpp"
-
 IcosphereGeometry::~IcosphereGeometry() = default;
 
 IcosphereGeometry::IcosphereGeometry(std::vector<Point3D> vertices, std::vector<Vector3<float>> normals, std::vector<unsigned int> indices) {

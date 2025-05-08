@@ -1,7 +1,5 @@
 #include "common/geometry/bezier.hpp"
 
-#include "common/parser.hpp"
-
 BezierGeometry::~BezierGeometry() = default;
 
 BezierGeometry::BezierGeometry(std::vector<Point3D> vertices, std::vector<Vector3<float>> normals, std::vector<unsigned int> indices) {

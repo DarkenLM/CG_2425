@@ -1,10 +1,6 @@
 #pragma once
-#include <cstdint>
-#include <string>
-#include <vector>
 
 #include "common/geometry/BaseGeometry.hpp"
-#include "common/geometry/point.hpp"
 
 /**
  *  @brief File format version number (1 byte)

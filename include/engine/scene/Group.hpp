@@ -42,22 +42,54 @@ class Group : public Object {
     static Group* fromXML(XMLElement* xml);
 
     /**
-     * @brief Define a transformação de translação para o grupo.
+     * @brief Gets the groups directly inside the object (this).
+     * @return Const reference to vector of groups.
+     */
+    const std::vector<Group*>& getGroups() const;
+
+    /**
+     * @brief Gets the models contained in this group.
+     * @return Const reference to vector of models.
+     */
+    const std::vector<Model*>& getObjects() const;
+
+    /**
+     * @brief Gets the ordered list of transformations to apply.
+     * @return Const reference to vector of transformation types.
+     */
+    const std::vector<TransformType>& getTransformations() const;
+
+    /**
+     * @brief Sets the translation transformation for the group.
      *
-     * Este método substitui qualquer translação existente, seja estática ou dinâmica.
+     * This replaces any existing translation, whether static or dynamic.
      *
-     * @param t A nova translação a aplicar. Pode ser std::nullopt para remover a translação.
+     * @param t The new translation to apply. Use std::nullopt to remove the translation.
      */
     void setTranslation(std::optional<ObjectTranslation> t);
 
     /**
-     * @brief Define a transformação de rotação para o grupo.
+     * @brief Gets the current translation transformation of the group.
      *
-     * Este método substitui qualquer rotação existente, seja estática ou dinâmica.
+     * @return An optional ObjectTranslation. std::nullopt if no translation is set.
+     */
+    std::optional<ObjectTranslation>& getTranslation();
+
+    /**
+     * @brief Sets the rotation transformation for the group.
      *
-     * @param r A nova rotação a aplicar. Pode ser std::nullopt para remover a rotação.
+     * This replaces any existing rotation, whether static or dynamic.
+     *
+     * @param r The new rotation to apply. Use std::nullopt to remove the rotation.
      */
     void setRotation(std::optional<ObjectRotation> r);
+
+    /**
+     * @brief Gets the current rotation transformation of the group.
+     *
+     * @return An optional ObjectRotation. std::nullopt if no rotation is set.
+     */
+    std::optional<ObjectRotation>& getRotation();
 
     /**
      * @brief Sets the transformation stack for the group.

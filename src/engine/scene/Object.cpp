@@ -6,12 +6,13 @@
 #include "common/debug.hpp"
 #include "common/util/vectors.hpp"
 
-ObjectTranslation::ObjectTranslation() : _dynamic(false), curve({}) {};
+ObjectTranslation::ObjectTranslation() : _dynamic(false), showCurve(false), curve({}) {};
 
-ObjectTranslation::ObjectTranslation(float x, float y, float z) : _dynamic(false), x(x), y(y), z(z), curve({}) {};
+ObjectTranslation::ObjectTranslation(float x, float y, float z) : _dynamic(false), showCurve(false), x(x), y(y), z(z), curve({}) {};
 
 ObjectTranslation::ObjectTranslation(int time, bool align, std::vector<Point3D> points)
     : _dynamic(true),
+      showCurve(true),
       time(time),
       align(align),
       points(points),
@@ -24,6 +25,14 @@ bool ObjectTranslation::isDynamic() const {
 Point3D ObjectTranslation::getPoint() const {
     return Point3D(this->x, this->y, this->z);
 }
+
+bool ObjectTranslation::getShowCurve() const {
+    return this->showCurve;
+};
+
+void ObjectTranslation::setShowCurve(bool showCurve) {
+    this->showCurve = showCurve;
+};
 
 int ObjectTranslation::getTime() const {
     return this->time;

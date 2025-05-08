@@ -1,7 +1,5 @@
 #include "common/geometry/box.hpp"
 
-#include "common/parser.hpp"
-
 BoxGeometry::~BoxGeometry() = default;
 
 BoxGeometry::BoxGeometry(std::vector<Point3D> vertices, std::vector<Vector3<float>> normals, std::vector<unsigned int> indices) {

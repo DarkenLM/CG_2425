@@ -19,7 +19,10 @@ Scene::Scene(Window* window, Camera* camera, std::vector<Group*> groups, std::ve
 }
 
 int Scene::getWindowWidth() const { return this->window->getWidth(); }
+
 int Scene::getWindowHeight() const { return this->window->getHeight(); }
+
+std::vector<Group*> Scene::getGroups() const { return this->groups; }
 
 Scene* Scene::fromFile(const char* filePath) {
     fs::path fullPath = fs::absolute(filePath);

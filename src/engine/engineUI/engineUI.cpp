@@ -165,10 +165,66 @@ void EngineUI::camera() {
     }
 }
 
+void modelTree(int& groupNumber, std::vector<Group*> groups) {
+    for (Group* group : groups) {
+        std::string label = "Group: " + std::to_string(groupNumber++);
+        char* c_label = strdup(label.c_str());
+
+        if (ImGui::TreeNodeEx(c_label, ImGuiTreeNodeFlags_Framed)) {
+            if (ImGui::TreeNodeEx("Transformações")) {
+                for (TransformType transform : group->getTransformations()) {
+                    switch (transform) {
+                        case 1:
+                            if (group->getTranslation().value().isDynamic()) {
+                                if (ImGui::TreeNodeEx("Dynamic Translation")) {
+                                    ImGui::Checkbox("Show curve", group->getTranslation().value().getShowCurvePtr());
+                                    ImGui::TreePop();
+                                }
+                            } else {
+                                ImGui::Text("Translation");
+                            }
+                            break;
+                        case 3:
+                            ImGui::Text("Rotation");
+                            break;
+                        case 6:
+                            ImGui::Text("Scale");
+                            break;
+                        default:
+                            break;
+                    }
+                };
+                ImGui::TreePop();
+            }
+            if (ImGui::TreeNodeEx("Models")) {
+                //
+                for (auto model : group->getObjects()) {
+                    ImGui::Text(model->getSource());
+                }
+                ImGui::TreePop();
+            }
+            std::vector<Group*> insideGroups = group->getGroups();
+            if (insideGroups.empty()) {
+                ImGui::Text("No groups inside!");
+            } else {
+                if (ImGui::TreeNodeEx("Groups")) {
+                    modelTree(groupNumber, insideGroups);
+                    ImGui::TreePop();
+                }
+            }
+            ImGui::TreePop();
+        }
+
+        free(c_label);
+    }
+}
+
 // Creates a node in gui for the sceneModels options
 void EngineUI::models() {
+    int groupCounter = 0;
+    std::vector<Group*> MainGroups = STATE.scene->getGroups();
     if (ImGui::TreeNodeEx("Models", ImGuiTreeNodeFlags_Framed)) {
-        ImGui::Text("To be implemented!!");
+        modelTree(groupCounter, MainGroups);
         ImGui::TreePop();
     }
 }

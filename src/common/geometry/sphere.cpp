@@ -1,7 +1,5 @@
 #include "common/geometry/sphere.hpp"
 
-#include "common/parser.hpp"
-
 SphereGeometry::~SphereGeometry() = default;
 
 SphereGeometry::SphereGeometry(std::vector<Point3D> vertices, std::vector<Vector3<float>> normals, std::vector<unsigned int> indices) {

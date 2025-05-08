@@ -1,7 +1,5 @@
 #include "common/geometry/plane.hpp"
 
-#include "common/parser.hpp"
-
 PlaneGeometry::~PlaneGeometry() = default;
 
 PlaneGeometry::PlaneGeometry(std::vector<Point3D> vertices, std::vector<Vector3<float>> normals, std::vector<unsigned int> indices) {

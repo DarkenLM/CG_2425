@@ -44,6 +44,12 @@ class Scene {
     Camera* getCamera();
 
     /**
+     * @brief Returns a pointer to the scene's groups.
+     * @return Pointer to group object.
+     */
+    std::vector<Group*> getGroups() const;
+
+    /**
      * @brief Creates a Scene instance from a file.
      * @param filePath Path to the scene configuration file.
      * @return Pointer to the loaded Scene.

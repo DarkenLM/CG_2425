@@ -3,10 +3,10 @@
 #include <unordered_map>
 
 #include "common/geometry/BaseGeometry.hpp"
+#include "common/geometry/GeometryCatalog.hpp"
 #include "common/parser.hpp"
 #include "common/util/maputil.hpp"
 #include "common/util/xmlutil.hpp"
-#include "engine/geometry/GeometryCatalog.hpp"
 #include "engine/scene/Object.hpp"
 
 using namespace tinyxml2;

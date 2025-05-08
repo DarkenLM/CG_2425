@@ -1,5 +1,7 @@
 #include "common/geometry/point.hpp"
 
+#include "common/util/vectors.hpp"
+
 Point3D::Point3D() : x(0), y(0), z(0) {}
 Point3D::Point3D(float x, float y, float z) : x(x), y(y), z(z) {}
 
@@ -42,6 +44,10 @@ Point3D operator+(const Point3D& a, const Point3D& b) {
 
 Point3D Point3D::operator-(const Point3D& other) const {
     return Point3D(x - other.x, y - other.y, z - other.z);
+}
+
+Vector3<float> Point3D::toVector3() {
+    return Vector3<float>(this->x, this->y, this->z);
 }
 
 Point3D operator*(const Point3D& point, float scalar) {

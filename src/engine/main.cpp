@@ -123,6 +123,8 @@ void handleInputEvents(InputEvent* e) {
     if (e->isKeypressEvent() && ke->up) {
         ImGui_ImplGLUT_KeyboardUpFunc(ke->key.key, ke->mouseX, ke->mouseY);
         ke->process();
+    } else if (e->isKeypressEvent()) {
+        // ImGui_ImplGLUT_KeyboardFunc(ke->key.key, ke->mouseX, ke->mouseY);
     }
 }
 

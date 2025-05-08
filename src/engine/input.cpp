@@ -52,4 +52,3 @@ void InputManager::_keyup_special(int keycode, int x, int y) {
     KeypressEvent e = KeypressEvent(key, true, x, y);
     callback(&e);
 }
-

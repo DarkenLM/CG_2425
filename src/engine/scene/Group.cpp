@@ -301,6 +301,7 @@ void Group::render() {
                         if (this->translation.value().getShowCurve()) {
                             this->translation.value().getCurve().renderCatmullRomCurve();
                         }
+
                         // TODO: Implement the ui for this
                         if (true) {
                             this->translation.value().drawMyCordSystem(pos, xAxis, yAxis, zAxis);

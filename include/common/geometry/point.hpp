@@ -1,5 +1,10 @@
 #pragma once
+
 #include <iostream>
+
+// Forward declaration
+template <typename T>
+class Vector3;
 
 /**
  *  @class Point3D
@@ -155,4 +160,10 @@ class Point3D {
      * @return Pointer to the internal coordinate data (x, y, z).
      */
     float* data() { return &x; }
+
+    /**
+     * @brief Converts the point3D to a vector3 .
+     * @return Vector with the internal coordinate data (x, y, z).
+     */
+    Vector3<float> toVector3();
 };

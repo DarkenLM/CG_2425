@@ -5,6 +5,14 @@
         <lookAt x="0" y="0" z="0" />
         <up x="0" y="1" z="0" />
         <projection fov="60" near="1" far="5000" />
+        <target targetId="cumeta">
+            <model file="sun.3d">
+                <transform>
+                    <rotate time="25" x="0" y="1" z="0" />
+                    <scale x="10" y="10" z="10" />
+                </transform>
+            </model>
+        </target>
     </camera>
 
     <group>
@@ -198,7 +206,7 @@
                 <scale x="0.7" y="0.7" z="0.7" />
             </transform>
             <models>
-                <model file="comet.3d" />
+                <model file="comet.3d" id="cumeta" />
             </models>
         </group>
 

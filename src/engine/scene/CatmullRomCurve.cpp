@@ -1,5 +1,3 @@
-#pragma once
-
 #include "engine/scene/CatmullRomCurve.hpp"
 
 #include <GL/glut.h>

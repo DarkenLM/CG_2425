@@ -133,6 +133,19 @@ const std::vector<Model*>& Group::getObjects() const {
     return this->objects;
 }
 
+const Model* Group::getObjectById(const char* id) const {
+    for (const auto& object : this->objects) {
+        if (object->getId().compare(id) == 0) return object;
+    }
+
+    for (const auto& group : this->groups) {
+        const Model* target = group->getObjectById(id);
+        if (target != nullptr) return target;
+    }
+    
+    return nullptr;
+}
+
 const std::vector<TransformType>& Group::getTransformations() const {
     return this->tfStack;
 }

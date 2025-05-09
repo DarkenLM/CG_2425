@@ -4,12 +4,15 @@ using namespace tinyxml2;
 
 extern struct scenestate STATE;  ///< External reference to the global scene state
 
-Model::Model(const char* source) {
+Model::Model(const char* source, const char* id) {
     this->source = source;
     this->texture = std::string("");
     this->color = std::string("");
     this->geometry = nullptr;
     this->_loaded = false;
+
+    if (id == NULL) this->id = std::string("");
+    else this->id = id;
 }
 
 #pragma region------- Overrides -------
@@ -191,6 +194,10 @@ Model* Model::setColor(const char* color) {
     return this;
 }
 
+std::string Model::getId() {
+    return this->id;
+}
+
 Model* Model::fromXML(XMLElement* xml) {
     GET_XML_ELEMENT_ATTRIB_OR_FAIL(xml, "file", file, const char*);
     GET_XML_ELEMENT_ATTRIB(xml, "texture", texture, const char*);
@@ -306,7 +313,9 @@ Model* Model::fromXML(XMLElement* xml) {
         material = ObjectMaterial(diffuse, ambient, specular, emissive, shininess);
     }
 
-    Model* obj = new Model(file);
+    GET_XML_ELEMENT_ATTRIB(xml, "id", id, const char*);
+
+    Model* obj = new Model(file, id);
     if (texture) obj->setTexture(texture);
     if (color) obj->setTexture(color);
     if (translate.has_value()) obj->translation = translate;

@@ -4,7 +4,15 @@ Camera::Camera(
     float posX, float posY, float posZ,
     float lookX, float lookY, float lookZ,
     float upX, float upY, float upZ,
-    float fov, float near, float far) {
+    float fov, float near, float far,
+    Model* fallbackModel, std::string target
+) {
+    this->fallbackTarget = fallbackModel;
+    this->targetId = target;
+
+    if (target.compare("<self>") == 0) this->targetRef = fallbackModel;
+    this->targetRef;
+
     for (int i = 0; i < 3; i++) {
         this->cameras[i].posX = posX;
         this->cameras[i].posY = posY;
@@ -249,6 +257,25 @@ void Camera::setAspectRatio(float aspectRatio) {
     }
 }
 
+bool Camera::isTracking() {
+    return this->currentMode == CAMERA_TP && !this->targetId.empty();
+}
+
+bool Camera::isTrackingFallback() {
+    return this->targetId.compare("<self>") == 0;
+}
+
+std::string Camera::getTrackingId() {
+    return this->targetId;
+}
+
+void Camera::track(const Model* ref, std::string id) {
+    this->targetId = id;
+    this->targetRef = ref;
+}
+
+// SEE: The object ref for the target can be get using this->target. If the targetId is "<self>", that means the 
+// fallback model _SHOULD_ be used.
 void Camera::render() {
     glLoadIdentity();
     switch (this->currentMode) {
@@ -296,11 +323,34 @@ Camera* Camera::fromXML(XMLElement* xml) {
     GET_XML_ELEMENT_ATTRIB_OR_FAIL(projection, "near", near, float);
     GET_XML_ELEMENT_ATTRIB_OR_FAIL(projection, "far", far, float);
 
+    Model* targetModel = nullptr;
+    std::string targetId;
+    GET_XML_ELEMENT(xml, "target", target);
+    if (target != NULL) {
+        GET_XML_ELEMENT_OR_FAIL(target, "model", _model);
+        targetModel = Model::fromXML(_model);
+        if (!targetModel) yeet std::string("Unable to load camera target.");
+
+        GET_XML_ELEMENT_ATTRIB(target, "targetId", _targetId, const char*);
+        if (_targetId != NULL) targetId = _targetId;
+        else targetId = "<self>";
+    }
+
     return new Camera(
         posX, posY, posZ,
         lookX, lookY, lookZ,
         upX, upY, upZ,
-        fov, near, far);
+        fov, near, far,
+        targetModel, targetId
+    );
+}
+
+void Camera::load() {
+    fuckAround {
+        this->fallbackTarget->load();
+    } findOut(std::string e) {
+        yeet e;
+    }
 }
 
 void Camera::exMovement(unsigned char key, int mx, int my) {

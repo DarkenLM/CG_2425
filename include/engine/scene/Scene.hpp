@@ -50,6 +50,12 @@ class Scene {
     std::vector<Group*> getGroups() const;
 
     /**
+     * @brief Gets the model contained in this scene with the specified id.
+     * @return Const reference to the model, if it exists, nullptr otherwise.
+     */
+    const Model* getObjectById(const char* id) const;
+
+    /**
      * @brief Creates a Scene instance from a file.
      * @param filePath Path to the scene configuration file.
      * @return Pointer to the loaded Scene.

@@ -4,6 +4,7 @@
 
 #include "common/util/xmlutil.hpp"
 #include "engine/scene/Object.hpp"
+#include "engine/scene/Model.hpp"
 using namespace tinyxml2;
 
 /**
@@ -26,6 +27,7 @@ typedef struct cameraSettings {
     float alpha, beta;  ///< Vertical (alpha) and horizontal (beta) rotation angles.
     float zoom;         ///< Zoom level.
     float aspectRatio;  ///< Aspect ratio (width / height).
+    int   targetId;     ///< The id for the model for the camera to track.
 } cameraSettings;
 
 /**
@@ -55,7 +57,9 @@ class Camera : public Object {
         float posX, float posY, float posZ,
         float lookX, float lookY, float lookZ,
         float upX, float upY, float upZ,
-        float fov, float near, float far);
+        float fov, float near, float far,
+        Model* fallbackModel, std::string target
+    );
 
     /**
      * @brief Returns the current camera mode.
@@ -101,6 +105,27 @@ class Camera : public Object {
      * @brief Gets current look-at vector based on the active mode.
      */
     Vector3<float> getCurrentLookAt();
+
+    /**
+     * @brief Whether the camera is tracking a model.
+     */
+    bool isTracking();
+
+    /**
+     * @brief Whether the camera is tracking it's fallback model.
+     */
+    bool isTrackingFallback();
+
+    /**
+     * @brief Gets the id of the model that the camera is tracking. If it is tracking it's fallback model, it will 
+     * return "<self>".
+     */
+    std::string getTrackingId();
+
+    /**
+     * @brief Sets this camera to track a specific object.
+     */
+    void track(const Model* ref, std::string id);
 
 #pragma region------- Overrides -------
     /**
@@ -183,6 +208,12 @@ class Camera : public Object {
     static Camera* fromXML(XMLElement* xml);
 
     /**
+     * @brief Loads all models and nested groups, with error handling.
+     * @throws std::string if a model or group fails to load.
+     */
+    void load();
+
+    /**
      * @brief Processes input keys in Explorer mode
      * @param key Unsigned char corresponding to the pressed key code.
      * @param mx Integer corresponding to the mouse x location.
@@ -233,4 +264,7 @@ class Camera : public Object {
 
     cameraSettings cameras[3];  ///< Stores settings for all camera modes.
     CameraMode currentMode;     ///< Currently active camera mode.
+    Model* fallbackTarget;
+    std::string targetId;
+    const Model* targetRef;
 };

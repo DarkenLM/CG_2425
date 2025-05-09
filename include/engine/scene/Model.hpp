@@ -21,7 +21,7 @@ class Model : public Object {
      * @brief Construct a new Model object from a source filename.
      * @param source Path to the model file.
      */
-    Model(const char* source);
+    Model(const char* source, const char* id);
 
 #pragma region------- Overrides -------
     /**
@@ -130,6 +130,14 @@ class Model : public Object {
     Model* setColor(const char* color);
 
     /**
+     * @brief Get the model id.
+     * @return The model's id.
+     * @warning This method does not return the id of the associated global geometry. It returns the id of the model
+     * instance, as defined on the XML source.
+     */
+    std::string getId();
+
+    /**
      * @brief Load a Model from an XML element.
      * @param xml The XML element.
      * @return A new Model instance or nullptr on error.
@@ -181,6 +189,11 @@ class Model : public Object {
      * @brief Indicates whether the model is already loaded.
      */
     bool _loaded;
+
+    /**
+     * @brief The unique identifier for this model.
+     */
+    std::string id;
 
     /**
      * @brief Global cache of model source to BaseGeometry pointer.

@@ -54,6 +54,12 @@ class Group : public Object {
     const std::vector<Model*>& getObjects() const;
 
     /**
+     * @brief Gets the model contained in this group with the specified id.
+     * @return Const reference to the model, if it exists, nullptr otherwise.
+     */
+    const Model* getObjectById(const char* id) const;
+
+    /**
      * @brief Gets the ordered list of transformations to apply.
      * @return Const reference to vector of transformation types.
      */

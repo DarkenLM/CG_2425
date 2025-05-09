@@ -24,6 +24,15 @@ int Scene::getWindowHeight() const { return this->window->getHeight(); }
 
 std::vector<Group*> Scene::getGroups() const { return this->groups; }
 
+const Model* Scene::getObjectById(const char* id) const {
+    for (const auto& group : this->groups) {
+        const Model* target = group->getObjectById(id);
+        if (target != nullptr) return target;
+    }
+    
+    return nullptr;
+}
+
 Scene* Scene::fromFile(const char* filePath) {
     fs::path fullPath = fs::absolute(filePath);
 
@@ -86,6 +95,19 @@ void Scene::load() {
         findOut(std::string e) {
             yeet std::string("Unable to load group: ") + e;
         }
+    }
+
+    fuckAround {
+        if (!this->camera->isTrackingFallback()) {
+            std::string targetId = this->camera->getTrackingId();
+            const Model* targetModel = this->getObjectById(targetId.c_str());
+
+            this->camera->track(targetModel, targetId);
+        }
+        
+        this->camera->load();
+    } findOut(std::string e) {
+        yeet std::string("Unable to load camera: ") + e;
     }
 
     this->setCameraAspectRatio(this->getWindowWidth() / this->getWindowHeight());

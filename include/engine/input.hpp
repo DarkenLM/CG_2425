@@ -7,6 +7,8 @@
 #include "common/util/maputil.hpp"
 #include "common/util/vectors.hpp"
 
+#define DEBOUNCE_TIME 0.15f
+
 #define BETWEEN(lb, x, hb) lb <= x&& x <= hb
 
 typedef enum inputevent_kind {
@@ -16,16 +18,30 @@ typedef enum inputevent_kind {
 
 class Key {
    public:
+    bool alt;
+    bool ctrl;
+    bool shift;
     bool special;
+    unsigned int mods;
     unsigned int key;
+
+    double _debounceAcc;
+    bool handled;
 
     Key() = default;
 
-    Key(unsigned int key) : Key(key, false) {}
+    Key(unsigned int key) : Key(key, false, 0) {}
 
-    Key(unsigned int key, bool special) {
+    Key(unsigned int key, bool special, int mods) {
         this->special = special;
         this->key = key;
+
+        this->mods = mods;
+        this->alt   = (mods & GLUT_ACTIVE_ALT) != 0;
+        this->ctrl  = (mods & GLUT_ACTIVE_CTRL) != 0;
+        this->shift = (mods & GLUT_ACTIVE_SHIFT) != 0;
+
+        this->_debounceAcc = 0;
     }
 
     bool isAlpha() {
@@ -47,6 +63,27 @@ class Key {
     bool isArrowKey() {
         return this->special == true && BETWEEN(GLUT_KEY_LEFT, this->key, GLUT_KEY_PAGE_DOWN);
     }
+
+    // void debounce(float deltaTime) {
+    //     this->_debounceAcc += 1;
+
+    //     printf("DB: %f %f %f\n", deltaTime, this->_debounceAcc, DEBOUNCE_TIME);
+    //     if (this->_debounceAcc >= DEBOUNCE_TIME) {
+    //         // this->_debounceAcc += deltaTime;
+    //         this->handled = false;
+    //         return;
+    //     } else {
+    //         this->handled = true;
+    //     }
+    // }
+
+    // void debounce(double now) {
+    //     InputManager::debounceKey(*this, now);
+    // }
+
+    // bool inDebounce(double now) {
+    //     return InputManager::keyInDebounce(*this, now);
+    // }
 
     std::size_t getHash() {
         return ((this->special & 0xFF) << 8) | (this->key & 0xFF);
@@ -201,28 +238,31 @@ class InputManager {
         }
     }
 
+    static bool keyInDebounce(Key k, double now) {
+        double _start = InputManager::debounceMap.get(k.getHash()).value_or(0);
+        // printf("KID: %f | ", _start);
+
+        return now - _start < DEBOUNCE_TIME;
+    }
+
+    static bool debounceKey(Key k, double now) {
+        double _start = InputManager::debounceMap.get(k.getHash()).value_or(0);
+
+        // printf("DEBOUNCE %f %f %f\n", _start, now, now - _start);
+        if (now - _start >= DEBOUNCE_TIME) {
+            InputManager::debounceMap.remove(k.getHash());
+            InputManager::debounceMap.add(k.getHash(), now);
+            return true;
+        }
+
+        return false;
+    }
+
    private:
     static Map<Key, std::size_t> keymap;
     static InputCallback callback;
     static MouseEvent lastMousePos;
-
-    // static void _keydown(unsigned char keycode, int x, int y) {
-    //     Key key = Key(keycode);
-    //     InputManager::keymap.add(key.getHash(), key);
-    // }
-    // static void _keyup(unsigned char keycode, int x, int y) {
-    //     Key key = Key(keycode);
-    //     InputManager::keymap.remove(key.getHash());
-    // }
-
-    // static void _keydown_special(int keycode, int x, int y) {
-    //     Key key = Key(keycode, true);
-    //     InputManager::keymap.add(key.getHash(), key);
-    // }
-    // static void _keyup_special(int keycode, int x, int y) {
-    //     Key key = Key(keycode, true);
-    //     InputManager::keymap.remove(key.getHash());
-    // }
+    static Map<double, std::size_t> debounceMap;
 
     static void _keydown(unsigned char keycode, int x, int y);
     static void _keyup(unsigned char keycode, int x, int y);

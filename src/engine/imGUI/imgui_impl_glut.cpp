@@ -294,10 +294,11 @@ void ImGui_ImplGLUT_InstallFuncs() {
 #ifdef __FREEGLUT_EXT_H__
     glutMouseWheelFunc(ImGui_ImplGLUT_MouseWheelFunc);
 #endif
-    glutKeyboardFunc(ImGui_ImplGLUT_KeyboardFunc);
-    glutKeyboardUpFunc(ImGui_ImplGLUT_KeyboardUpFunc);
-    glutSpecialFunc(ImGui_ImplGLUT_SpecialFunc);
-    glutSpecialUpFunc(ImGui_ImplGLUT_SpecialUpFunc);
+    // WARN: Removed, use InputManager in input.hpp
+    // glutKeyboardFunc(ImGui_ImplGLUT_KeyboardFunc);
+    // glutKeyboardUpFunc(ImGui_ImplGLUT_KeyboardUpFunc);
+    // glutSpecialFunc(ImGui_ImplGLUT_SpecialFunc);
+    // glutSpecialUpFunc(ImGui_ImplGLUT_SpecialUpFunc);
 }
 
 void ImGui_ImplGLUT_Shutdown() {
@@ -316,12 +317,70 @@ void ImGui_ImplGLUT_NewFrame() {
     g_Time = current_time;
 }
 
-static void ImGui_ImplGLUT_UpdateKeyModifiers() {
+#pragma region ============== INPUT FUNCTIONS ==============
+#pragma region ------- ORIGINAL FUNCTIONS -------
+// static void ImGui_ImplGLUT_UpdateKeyModifiers() {
+//     ImGuiIO& io = ImGui::GetIO();
+//     int glut_key_mods = glutGetModifiers();
+//     io.AddKeyEvent(ImGuiMod_Ctrl, (glut_key_mods & GLUT_ACTIVE_CTRL) != 0);
+//     io.AddKeyEvent(ImGuiMod_Shift, (glut_key_mods & GLUT_ACTIVE_SHIFT) != 0);
+//     io.AddKeyEvent(ImGuiMod_Alt, (glut_key_mods & GLUT_ACTIVE_ALT) != 0);
+// }
+
+// static void ImGui_ImplGLUT_AddKeyEvent(ImGuiKey key, bool down, int native_keycode) {
+//     ImGuiIO& io = ImGui::GetIO();
+//     io.AddKeyEvent(key, down);
+//     io.SetKeyEventNativeData(key, native_keycode, -1);  // To support legacy indexing (<1.87 user code)
+// }
+
+// void ImGui_ImplGLUT_KeyboardFunc(unsigned char c, int x, int y) {
+//     // Send character to imgui
+//     // printf("char_down_func %d '%c'\n", c, c);
+//     ImGuiIO& io = ImGui::GetIO();
+//     if (c >= 32)
+//         io.AddInputCharacter((unsigned int)c);
+
+//     ImGuiKey key = ImGui_ImplGLUT_KeyToImGuiKey(c);
+//     ImGui_ImplGLUT_AddKeyEvent(key, true, c);
+//     ImGui_ImplGLUT_UpdateKeyModifiers();
+//     (void)x;
+//     (void)y;  // Unused
+// }
+
+// void ImGui_ImplGLUT_KeyboardUpFunc(unsigned char c, int x, int y) {
+//     // printf("char_up_func %d '%c'\n", c, c);
+//     ImGuiKey key = ImGui_ImplGLUT_KeyToImGuiKey(c);
+//     ImGui_ImplGLUT_AddKeyEvent(key, false, c);
+//     ImGui_ImplGLUT_UpdateKeyModifiers();
+//     (void)x;
+//     (void)y;  // Unused
+// }
+
+// void ImGui_ImplGLUT_SpecialFunc(int key, int x, int y) {
+//     // printf("key_down_func %d\n", key);
+//     ImGuiKey imgui_key = ImGui_ImplGLUT_KeyToImGuiKey(key + 256);
+//     ImGui_ImplGLUT_AddKeyEvent(imgui_key, true, key + 256);
+//     ImGui_ImplGLUT_UpdateKeyModifiers();
+//     (void)x;
+//     (void)y;  // Unused
+// }
+
+// void ImGui_ImplGLUT_SpecialUpFunc(int key, int x, int y) {
+//     // printf("key_up_func %d\n", key);
+//     ImGuiKey imgui_key = ImGui_ImplGLUT_KeyToImGuiKey(key + 256);
+//     ImGui_ImplGLUT_AddKeyEvent(imgui_key, false, key + 256);
+//     ImGui_ImplGLUT_UpdateKeyModifiers();
+//     (void)x;
+//     (void)y;  // Unused
+// }
+#pragma endregion ------- ORIGINAL FUNCTIONS -------
+
+#pragma region ------- REPLACEMENT FUNCTIONS -------
+static void ImGui_ImplGLUT_UpdateKeyModifiers(int kmods) {
     ImGuiIO& io = ImGui::GetIO();
-    int glut_key_mods = glutGetModifiers();
-    io.AddKeyEvent(ImGuiMod_Ctrl, (glut_key_mods & GLUT_ACTIVE_CTRL) != 0);
-    io.AddKeyEvent(ImGuiMod_Shift, (glut_key_mods & GLUT_ACTIVE_SHIFT) != 0);
-    io.AddKeyEvent(ImGuiMod_Alt, (glut_key_mods & GLUT_ACTIVE_ALT) != 0);
+    io.AddKeyEvent(ImGuiMod_Ctrl, (kmods & GLUT_ACTIVE_CTRL) != 0);
+    io.AddKeyEvent(ImGuiMod_Shift, (kmods & GLUT_ACTIVE_SHIFT) != 0);
+    io.AddKeyEvent(ImGuiMod_Alt, (kmods & GLUT_ACTIVE_ALT) != 0);
 }
 
 static void ImGui_ImplGLUT_AddKeyEvent(ImGuiKey key, bool down, int native_keycode) {
@@ -330,7 +389,7 @@ static void ImGui_ImplGLUT_AddKeyEvent(ImGuiKey key, bool down, int native_keyco
     io.SetKeyEventNativeData(key, native_keycode, -1);  // To support legacy indexing (<1.87 user code)
 }
 
-void ImGui_ImplGLUT_KeyboardFunc(unsigned char c, int x, int y) {
+void ImGui_ImplGLUT_KeyboardFunc(unsigned char c, int x, int y, int kmods) {
     // Send character to imgui
     // printf("char_down_func %d '%c'\n", c, c);
     ImGuiIO& io = ImGui::GetIO();
@@ -339,37 +398,39 @@ void ImGui_ImplGLUT_KeyboardFunc(unsigned char c, int x, int y) {
 
     ImGuiKey key = ImGui_ImplGLUT_KeyToImGuiKey(c);
     ImGui_ImplGLUT_AddKeyEvent(key, true, c);
-    ImGui_ImplGLUT_UpdateKeyModifiers();
+    ImGui_ImplGLUT_UpdateKeyModifiers(kmods);
     (void)x;
     (void)y;  // Unused
 }
 
-void ImGui_ImplGLUT_KeyboardUpFunc(unsigned char c, int x, int y) {
+void ImGui_ImplGLUT_KeyboardUpFunc(unsigned char c, int x, int y, int kmods) {
     // printf("char_up_func %d '%c'\n", c, c);
     ImGuiKey key = ImGui_ImplGLUT_KeyToImGuiKey(c);
     ImGui_ImplGLUT_AddKeyEvent(key, false, c);
-    ImGui_ImplGLUT_UpdateKeyModifiers();
+    ImGui_ImplGLUT_UpdateKeyModifiers(kmods);
     (void)x;
     (void)y;  // Unused
 }
 
-void ImGui_ImplGLUT_SpecialFunc(int key, int x, int y) {
+void ImGui_ImplGLUT_SpecialFunc(int key, int x, int y, int kmods) {
     // printf("key_down_func %d\n", key);
     ImGuiKey imgui_key = ImGui_ImplGLUT_KeyToImGuiKey(key + 256);
     ImGui_ImplGLUT_AddKeyEvent(imgui_key, true, key + 256);
-    ImGui_ImplGLUT_UpdateKeyModifiers();
+    ImGui_ImplGLUT_UpdateKeyModifiers(kmods);
     (void)x;
     (void)y;  // Unused
 }
 
-void ImGui_ImplGLUT_SpecialUpFunc(int key, int x, int y) {
+void ImGui_ImplGLUT_SpecialUpFunc(int key, int x, int y, int kmods) {
     // printf("key_up_func %d\n", key);
     ImGuiKey imgui_key = ImGui_ImplGLUT_KeyToImGuiKey(key + 256);
     ImGui_ImplGLUT_AddKeyEvent(imgui_key, false, key + 256);
-    ImGui_ImplGLUT_UpdateKeyModifiers();
+    ImGui_ImplGLUT_UpdateKeyModifiers(kmods);
     (void)x;
     (void)y;  // Unused
 }
+#pragma endregion ------- REPLACEMENT FUNCTIONS -------
+#pragma endregion ============== INPUT FUNCTIONS ==============
 
 void ImGui_ImplGLUT_MouseFunc(int glut_button, int state, int x, int y) {
     ImGuiIO& io = ImGui::GetIO();

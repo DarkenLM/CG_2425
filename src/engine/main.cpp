@@ -121,7 +121,7 @@ void loadfps() {
 void handleInputEvents(InputEvent* e) {
     KeypressEvent* ke = (KeypressEvent*)(e);
     if (e->isKeypressEvent() && ke->up) {
-        ImGui_ImplGLUT_KeyboardUpFunc(ke->key.key, ke->mouseX, ke->mouseY);
+        ImGui_ImplGLUT_KeyboardUpFunc(ke->key.key, ke->mouseX, ke->mouseY, ke->key.mods);
         ke->process();
     } else if (e->isKeypressEvent()) {
         // ImGui_ImplGLUT_KeyboardFunc(ke->key.key, ke->mouseX, ke->mouseY);
@@ -181,6 +181,7 @@ void stepFunc(int timerId) {
     auto now = std::chrono::steady_clock::now();
     STATE.deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(now - STATE.lastUpdate).count() / 1000000.0f;
     STATE.lastUpdate = now;
+    float _now = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count() / 1000000.0f;
 
     STATE.scene->update(STATE.deltaTime);
     STATE.ellapsedTime += STATE.deltaTime;
@@ -191,11 +192,14 @@ void stepFunc(int timerId) {
         // Handle input
         // printf("STEP KEYS: ");
         for (Key k : InputManager::getKeys()) {
-            // printf("%s, ", k.toString().c_str());
+            // printf("%s | %d | %f, ", k.toString().c_str(), InputManager::keyInDebounce(k, _now), STATE.deltaTime);
 
-            ImGui_ImplGLUT_KeyboardFunc(k.key, me.mouseX, me.mouseY);
+            if (!InputManager::keyInDebounce(k, _now)) ImGui_ImplGLUT_KeyboardFunc(k.key, me.mouseX, me.mouseY, k.mods);
             STATE.scene->onKeypress(k.key, me.mouseX, me.mouseY);
+
+            InputManager::debounceKey(k, _now);
         }
+        // printf("\n");
     }
     glutPostRedisplay();
     glutTimerFunc(16, stepFunc, 0);
@@ -275,7 +279,7 @@ void genVBOs() {
 }
 
 void processKeys(unsigned char key, int x, int y) {
-    ImGui_ImplGLUT_KeyboardFunc(key, x, y);
+    ImGui_ImplGLUT_KeyboardFunc(key, x, y, 0);
     STATE.scene->onKeypress(key, x, y);
 
     glutPostRedisplay();

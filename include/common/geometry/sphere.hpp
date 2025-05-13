@@ -28,13 +28,17 @@ class SphereGeometry : public BaseGeometry {
     SphereGeometry(float radius, int slices, int stacks);
 
     /**
-     * @brief Alternative constructor for SphereGeometry when vertices, normals, and indices are pre-computed.
+     * @brief Alternative constructor for SphereGeometry when vertices, normals, UVs, and indices are pre-computed.
      *
      * @param vertices A vector containing the vertices of the sphere.
      * @param normals A vector containing the normals of the sphere.
+     * @param uvs A vector containing the UV coordinates of the sphere.
      * @param indices A vector containing the indices that define the geometry.
      */
-    SphereGeometry(std::vector<Point3D> vertices, std::vector<Vector3<float>> normals, std::vector<unsigned int> indices);
+    SphereGeometry(std::vector<Point3D> vertices,
+                   std::vector<Vector3<float>> normals,
+                   std::vector<Vector2<float>> uvs,  // Added UV support
+                   std::vector<unsigned int> indices);
 
     /**
      * @brief Copies the vertices of the sphere.
@@ -49,6 +53,13 @@ class SphereGeometry : public BaseGeometry {
      * @return A vector of Vector3<float> representing the normals of the sphere.
      */
     virtual std::vector<Vector3<float>> copyNormals() override;
+
+    /**
+     * @brief Copies the UV coordinates of the sphere.
+     *
+     * @return A vector of Vector2<float> representing the UV coordinates of the sphere.
+     */
+    virtual std::vector<Vector2<float>> copyUVs() override;
 
     /**
      * @brief Copies the indices of the sphere.

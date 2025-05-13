@@ -186,18 +186,18 @@ Vector4<float> ObjectRotation::getVector4AtTime(float time) {
 }
 
 ObjectMaterial::ObjectMaterial(
-    Vector3<int> diffuse,
-    Vector3<int> ambient,
-    Vector3<int> specular,
-    Vector3<int> emissive,
-    int shininess) : diffuse(diffuse), ambient(ambient), specular(specular), emissive(emissive), shininess(shininess) {};
+    Vector3<float> diffuse,
+    Vector3<float> ambient,
+    Vector3<float> specular,
+    Vector3<float> emissive,
+    float shininess) : diffuse(diffuse), ambient(ambient), specular(specular), emissive(emissive), shininess(shininess) {};
 
-Vector3<int> ObjectMaterial::getDiffuse() { return this->diffuse; };
+Vector3<float> ObjectMaterial::getDiffuse() { return this->diffuse; };
 
-Vector3<int> ObjectMaterial::getAmbient() { return this->ambient; };
+Vector3<float> ObjectMaterial::getAmbient() { return this->ambient; };
 
-Vector3<int> ObjectMaterial::getSpecular() { return this->specular; };
+Vector3<float> ObjectMaterial::getSpecular() { return this->specular; };
 
-Vector3<int> ObjectMaterial::getEmissive() { return this->emissive; };
+Vector3<float> ObjectMaterial::getEmissive() { return this->emissive; };
 
-int ObjectMaterial::getShininess() { return this->shininess; };
+float ObjectMaterial::getShininess() { return this->shininess; };

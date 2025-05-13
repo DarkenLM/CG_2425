@@ -97,6 +97,11 @@ class Model : public Object {
      */
     void scaleTo(Vector3<float> sv) override;
 
+    // TODO: DOXYGEN
+    void processNormals();
+
+    void loadingMaterial();
+
     /**
      * @brief Render the model.
      */
@@ -107,7 +112,56 @@ class Model : public Object {
      * @brief Get the model source path.
      * @return The model's source.
      */
-    const char* getSource();
+    const char* getSource() const;
+
+    /**
+     * @brief Get the boolean defining if normals are visible or not.
+     * @return A boolean value.
+     */
+    const bool getShowNormals() const;
+
+    // TODO doxygen
+    bool* getShowNormalsPtr();
+
+    /**
+     * @brief Set the boolean defining if normals are visible or not.
+     * @return A boolean value.
+     */
+    const bool setShowNormals();
+
+    /**
+     * @brief Get the models transformation stack.
+     * @return The model's tfStack.
+     */
+    std::vector<TransformType> getTrasnformations() const;
+
+    /**
+     * @brief Retrieves the object's translation component, if available.
+     *
+     * @return Optional containing ObjectTranslation if present.
+     */
+    std::optional<ObjectTranslation> getTranslation() const;
+
+    /**
+     * @brief Retrieves the object's rotation component, if available.
+     *
+     * @return Optional containing ObjectRotation if present.
+     */
+    std::optional<ObjectRotation> getRotation() const;
+
+    /**
+     * @brief Retrieves the object's scaling factor, if available.
+     *
+     * @return Optional containing a Vector3<float> if scale is present.
+     */
+    std::optional<Vector3<float>> getScale() const;
+
+    /**
+     * @brief Retrieves the object's material properties, if available.
+     *
+     * @return Optional containing ObjectMaterial if present.
+     */
+    std::optional<ObjectMaterial> getMaterial() const;
 
     /**
      * @brief Get the texture.
@@ -118,6 +172,11 @@ class Model : public Object {
      * @brief Set the texture.
      */
     Model* setTexture(const char* texture);
+
+    // TODO:: DOXY
+    unsigned int getTextureId() const;
+
+    void setTextureId(unsigned int id);
 
     /**
      * @brief Get the color.
@@ -150,21 +209,41 @@ class Model : public Object {
     void load();
 
     /**
-     * @brief Get the shared geometry cache (model file to geometry pointer).
+     * @brief Get the VBO map.
      */
     static Map<GLuint, std::string>& getGeometryVBO();
 
     /**
-     * @brief Get the VBO map.
+     * @brief Get the TBO map.
      */
-    static Map<GLuint, std::string>& getGeometryIBO();
+    static Map<GLuint, std::string>& getGeometryTBO();
 
     /**
      * @brief Get the IBO map.
      */
+    static Map<GLuint, std::string>& getGeometryIBO();
+
+    /**
+     * @brief Get the NBO map.
+     */
+    static Map<GLuint, std::string>& getGeometryNBO();
+
+    /**
+     * @brief Get the shared geometry cache (model file to geometry pointer).
+     */
     static Map<BaseGeometry*, std::string> getGeometryCache();
 
+    /**
+     * @brief Texture Id, if any.
+     */
+    GLuint textureId;
+
    private:
+    /**
+     * @brief Source path of the model file.
+     */
+    bool showNormals;
+
     /**
      * @brief Source path of the model file.
      */
@@ -204,6 +283,16 @@ class Model : public Object {
      * @brief Global map of VBOs (Vertex Buffer Objects).
      */
     static Map<GLuint, std::string> _geometryVBO;
+
+    /**
+     * @brief Global map of TBOs (Texture coords Buffer Objects).
+     */
+    static Map<GLuint, std::string> _geometryTBO;
+
+    /**
+     * @brief Global map of NBOs (Normal Buffer Objects).
+     */
+    static Map<GLuint, std::string> _geometryNBO;
 
     /**
      * @brief Global map of IBOs (Index Buffer Objects).

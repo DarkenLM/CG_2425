@@ -9,6 +9,7 @@ struct _parser3d_load_result {
     uint8_t _guard;
     std::vector<Point3D> vertices;
     std::vector<Vector3<float>> normals;
+    std::vector<Vector2<float>> uvs;  // Adicionando UVs
     std::vector<unsigned int> indices;
     BaseGeometryKind kind;
 };
@@ -25,11 +26,11 @@ int Parser3D::saveToFile(const std::string& filename, BaseGeometry* geometry) {
     }
 
     file.write(reinterpret_cast<const char*>(&PARSER_VERSION), sizeof(PARSER_VERSION));
-    // file.write((const char*)(geometry->getKind()), sizeof(uint8_t));
     file << static_cast<uint8_t>(geometry->getKind());
 
     std::vector<Point3D> vertices = geometry->getVertices();
     std::vector<Vector3<float>> normals = geometry->getNormals();
+    std::vector<Vector2<float>> uvs = geometry->getUVs();  // Adicionando UVs
     std::vector<unsigned int> indices = geometry->getIndices();
 
     if (indices.size() % 3 != 0) {
@@ -39,12 +40,10 @@ int Parser3D::saveToFile(const std::string& filename, BaseGeometry* geometry) {
 
     uint16_t nVertices = vertices.size();
     uint16_t nNormals = normals.size();
+    uint16_t nUVs = uvs.size();  // Adicionando o número de UVs
     uint16_t nTriangles = indices.size() / 3;
 
-    // WRITE NUMBER OF VERTICES
     file.write(reinterpret_cast<const char*>(&nVertices), sizeof(nVertices));
-
-    // WRITE NUMBER OF TRIANGLES
     file.write(reinterpret_cast<const char*>(&nTriangles), sizeof(nTriangles));
 
     // WRITE VERTICES
@@ -69,6 +68,14 @@ int Parser3D::saveToFile(const std::string& filename, BaseGeometry* geometry) {
         file.write(reinterpret_cast<const char*>(&z), sizeof(float));
     }
 
+    // WRITE UVs
+    for (const Vector2<float>& uv : uvs) {
+        float u = uv.first;
+        float v = uv.second;
+        file.write(reinterpret_cast<const char*>(&u), sizeof(float));
+        file.write(reinterpret_cast<const char*>(&v), sizeof(float));
+    }
+
     // WRITE INDICES
     for (const unsigned int& i : indices) {
         file.write(reinterpret_cast<const char*>(&i), sizeof(unsigned int));
@@ -79,6 +86,7 @@ int Parser3D::saveToFile(const std::string& filename, BaseGeometry* geometry) {
     std::cout << "---------- PARSER ----------\n";
     std::cout << "Generated " << nVertices << " vertices!" << std::endl;
     std::cout << "Generated " << nNormals << " normals!" << std::endl;
+    std::cout << "Generated " << nUVs << " UVs!" << std::endl;  // Mostrando UVs
     std::cout << "Generated " << nTriangles << " triangles! " << std::endl;
     std::cout << "Information saved successfully at: " << filename << "\n";
     std::cout << "---------- ------ ----------\n";
@@ -115,6 +123,7 @@ struct _parser3d_load_result _parser3DLoadFile(const std::string& filename) {
     // Resize vertex vector for better performance
     std::vector<Point3D> vertices;
     std::vector<Vector3<float>> normals;
+    std::vector<Vector2<float>> uvs;  // Adicionando UVs
     std::vector<unsigned int> indices;
 
     // READ VERTICES
@@ -137,6 +146,14 @@ struct _parser3d_load_result _parser3DLoadFile(const std::string& filename) {
         normals.push_back(Vector3(x, y, z));
     }
 
+    // READ UVs
+    for (int i = 0; i < nVertices; i++) {
+        float u, v;
+        file.read(reinterpret_cast<char*>(&u), sizeof(u));
+        file.read(reinterpret_cast<char*>(&v), sizeof(v));
+        uvs.push_back(Vector2(u, v));
+    }
+
     // READ INDICES
     for (int i = 0; i < nTriangles * 3; i++) {
         unsigned int index;
@@ -149,6 +166,7 @@ struct _parser3d_load_result _parser3DLoadFile(const std::string& filename) {
     std::cout << "Loading from " << filename << " ...\n";
     std::cout << "Loaded " << nVertices << " vertices!" << std::endl;
     std::cout << "Loaded " << nVertices << " normals!" << std::endl;
+    std::cout << "Loaded " << nVertices << " UVs!" << std::endl;  // Mostrando UVs
     std::cout << "Loaded " << nTriangles << " triangles! " << std::endl;
     std::cout << "---------- ------ ----------\n";
 
@@ -156,6 +174,7 @@ struct _parser3d_load_result _parser3DLoadFile(const std::string& filename) {
         ._guard = 1,
         .vertices = vertices,
         .normals = normals,
+        .uvs = uvs,  // Adicionando UVs
         .indices = indices,
         .kind = kind};
 }
@@ -245,14 +264,12 @@ BaseGeometry* Parser3D::load3DFile(const std::string& filename) {
     struct _parser3d_load_result res = _parser3DLoadFile(filename);
     if (res._guard == 0) return nullptr;
 
-    return createGeometryFromKind(res.kind, res.vertices, res.normals, res.indices);
-    return nullptr;
+    return createGeometryFromKind(res.kind, res.vertices, res.normals, res.uvs, res.indices);  // Passando UVs
 }
 
 BaseGeometry* Parser3D::loadObjFile(const std::string& filename) {
     struct _parser3d_load_result res = _parserObjLoadFile(filename);
     if (res._guard == 0) return nullptr;
 
-    return createGeometryFromKind(res.kind, res.vertices, res.normals, res.indices);
-    return nullptr;
+    return createGeometryFromKind(res.kind, res.vertices, res.normals, res.uvs, res.indices);  // Passando UVs
 }

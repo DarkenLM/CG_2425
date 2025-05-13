@@ -20,33 +20,51 @@ ConeGeometry::ConeGeometry(int radius, int height, int slices, int stacks) {
     Point3D apex(0.0f, static_cast<float>(height), 0.0f);
 
     std::unordered_map<VertexKey, unsigned int> vertexMap;
+    std::unordered_map<unsigned int, Vector3<float>> normalSums;
+    std::unordered_map<unsigned int, int> normalCounts;
 
-    auto addVertex = [&](const Point3D& pos, const Vector3<float>& normal) {
-        VertexKey key{pos, normal};
+    auto addVertex = [&](const Point3D& pos, const Vector3<float>& faceNormal, float u, float v) {
+        VertexKey key{pos};
+        unsigned int index;
+
         auto it = vertexMap.find(key);
-        if (it != vertexMap.end()) return it->second;
+        if (it != vertexMap.end()) {
+            index = it->second;
+        } else {
+            index = static_cast<unsigned int>(this->vertices.size());
+            vertexMap[key] = index;
+            this->vertices.push_back(pos);
+            this->normals.emplace_back(0.0f, 0.0f, 0.0f);  // placeholder
+            this->uvs.emplace_back(u, v);
+        }
 
-        unsigned int index = static_cast<unsigned int>(this->vertices.size());
-        vertexMap[key] = index;
-        this->vertices.push_back(pos);
-        this->normals.push_back(normal);
+        normalSums[index] += faceNormal;
+        normalCounts[index]++;
         return index;
     };
 
     // --- Base ---
+    Vector3<float> down(0.0f, -1.0f, 0.0f);
     for (int i = 0; i < slices; i++) {
-        float x1 = radius * cos(i * alpha);
-        float z1 = radius * sin(i * alpha);
-        float x2 = radius * cos((i + 1) * alpha);
-        float z2 = radius * sin((i + 1) * alpha);
+        float angle1 = i * alpha;
+        float angle2 = (i + 1) * alpha;
+
+        float x1 = radius * cos(angle1);
+        float z1 = radius * sin(angle1);
+        float x2 = radius * cos(angle2);
+        float z2 = radius * sin(angle2);
 
         Point3D p1(x1, 0.0f, z1);
         Point3D p2(x2, 0.0f, z2);
-        Vector3<float> down(0.0f, -1.0f, 0.0f);
 
-        unsigned int i1 = addVertex(p2, down);
-        unsigned int i2 = addVertex(baseCenter, down);
-        unsigned int i3 = addVertex(p1, down);
+        // UVs for base using polar mapping
+        auto uv = [](float x, float z, float r) {
+            return Vector2<float>(0.5f + x / (2.0f * r), 0.5f + z / (2.0f * r));
+        };
+
+        unsigned int i1 = addVertex(p2, down, uv(p2.getX(), p2.getZ(), radius).first, uv(p2.getX(), p2.getZ(), radius).second);
+        unsigned int i2 = addVertex(baseCenter, down, 0.5f, 0.5f);
+        unsigned int i3 = addVertex(p1, down, uv(p1.getX(), p1.getZ(), radius).first, uv(p1.getX(), p1.getZ(), radius).second);
 
         this->indices.insert(this->indices.end(), {i1, i2, i3});
     }
@@ -63,35 +81,46 @@ ConeGeometry::ConeGeometry(int radius, int height, int slices, int stacks) {
             float scale1 = 1.0f - t1;
             float scale2 = 1.0f - t2;
 
-            float x1 = radius * cos(i * alpha);
-            float z1 = radius * sin(i * alpha);
-            float x2 = radius * cos((i + 1) * alpha);
-            float z2 = radius * sin((i + 1) * alpha);
+            float angle1 = i * alpha;
+            float angle2 = (i + 1) * alpha;
+
+            float x1 = radius * cos(angle1);
+            float z1 = radius * sin(angle1);
+            float x2 = radius * cos(angle2);
+            float z2 = radius * sin(angle2);
 
             Point3D p1(x1 * scale2, y2, z1 * scale2);
             Point3D p2(x1 * scale1, y1, z1 * scale1);
             Point3D p3(x2 * scale2, y2, z2 * scale2);
             Point3D p4(x2 * scale1, y1, z2 * scale1);
 
-            // Manual conversion to Vector3 for math
-            Vector3<float> v1 = Vector3<float>(p3.getX() - p1.getX(), p3.getY() - p1.getY(), p3.getZ() - p1.getZ());
-            Vector3<float> v2 = Vector3<float>(p2.getX() - p1.getX(), p2.getY() - p1.getY(), p2.getZ() - p1.getZ());
-            Vector3<float> normal1 = v1.cross(v2).normalized();
+            // Normals for two triangles
+            Vector3<float> n1 = (p3.toVector3() - p1.toVector3()).cross(p2.toVector3() - p1.toVector3()).normalized();
+            Vector3<float> n2 = (p3.toVector3() - p2.toVector3()).cross(p4.toVector3() - p2.toVector3()).normalized();
 
-            Vector3<float> v3 = Vector3<float>(p3.getX() - p2.getX(), p3.getY() - p2.getY(), p3.getZ() - p2.getZ());
-            Vector3<float> v4 = Vector3<float>(p4.getX() - p2.getX(), p4.getY() - p2.getY(), p4.getZ() - p2.getZ());
-            Vector3<float> normal2 = v3.cross(v4).normalized();
+            float u1 = static_cast<float>(i) / slices;
+            float u2 = static_cast<float>(i + 1) / slices;
+            float v1 = 1.0f - t1;
+            float v2 = 1.0f - t2;
 
-            unsigned int i1 = addVertex(p1, normal1);
-            unsigned int i2 = addVertex(p2, normal1);
-            unsigned int i3 = addVertex(p3, normal1);
+            unsigned int i1 = addVertex(p1, n1, u1, v2);
+            unsigned int i2 = addVertex(p2, n1, u1, v1);
+            unsigned int i3 = addVertex(p3, n1, u2, v2);
 
-            unsigned int i4 = addVertex(p3, normal2);
-            unsigned int i5 = addVertex(p2, normal2);
-            unsigned int i6 = addVertex(p4, normal2);
+            unsigned int i4 = addVertex(p3, n2, u2, v2);
+            unsigned int i5 = addVertex(p2, n2, u1, v1);
+            unsigned int i6 = addVertex(p4, n2, u2, v1);
 
             this->indices.insert(this->indices.end(), {i1, i3, i2});
             this->indices.insert(this->indices.end(), {i4, i6, i5});
+        }
+    }
+
+    // --- Normalize normals ---
+    for (size_t i = 0; i < this->normals.size(); ++i) {
+        if (normalCounts[i] > 0) {
+            Vector3<float> avg = normalSums[i] * (1.0f / static_cast<float>(normalCounts[i]));
+            this->normals[i] = avg.normalized();
         }
     }
 }

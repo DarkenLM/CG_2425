@@ -88,6 +88,19 @@ else ()
 	
 	target_link_libraries(${SUBPROJECT_NAME} ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES} )
 
+	# ===== Link DevIL (Image Library) =====
+	find_library(IL_LIB IL)
+	find_library(ILU_LIB ILU)
+	find_library(ILUT_LIB ILUT)
+
+	if(IL_LIB AND ILU_LIB AND ILUT_LIB)
+		message(STATUS "Found DevIL libraries.")
+		target_link_libraries(${SUBPROJECT_NAME} ${IL_LIB} ${ILU_LIB} ${ILUT_LIB})
+	else()
+		message(FATAL_ERROR "DevIL libraries not found! Make sure libdevil-dev is installed.")
+	endif()
+
+
 	if(NOT GLUT_FOUND)
 	   message(ERROR ": GLUT not found!")
 	endif(NOT GLUT_FOUND)

@@ -240,44 +240,44 @@ class ObjectMaterial {
      * @param emissive RGB emissive component.
      * @param shininess Shininess coefficient used in specular lighting.
      */
-    ObjectMaterial(Vector3<int> diffuse, Vector3<int> ambient, Vector3<int> specular, Vector3<int> emissive, int shininess);
+    ObjectMaterial(Vector3<float> diffuse, Vector3<float> ambient, Vector3<float> specular, Vector3<float> emissive, float shininess);
 
     /**
      * @brief Gets the diffuse component of the material.
      * @return RGB vector representing diffuse color.
      */
-    Vector3<int> getDiffuse();
+    Vector3<float> getDiffuse();
 
     /**
      * @brief Gets the ambient component of the material.
      * @return RGB vector representing ambient color.
      */
-    Vector3<int> getAmbient();
+    Vector3<float> getAmbient();
 
     /**
      * @brief Gets the specular component of the material.
      * @return RGB vector representing specular color.
      */
-    Vector3<int> getSpecular();
+    Vector3<float> getSpecular();
 
     /**
      * @brief Gets the emissive component of the material.
      * @return RGB vector representing emissive color.
      */
-    Vector3<int> getEmissive();
+    Vector3<float> getEmissive();
 
     /**
      * @brief Gets the shininess value of the material.
      * @return Integer representing the shininess coefficient.
      */
-    int getShininess();
+    float getShininess();
 
    private:
-    Vector3<int> diffuse;  /**< Diffuse color component. */
-    Vector3<int> ambient;  /**< Ambient color component. */
-    Vector3<int> specular; /**< Specular color component. */
-    Vector3<int> emissive; /**< Emissive color component. */
-    int shininess;         /**< Shininess factor for specular reflection. */
+    Vector3<float> diffuse;  /**< Diffuse color component. */
+    Vector3<float> ambient;  /**< Ambient color component. */
+    Vector3<float> specular; /**< Specular color component. */
+    Vector3<float> emissive; /**< Emissive color component. */
+    float shininess;         /**< Shininess factor for specular reflection. */
 };
 
 /**

@@ -37,6 +37,8 @@ class BaseGeometry {
     std::vector<Point3D> vertices;
     /**< Normal vectors */
     std::vector<Vector3<float>> normals;
+    /**< UV coordinates (texture coordinates) */
+    std::vector<Vector2<float>> uvs;
     /**< Triangle indices */
     std::vector<unsigned int> indices;
 
@@ -57,6 +59,12 @@ class BaseGeometry {
      * @return Vector of 3D float vectors representing normals.
      */
     std::vector<Vector3<float>> getNormals() const { return this->normals; };
+
+    /**
+     * @brief Get the geometry's UVs.
+     * @return Vector of 2D texture coordinates (UVs).
+     */
+    std::vector<Vector2<float>> getUVs() const { return this->uvs; }
 
     /**
      * @brief Get the geometry's triangle indices.
@@ -87,4 +95,10 @@ class BaseGeometry {
      * @return Vector of copied indices.
      */
     virtual std::vector<unsigned int> copyIndices() = 0;
+
+    /**
+     * @brief Create a copy of the UV data.
+     * @return Vector of copied UV coordinates.
+     */
+    virtual std::vector<Vector2<float>> copyUVs() = 0;
 };

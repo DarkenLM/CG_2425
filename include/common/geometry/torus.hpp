@@ -23,13 +23,17 @@ class TorusGeometry : public BaseGeometry {
     TorusGeometry(int majorRadius, int minorRadius, int slices, int sides);
 
     /**
-     * @brief Alternative constructor for TorusGeometry when vertices, normals, and indices are pre-computed.
+     * @brief Alternative constructor for TorusGeometry when vertices, normals, UVs, and indices are pre-computed.
      *
      * @param vertices A vector containing the vertices of the torus.
      * @param normals A vector containing the normals of the torus.
+     * @param uvs A vector containing the UV coordinates of the torus.
      * @param indices A vector containing the indices that define the geometry.
      */
-    TorusGeometry(std::vector<Point3D> vertices, std::vector<Vector3<float>> normals, std::vector<unsigned int> indices);
+    TorusGeometry(std::vector<Point3D> vertices,
+                  std::vector<Vector3<float>> normals,
+                  std::vector<Vector2<float>> uvs,  // Added UV support
+                  std::vector<unsigned int> indices);
 
     /**
      * @brief Copies the vertices of the torus.
@@ -44,6 +48,13 @@ class TorusGeometry : public BaseGeometry {
      * @return A vector of Vector3<float> representing the normals of the torus.
      */
     virtual std::vector<Vector3<float>> copyNormals() override;
+
+    /**
+     * @brief Copies the UV coordinates of the torus.
+     *
+     * @return A vector of Vector2<float> representing the UV coordinates of the torus.
+     */
+    virtual std::vector<Vector2<float>> copyUVs() override;
 
     /**
      * @brief Copies the indices of the torus.

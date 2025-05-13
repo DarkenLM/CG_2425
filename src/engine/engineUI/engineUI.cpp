@@ -13,7 +13,7 @@ EngineUI::EngineUI()
       clear_color(ImVec4(0.45f, 0.55f, 0.60f, 1.00f)),
       fullscreen(false),
       vsync(false),
-      polygonMode(1),
+      polygonMode(0),
       cameraMode(0) {}
 
 EngineUI::~EngineUI() {
@@ -200,6 +200,7 @@ void modelTree(int& groupNumber, std::vector<Group*> groups) {
                 //
                 for (auto model : group->getObjects()) {
                     ImGui::Text(model->getSource());
+                    ImGui::Checkbox("Show Normals", model->getShowNormalsPtr());
                 }
                 ImGui::TreePop();
             }

@@ -16,6 +16,39 @@ class Vector {
 };
 
 template <typename T>
+class Vector2 : public Vector<T> {
+   public:
+    T first, second;
+
+    // Default constructor
+    Vector2();
+
+    // Constructor with values
+    Vector2(T first, T second);
+
+    // Copy constructor
+    Vector2<T> copy();
+
+    // Operator overloads
+    Vector2<T> operator+(const Vector2<T>& other);
+    Vector2<T> operator+=(const Vector2<T>& other);
+    Vector2<T> operator*(T scalar) const;
+
+    // Dot product
+    T dot(const Vector2<T>& other) const;
+
+    // Length and normalization
+    float length() const;
+    void normalize();
+    Vector2<T> normalized() const;
+
+    // Friend function for scalar multiplication
+    friend Vector2<T> operator*(T scalar, const Vector2<T>& vec) {
+        return vec * scalar;
+    }
+};
+
+template <typename T>
 class Vector3 : public Vector<T> {
    public:
     T first, second, third;
@@ -38,6 +71,8 @@ class Vector3 : public Vector<T> {
         return vec * scalar;
     }
 
+    Vector3<T> operator-(const Vector3<T>& other) const;
+
     Point3D toPoint3D() const;
 };
 
@@ -55,7 +90,6 @@ class Vector4 : public Vector3<T> {
 
 struct VertexKey {
     Point3D position;
-    Vector3<float> normal;
 
     bool operator==(const VertexKey& other) const;
 };
@@ -66,5 +100,17 @@ struct hash<VertexKey> {
     std::size_t operator()(const VertexKey& key) const;
 };
 }  // namespace std
+
+struct ExtendedVertexKey {
+    Point3D position;
+    Vector3<float> normal;
+
+    bool operator==(const ExtendedVertexKey& other) const;
+};
+
+namespace std {
+template <>
+struct hash<ExtendedVertexKey>;
+}
 
 #include "common/util/vectors.tpp"

@@ -30,10 +30,12 @@ class BezierGeometry : public BaseGeometry {
      *
      * @param vertices List of vertex positions.
      * @param normals List of normal vectors.
+     * @param uvs List of UV coordinates.
      * @param indices List of triangle indices.
      */
     BezierGeometry(std::vector<Point3D> vertices,
                    std::vector<Vector3<float>> normals,
+                   std::vector<Vector2<float>> uvs,  // Added UV support here
                    std::vector<unsigned int> indices);
 
     /**
@@ -47,6 +49,12 @@ class BezierGeometry : public BaseGeometry {
      * @return Vector of copied normal vectors.
      */
     virtual std::vector<Vector3<float>> copyNormals() override;
+
+    /**
+     * @brief Returns a copy of the geometry's UVs.
+     * @return Vector of copied UV coordinates.
+     */
+    virtual std::vector<Vector2<float>> copyUVs() override;  // Method to copy UVs
 
     /**
      * @brief Returns a copy of the geometry's indices.
@@ -69,5 +77,5 @@ class BezierGeometry : public BaseGeometry {
         const std::array<int, 16>& patchIndices,
         const std::vector<Point3D>& controlPoints,
         int tessellationLevel,
-        const std::function<unsigned int(const Point3D&, const Vector3<float>&)>& addVertex);
+        const std::function<unsigned int(const Point3D&, const Vector3<float>&, float, float)>& addVertex);
 };

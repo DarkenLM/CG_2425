@@ -29,7 +29,17 @@ const Model* Scene::getObjectById(const char* id) const {
         const Model* target = group->getObjectById(id);
         if (target != nullptr) return target;
     }
-    
+
+    return nullptr;
+}
+
+// TODO: Corrigir esta funçao, esta a devolver o group da scene
+Group* Scene::getGroupWithObjectId(const char* id) const {
+    for (const auto& group : this->groups) {
+        const Model* target = group->getObjectById(id);
+        if (target != nullptr) return group;
+    }
+
     return nullptr;
 }
 
@@ -102,18 +112,42 @@ void Scene::load() {
             std::string targetId = this->camera->getTrackingId();
             const Model* targetModel = this->getObjectById(targetId.c_str());
 
+            Group* targetGroup = this->getGroupWithObjectId(targetId.c_str());
+
             this->camera->track(targetModel, targetId);
         }
-        
+
         this->camera->load();
-    } findOut(std::string e) {
+    }
+    findOut(std::string e) {
         yeet std::string("Unable to load camera: ") + e;
     }
 
     this->setCameraAspectRatio(this->getWindowWidth() / this->getWindowHeight());
 }
 
+void Scene::loadLights() {
+    fuckAround {
+        float amb[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, amb);
+        for (int i = 0; i < this->lights.size(); i++) {
+            if (i == 8) {
+                yeet std::string("Program not ready for that many light sources");
+                exit;
+            }
+            this->lights[i]->gl_id = GL_LIGHT0 + i;
+            glEnable(GL_LIGHT0 + i);
+        }
+    }
+    findOut(std::string e) {
+        yeet std::string("Unable to load lights: ") + e;
+    }
+}
+
 void Scene::render() {
+    for (Light* l : this->lights) {
+        l->render();
+    }
     for (Group* g : this->groups) {
         g->render();
     }

@@ -30,9 +30,13 @@ class ConeGeometry : public BaseGeometry {
      *
      * @param vertices List of vertex positions.
      * @param normals List of normal vectors.
+     * @param uvs List of UV coordinates.
      * @param indices List of triangle indices.
      */
-    ConeGeometry(std::vector<Point3D> vertices, std::vector<Vector3<float>> normals, std::vector<unsigned int> indices);
+    ConeGeometry(std::vector<Point3D> vertices,
+                 std::vector<Vector3<float>> normals,
+                 std::vector<Vector2<float>> uvs,  // Added UV support here
+                 std::vector<unsigned int> indices);
 
     /**
      * @brief Returns a copy of the geometry's vertices.
@@ -45,6 +49,12 @@ class ConeGeometry : public BaseGeometry {
      * @return Vector of copied normal vectors.
      */
     virtual std::vector<Vector3<float>> copyNormals() override;
+
+    /**
+     * @brief Returns a copy of the geometry's UVs.
+     * @return Vector of copied UV coordinates.
+     */
+    virtual std::vector<Vector2<float>> copyUVs() override;  // Method to copy UVs
 
     /**
      * @brief Returns a copy of the geometry's indices.

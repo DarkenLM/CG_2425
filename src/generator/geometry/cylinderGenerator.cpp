@@ -20,16 +20,26 @@ CylinderGeometry::CylinderGeometry(int radius, int height, int slices) {
     Vector3<float> topNormal(0.0f, 1.0f, 0.0f);
 
     std::unordered_map<VertexKey, unsigned int> vertexMap;
+    std::unordered_map<unsigned int, Vector3<float>> normalSums;
+    std::unordered_map<unsigned int, int> normalCounts;
 
-    auto addVertex = [&](const Point3D& pos, const Vector3<float>& normal) {
-        VertexKey key{pos, normal};
+    auto addVertex = [&](const Point3D& pos, const Vector3<float>& normal, float u, float v) {
+        VertexKey key{pos};
+        unsigned int index;
+
         auto it = vertexMap.find(key);
-        if (it != vertexMap.end()) return it->second;
+        if (it != vertexMap.end()) {
+            index = it->second;
+        } else {
+            index = static_cast<unsigned int>(this->vertices.size());
+            this->vertices.push_back(pos);
+            this->normals.push_back(normal);  // Placeholder, will be averaged later
+            this->uvs.push_back(Vector2<float>(u, v));
+            vertexMap[key] = index;
+        }
 
-        unsigned int index = static_cast<unsigned int>(this->vertices.size());
-        this->vertices.push_back(pos);
-        this->normals.push_back(normal);
-        vertexMap[key] = index;
+        normalSums[index] += normal;
+        normalCounts[index]++;
         return index;
     };
 
@@ -48,15 +58,15 @@ CylinderGeometry::CylinderGeometry(int radius, int height, int slices) {
         Point3D p4 = p2.withY(height);
 
         // --- Bottom face ---
-        unsigned int i1 = addVertex(p2, bottomNormal);
-        unsigned int i2 = addVertex(bottomCenter, bottomNormal);
-        unsigned int i3 = addVertex(p1, bottomNormal);
+        unsigned int i1 = addVertex(p2, bottomNormal, (x2 / radius + 1.0f) / 2.0f, (z2 / radius + 1.0f) / 2.0f);
+        unsigned int i2 = addVertex(bottomCenter, bottomNormal, 0.5f, 0.5f);
+        unsigned int i3 = addVertex(p1, bottomNormal, (x1 / radius + 1.0f) / 2.0f, (z1 / radius + 1.0f) / 2.0f);
         this->indices.insert(this->indices.end(), {i1, i2, i3});
 
         // --- Top face ---
-        unsigned int i4 = addVertex(p1.withY(height), topNormal);
-        unsigned int i5 = addVertex(topCenter, topNormal);
-        unsigned int i6 = addVertex(p2.withY(height), topNormal);
+        unsigned int i4 = addVertex(p1.withY(height), topNormal, (x1 / radius + 1.0f) / 2.0f, (z1 / radius + 1.0f) / 2.0f);
+        unsigned int i5 = addVertex(topCenter, topNormal, 0.5f, 0.5f);
+        unsigned int i6 = addVertex(p2.withY(height), topNormal, (x2 / radius + 1.0f) / 2.0f, (z2 / radius + 1.0f) / 2.0f);
         this->indices.insert(this->indices.end(), {i4, i5, i6});
 
         // --- Side triangle 1 ---
@@ -65,16 +75,24 @@ CylinderGeometry::CylinderGeometry(int radius, int height, int slices) {
         Vector3<float> n2(x2, 0.0f, z2);
         n2.normalize();
 
-        unsigned int i7 = addVertex(p1, n1);
-        unsigned int i8 = addVertex(p3, n1);
-        unsigned int i9 = addVertex(p2, n2);
+        unsigned int i7 = addVertex(p1, n1, (x1 / radius + 1.0f) / 2.0f, (z1 / radius + 1.0f) / 2.0f);
+        unsigned int i8 = addVertex(p3, n1, (x1 / radius + 1.0f) / 2.0f, (z1 / radius + 1.0f) / 2.0f);
+        unsigned int i9 = addVertex(p2, n2, (x2 / radius + 1.0f) / 2.0f, (z2 / radius + 1.0f) / 2.0f);
         this->indices.insert(this->indices.end(), {i7, i8, i9});
 
         // --- Side triangle 2 ---
-        unsigned int i10 = addVertex(p3, n1);
-        unsigned int i11 = addVertex(p4, n2);
-        unsigned int i12 = addVertex(p2, n2);
+        unsigned int i10 = addVertex(p3, n1, (x1 / radius + 1.0f) / 2.0f, (z1 / radius + 1.0f) / 2.0f);
+        unsigned int i11 = addVertex(p4, n2, (x2 / radius + 1.0f) / 2.0f, (z2 / radius + 1.0f) / 2.0f);
+        unsigned int i12 = addVertex(p2, n2, (x2 / radius + 1.0f) / 2.0f, (z2 / radius + 1.0f) / 2.0f);
         this->indices.insert(this->indices.end(), {i10, i11, i12});
+    }
+
+    // --- Normalize normals ---
+    for (size_t i = 0; i < this->normals.size(); ++i) {
+        if (normalCounts[i] > 0) {
+            Vector3<float> avg = normalSums[i] * (1.0f / static_cast<float>(normalCounts[i]));
+            this->normals[i] = avg.normalized();
+        }
     }
 }
 

@@ -5,13 +5,11 @@ Camera::Camera(
     float lookX, float lookY, float lookZ,
     float upX, float upY, float upZ,
     float fov, float near, float far,
-    Model* fallbackModel, std::string target
-) {
+    Model* fallbackModel, std::string target) {
     this->fallbackTarget = fallbackModel;
     this->targetId = target;
 
-    if (target.compare("<self>") == 0) this->targetRef = fallbackModel;
-    this->targetRef;
+    this->targetRef = fallbackModel;
 
     for (int i = 0; i < 3; i++) {
         this->cameras[i].posX = posX;
@@ -135,6 +133,9 @@ Camera::Camera(
         this->cameras[1].lookX = this->cameras[1].posX + dirX;
         this->cameras[1].lookY = this->cameras[1].posY + dirY;
         this->cameras[1].lookZ = this->cameras[1].posZ + dirZ;
+    }
+    {
+        // TODO: Implementar third person
     }
 };
 
@@ -274,7 +275,7 @@ void Camera::track(const Model* ref, std::string id) {
     this->targetRef = ref;
 }
 
-// SEE: The object ref for the target can be get using this->target. If the targetId is "<self>", that means the 
+// SEE: The object ref for the target can be get using this->target. If the targetId is "<self>", that means the
 // fallback model _SHOULD_ be used.
 void Camera::render() {
     glLoadIdentity();
@@ -332,8 +333,10 @@ Camera* Camera::fromXML(XMLElement* xml) {
         if (!targetModel) yeet std::string("Unable to load camera target.");
 
         GET_XML_ELEMENT_ATTRIB(target, "targetId", _targetId, const char*);
-        if (_targetId != NULL) targetId = _targetId;
-        else targetId = "<self>";
+        if (_targetId != NULL)
+            targetId = _targetId;
+        else
+            targetId = "<self>";
     }
 
     return new Camera(
@@ -341,14 +344,14 @@ Camera* Camera::fromXML(XMLElement* xml) {
         lookX, lookY, lookZ,
         upX, upY, upZ,
         fov, near, far,
-        targetModel, targetId
-    );
+        targetModel, targetId);
 }
 
 void Camera::load() {
     fuckAround {
         this->fallbackTarget->load();
-    } findOut(std::string e) {
+    }
+    findOut(std::string e) {
         yeet e;
     }
 }
@@ -462,7 +465,14 @@ void Camera::fpMovement(unsigned char key, int mx, int my) {
 }
 
 void Camera::tpMovement(unsigned char key, int mx, int my) {
-    std::cout << "Don't use this camera mode(Third Persom). It is not implemented dummy." << std::endl;
+    // Estatico
+    if (!this->targetRef) {
+        // std::cout << "estatico" << std::endl;
+    }
+    // Dinamico
+    else {
+        // std::cout << "dinamico" << std::endl;
+    }
 }
 
 void Camera::processMovement(unsigned char key, int mx, int my) {

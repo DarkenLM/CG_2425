@@ -28,9 +28,13 @@ class PlaneGeometry : public BaseGeometry {
      *
      * @param vertices List of vertex positions.
      * @param normals List of normal vectors.
+     * @param uvs List of UV coordinates.
      * @param indices List of triangle indices.
      */
-    PlaneGeometry(std::vector<Point3D> vertices, std::vector<Vector3<float>> normals, std::vector<unsigned int> indices);
+    PlaneGeometry(std::vector<Point3D> vertices,
+                  std::vector<Vector3<float>> normals,
+                  std::vector<Vector2<float>> uvs,  // Added UV support
+                  std::vector<unsigned int> indices);
 
     /**
      * @brief Returns a copy of the geometry's vertices.
@@ -43,6 +47,12 @@ class PlaneGeometry : public BaseGeometry {
      * @return Vector of copied normal vectors.
      */
     virtual std::vector<Vector3<float>> copyNormals() override;
+
+    /**
+     * @brief Returns a copy of the geometry's UV coordinates.
+     * @return Vector of copied UV coordinates.
+     */
+    virtual std::vector<Vector2<float>> copyUVs() override;
 
     /**
      * @brief Returns a copy of the geometry's indices.

@@ -19,35 +19,25 @@ BezierGeometry::~BezierGeometry() = default;
 BezierGeometry::BezierGeometry(const char* filename, int tessellationLevel) {
     this->_kind = GEOMETRY_BEZIER;
 
-    // Read the Bezier patch file
     std::ifstream file(filename);
     if (!file.is_open()) {
         throw std::runtime_error("Failed to open Bezier patch file");
     }
 
-    // Read number of patches
     int patchCount;
     file >> patchCount;
 
-    // Read patches (16 control points each)
-    std::vector<std::array<int, 16>>
-        patches(patchCount);
+    std::vector<std::array<int, 16>> patches(patchCount);
     for (int i = 0; i < patchCount; ++i) {
-        std::cout << "Patch: " << i << ": ";
         for (int j = 0; j < 16; ++j) {
             file >> patches[i][j];
             if (file.peek() == ',') file.ignore();
-            std::cout << patches[i][j] << " ";
         }
-        std::cout << "\n";
     }
 
-    // Read number of vertices
     int vertexCount;
     file >> vertexCount;
     std::vector<Point3D> controlPoints(vertexCount);
-
-    // Read vertices
     for (int i = 0; i < vertexCount; ++i) {
         float x, y, z;
         file >> x;
@@ -59,24 +49,38 @@ BezierGeometry::BezierGeometry(const char* filename, int tessellationLevel) {
         controlPoints[i] = Point3D(x, y, z);
     }
 
-    // Vertex deduplication map
+    // Temporary vertex data
+    struct TempVertexData {
+        Point3D position;
+        Vector3<float> normalSum;
+        Vector2<float> uv;
+    };
+
+    std::vector<TempVertexData> tempVertices;
     std::unordered_map<VertexKey, unsigned int> vertexMap;
 
-    auto addVertex = [&](const Point3D& pos, const Vector3<float>& normal) {
-        VertexKey key{pos, normal};
+    auto addVertex = [&](const Point3D& pos, const Vector3<float>& normal, float u, float v) {
+        VertexKey key{pos};
         auto it = vertexMap.find(key);
-        if (it != vertexMap.end()) return it->second;
+        if (it != vertexMap.end()) {
+            tempVertices[it->second].normalSum += normal;
+            return it->second;
+        }
 
-        unsigned int index = static_cast<unsigned int>(this->vertices.size());
-        this->vertices.push_back(pos);
-        this->normals.push_back(normal);
+        unsigned int index = static_cast<unsigned int>(tempVertices.size());
         vertexMap[key] = index;
+        tempVertices.push_back(TempVertexData{pos, normal, Vector2<float>(u, v)});
         return index;
     };
 
-    // Tessellate each patch
     for (const auto& patch : patches) {
         tessellateBezierPatch(patch, controlPoints, tessellationLevel, addVertex);
+    }
+
+    for (const auto& v : tempVertices) {
+        this->vertices.push_back(v.position);
+        this->normals.push_back(v.normalSum.normalized());
+        this->uvs.push_back(v.uv);
     }
 }
 
@@ -84,8 +88,7 @@ void BezierGeometry::tessellateBezierPatch(
     const std::array<int, 16>& patchIndices,
     const std::vector<Point3D>& controlPoints,
     int tessellationLevel,
-    const std::function<unsigned int(const Point3D&, const Vector3<float>&)>& addVertex) {
-    // Precompute Bernstein basis functions
+    const std::function<unsigned int(const Point3D&, const Vector3<float>&, float, float)>& addVertex) {
     auto bernstein = [](int i, float t) {
         switch (i) {
             case 0:
@@ -101,7 +104,6 @@ void BezierGeometry::tessellateBezierPatch(
         }
     };
 
-    // Generate grid of points and normals
     std::vector<std::vector<unsigned int>> gridIndices(tessellationLevel + 1);
     for (int i = 0; i <= tessellationLevel; ++i) {
         float u = float(i) / tessellationLevel;
@@ -110,33 +112,24 @@ void BezierGeometry::tessellateBezierPatch(
         for (int j = 0; j <= tessellationLevel; ++j) {
             float v = float(j) / tessellationLevel;
 
-            // Evaluate position
             Point3D vertex(0, 0, 0);
             for (int k = 0; k < 4; ++k) {
                 for (int l = 0; l < 4; ++l) {
                     float bu = bernstein(k, u);
                     float bv = bernstein(l, v);
                     int idx = patchIndices[k * 4 + l];
-                    if (idx >= controlPoints.size()) {
-                        std::cerr << "Invalid control point index: " << idx
-                                  << " (max: " << controlPoints.size() << ")" << std::endl;
-                        continue;
-                    }
+                    if (idx >= controlPoints.size()) continue;
                     vertex = vertex + controlPoints[idx] * (bu * bv);
                 }
             }
 
-            // Evaluate partial derivatives for normal calculation
-            Point3D du(0, 0, 0);
-            Point3D dv(0, 0, 0);
+            Point3D du(0, 0, 0), dv(0, 0, 0);
             for (int k = 0; k < 4; ++k) {
                 for (int l = 0; l < 4; ++l) {
                     float bu = bernstein(k, u);
                     float bv = bernstein(l, v);
-                    float dbu = 0;
-                    float dbv = 0;
+                    float dbu = 0, dbv = 0;
 
-                    // Derivative calculations
                     if (k == 0)
                         dbu = -3 * (1 - u) * (1 - u);
                     else if (k == 1)
@@ -162,26 +155,22 @@ void BezierGeometry::tessellateBezierPatch(
                 }
             }
 
-            // Calculate normal from partial derivatives
             Vector3<float> tangentU(du.getX(), du.getY(), du.getZ());
             Vector3<float> tangentV(dv.getX(), dv.getY(), dv.getZ());
-            Vector3<float> normal = tangentU.cross(tangentV);
+            Vector3<float> normal = tangentV.cross(tangentU);
             normal.normalize();
 
-            unsigned int index = addVertex(vertex, normal);
+            unsigned int index = addVertex(vertex, normal, u, v);
             gridIndices[i][j] = index;
         }
     }
 
-    // Generate triangles - ensure proper winding order
     for (int i = 0; i < tessellationLevel; ++i) {
         for (int j = 0; j < tessellationLevel; ++j) {
-            // First triangle (counter-clockwise)
             this->indices.push_back(gridIndices[i][j]);
             this->indices.push_back(gridIndices[i][j + 1]);
             this->indices.push_back(gridIndices[i + 1][j]);
 
-            // Second triangle (counter-clockwise)
             this->indices.push_back(gridIndices[i + 1][j]);
             this->indices.push_back(gridIndices[i][j + 1]);
             this->indices.push_back(gridIndices[i + 1][j + 1]);
@@ -191,39 +180,43 @@ void BezierGeometry::tessellateBezierPatch(
 
 std::vector<Point3D> BezierGeometry::copyVertices() {
     std::vector<Point3D> ret;
-
     for (auto i : this->vertices) {
         ret.push_back(i.copy());
     }
-
     return ret;
 }
 
 std::vector<Vector3<float>> BezierGeometry::copyNormals() {
     std::vector<Vector3<float>> ret;
-
     for (auto i : this->normals) {
         ret.push_back(i.copy());
     }
+    return ret;
+}
 
+std::vector<Vector2<float>> BezierGeometry::copyUVs() {
+    std::vector<Vector2<float>> ret;
+    for (auto i : this->uvs) {
+        ret.push_back(i.copy());
+    }
     return ret;
 }
 
 std::vector<unsigned int> BezierGeometry::copyIndices() {
     std::vector<unsigned> ret;
-
     for (auto i : this->indices) {
         ret.push_back(i);
     }
-
     return ret;
 }
 
 BezierGeometry::BezierGeometry(std::vector<Point3D> vertices,
                                std::vector<Vector3<float>> normals,
+                               std::vector<Vector2<float>> uvs,
                                std::vector<unsigned int> indices) {
     this->_kind = GEOMETRY_BEZIER;
     this->vertices = std::move(vertices);
     this->normals = std::move(normals);
+    this->uvs = std::move(uvs);
     this->indices = std::move(indices);
 }

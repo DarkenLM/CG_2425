@@ -56,6 +56,12 @@ class Scene {
     const Model* getObjectById(const char* id) const;
 
     /**
+     * @brief Gets the group that contains the model in this scene with the specified id.
+     * @return Const reference to the group, if it exists, nullptr otherwise.
+     */
+    Group* getGroupWithObjectId(const char* id) const;
+
+    /**
      * @brief Creates a Scene instance from a file.
      * @param filePath Path to the scene configuration file.
      * @return Pointer to the loaded Scene.
@@ -64,6 +70,9 @@ class Scene {
 
     /** @brief Loads the scene data (groups, models, etc.). */
     void load();
+
+    /** @brief Loads the scene ligths (is in diferent function because it needs to be after windowcreate). */
+    void loadLights();
 
     /** @brief Renders the scene, including all groups and lights. */
     void render();

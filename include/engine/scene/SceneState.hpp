@@ -16,6 +16,8 @@ struct scenestate {
 
     std::vector<GLuint> VBObuffers; /**< Vector of Vertex Buffer Object (VBO) identifiers. */
     std::vector<GLuint> IBObuffers; /**< Vector of Index Buffer Object (IBO) identifiers. */
+    std::vector<GLuint> NBObuffers; /**< Vector of Normal Buffer Object (NBO) identifiers. */
+    std::vector<GLuint> TBObuffers; /**< Vector of TextureCoords Buffer Object (TBO) identifiers. */
 
     std::chrono::steady_clock::time_point lastUpdate; /**< Timestamp of the last update frame. */
     float deltaTime;                                  /**< Time in seconds since the last frame. */

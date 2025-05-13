@@ -21,9 +21,13 @@ class ObjGeometry : public BaseGeometry {
      *
      * @param vertices List of vertex positions loaded from an OBJ file.
      * @param normals List of normal vectors loaded from an OBJ file.
+     * @param uvs List of UV coordinates loaded from an OBJ file.
      * @param indices List of triangle indices loaded from an OBJ file.
      */
-    ObjGeometry(std::vector<Point3D> vertices, std::vector<Vector3<float>> normals, std::vector<unsigned int> indices);
+    ObjGeometry(std::vector<Point3D> vertices,
+                std::vector<Vector3<float>> normals,
+                std::vector<Vector2<float>> uvs,  // Added UV support here
+                std::vector<unsigned int> indices);
 
     /**
      * @brief Returns a copy of the geometry's vertices.
@@ -36,6 +40,12 @@ class ObjGeometry : public BaseGeometry {
      * @return Vector of copied normal vectors.
      */
     virtual std::vector<Vector3<float>> copyNormals() override;
+
+    /**
+     * @brief Returns a copy of the geometry's UV coordinates.
+     * @return Vector of copied UV coordinates.
+     */
+    virtual std::vector<Vector2<float>> copyUVs() override;
 
     /**
      * @brief Returns a copy of the geometry's indices.

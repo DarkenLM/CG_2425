@@ -1,18 +1,24 @@
 #include "engine/scene/Model.hpp"
 
+#include <IL/il.h>
+#include <unistd.h>  // For getcwd on Linux/macOS
+
 using namespace tinyxml2;
 
 extern struct scenestate STATE;  ///< External reference to the global scene state
 
 Model::Model(const char* source, const char* id) {
     this->source = source;
+    this->showNormals = false;
     this->texture = std::string("");
     this->color = std::string("");
     this->geometry = nullptr;
     this->_loaded = false;
 
-    if (id == NULL) this->id = std::string("");
-    else this->id = id;
+    if (id == NULL)
+        this->id = std::string("");
+    else
+        this->id = id;
 }
 
 #pragma region------- Overrides -------
@@ -56,6 +62,26 @@ void Model::setTfStack(std::vector<TransformType> tfstack) {
     this->tfStack = tfstack;
 }
 
+std::vector<TransformType> Model::getTrasnformations() const {
+    return tfStack;
+}
+
+std::optional<ObjectTranslation> Model::getTranslation() const {
+    return this->translation;
+};
+
+std::optional<ObjectRotation> Model::getRotation() const {
+    return this->rotation;
+};
+
+std::optional<Vector3<float>> Model::getScale() const {
+    return this->scale;
+};
+
+std::optional<ObjectMaterial> Model::getMaterial() const {
+    return this->material;
+};
+
 void Model::rotateAlong(float axisX, float axisY, float axisZ, float angle) {
     if (this->rotation.has_value()) {
         if (!this->rotation.value().isDynamic()) this->rotation = ObjectRotation(angle, axisX, axisY, axisZ);
@@ -84,6 +110,80 @@ void Model::scaleTo(Vector3<float> sv) {
     } else {
         this->scale = sv;
     }
+}
+
+void Model::processNormals() {
+    glDisable(GL_LIGHTING);
+    glBegin(GL_LINES);
+    glColor3f(1.0f, 0.0f, 0.0f);  // Bright red normals for visibility
+
+    auto geometry = this->_geometryCache.get(this->source).value();
+    const std::vector<Point3D>& vertices = geometry->getVertices();
+    const std::vector<Vector3<float>>& normals = geometry->getNormals();
+
+    float normalLength = 0.5f;  // Adjust for visual clarity
+
+    for (size_t i = 0; i < vertices.size(); ++i) {
+        const Point3D& v = vertices[i];
+        const Vector3<float>& n = normals[i];
+
+        glVertex3f(v.getX(), v.getY(), v.getZ());  // start point
+        glVertex3f(v.getX() + n.first * normalLength,
+                   v.getY() + n.second * normalLength,
+                   v.getZ() + n.third * normalLength);  // end point
+    }
+    glColor3f(1.0f, 1.0f, 1.0f);  // Bright red normals for visibility
+    glEnd();
+    glEnable(GL_LIGHTING);
+}
+
+void Model::loadingMaterial() {
+    // Use default material values (gray tones) if material doesn't exist
+    auto matOpt = this->getMaterial();
+    Vector3<float> ambientColor(50, 50, 50);
+    Vector3<float> diffuseColor(200, 200, 200);
+    Vector3<float> specularColor(0, 0, 0);
+    Vector3<float> emissiveColor(0, 0, 0);
+    float shininess = 0.0f;
+
+    if (matOpt.has_value()) {
+        auto& mat = matOpt.value();
+        ambientColor = mat.getAmbient();
+        diffuseColor = mat.getDiffuse();
+        specularColor = mat.getSpecular();
+        emissiveColor = mat.getEmissive();
+        shininess = mat.getShininess();
+    }
+
+    float ambient[] = {
+        ambientColor.first / 255.0f,
+        ambientColor.second / 255.0f,
+        ambientColor.third / 255.0f,
+        1.0f};
+
+    float diffuse[] = {
+        diffuseColor.first / 255.0f,
+        diffuseColor.second / 255.0f,
+        diffuseColor.third / 255.0f,
+        1.0f};
+
+    float specular[] = {
+        specularColor.first / 255.0f,
+        specularColor.second / 255.0f,
+        specularColor.third / 255.0f,
+        1.0f};
+
+    float emissive[] = {
+        emissiveColor.first / 255.0f,
+        emissiveColor.second / 255.0f,
+        emissiveColor.third / 255.0f,
+        1.0f};
+
+    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
+    glMaterialfv(GL_FRONT, GL_EMISSION, emissive);
+    glMaterialf(GL_FRONT, GL_SHININESS, shininess);
 }
 
 void Model::render() {
@@ -134,9 +234,30 @@ void Model::render() {
         }
     }
     glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
+
+    if (this->textureId != 0) {
+        glEnable(GL_TEXTURE_2D);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+        glBindTexture(GL_TEXTURE_2D, this->textureId);
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);  // Ignora luz e mostra só textura
+
+        glBindBuffer(GL_ARRAY_BUFFER, this->_geometryTBO.get(this->source).value());
+        glTexCoordPointer(2, GL_FLOAT, 0, 0);
+    }
+
+    this->loadingMaterial();
+
+    if (this->showNormals) {
+        this->processNormals();
+    }
 
     glBindBuffer(GL_ARRAY_BUFFER, this->_geometryVBO.get(this->source).value());
     glVertexPointer(3, GL_FLOAT, 0, 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, this->_geometryNBO.get(this->source).value());
+    glNormalPointer(GL_FLOAT, 0, 0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_geometryIBO.get(this->source).value());
 
@@ -144,37 +265,31 @@ void Model::render() {
 
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
-
-    // Test normals
-    glBegin(GL_LINES);
-    glColor3f(1.0f, 0.0f, 0.0f);  // Bright red normals for visibility
-
-    auto geometry = this->_geometryCache.get(this->source).value();
-    const std::vector<Point3D>& vertices = geometry->getVertices();
-    const std::vector<Vector3<float>>& normals = geometry->getNormals();
-
-    float normalLength = 0.5f;  // Adjust for visual clarity
-
-    for (size_t i = 0; i < vertices.size(); ++i) {
-        const Point3D& v = vertices[i];
-        const Vector3<float>& n = normals[i];
-
-        glVertex3f(v.getX(), v.getY(), v.getZ());  // start point
-        glVertex3f(v.getX() + n.first * normalLength,
-                   v.getY() + n.second * normalLength,
-                   v.getZ() + n.third * normalLength);  // end point
-    }
-    glColor3f(1.0f, 1.0f, 1.0f);  // Bright red normals for visibility
-    glEnd();
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glPopMatrix();
 }
 
 #pragma endregion-- -- -- -Overrides-- -- -- -
 
-const char* Model::getSource() {
+const char* Model::getSource() const {
     return this->source.c_str();
 }
+
+const bool Model::getShowNormals() const {
+    return this->showNormals;
+};
+
+bool* Model::getShowNormalsPtr() {
+    return &showNormals;
+}
+
+const bool Model::setShowNormals() {
+    return this->showNormals;
+};
 
 const char* Model::getTexture() {
     return this->texture.c_str();
@@ -198,9 +313,48 @@ std::string Model::getId() {
     return this->id;
 }
 
+unsigned int Model::getTextureId() const {
+    return this->textureId;
+}
+
+void Model::setTextureId(unsigned int id) {
+    this->textureId = id;
+}
+
+void loadTexture(Model* obj) {
+    unsigned int t, tw, th;
+    unsigned char* texData;
+
+    ilGenImages(1, &t);
+    ilBindImage(t);
+
+    std::string fullPath = "Textures/" + std::string(obj->getTexture());
+    ilLoadImage((ILstring)fullPath.c_str());
+    if (ilGetError() != IL_NO_ERROR) {
+        std::cerr << "Image loading failed: " << ilGetError() << std::endl;
+        return;  // Return or handle the error
+    }
+    ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+
+    tw = ilGetInteger(IL_IMAGE_WIDTH);
+    th = ilGetInteger(IL_IMAGE_HEIGHT);
+
+    texData = ilGetData();
+
+    glGenTextures(1, &obj->textureId);
+
+    glBindTexture(GL_TEXTURE_2D, obj->textureId);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tw, th, 0, GL_RGBA, GL_UNSIGNED_BYTE, texData);
+}
+
 Model* Model::fromXML(XMLElement* xml) {
     GET_XML_ELEMENT_ATTRIB_OR_FAIL(xml, "file", file, const char*);
-    GET_XML_ELEMENT_ATTRIB(xml, "texture", texture, const char*);
+    GET_XML_ELEMENT(xml, "texture", textureElem);
     GET_XML_ELEMENT_ATTRIB(xml, "color", color, const char*);
 
     // Load transforms, if they exist
@@ -273,40 +427,40 @@ Model* Model::fromXML(XMLElement* xml) {
 
     GET_XML_ELEMENT(xml, "color", _color);
     if (_color != NULL) {
-        Vector3<int> diffuse, ambient, specular, emissive;
-        int shininess;
+        Vector3<float> diffuse, ambient, specular, emissive;
+        float shininess;
 
         {
             GET_XML_ELEMENT_OR_FAIL(_color, "diffuse", _diffuse)
-            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_diffuse, "R", _r, int);
-            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_diffuse, "G", _g, int);
-            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_diffuse, "B", _b, int);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_diffuse, "R", _r, float);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_diffuse, "G", _g, float);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_diffuse, "B", _b, float);
             diffuse = Vector3(_r, _g, _b);
         }
         {
             GET_XML_ELEMENT_OR_FAIL(_color, "ambient", _ambient)
-            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_ambient, "R", _r, int);
-            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_ambient, "G", _g, int);
-            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_ambient, "B", _b, int);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_ambient, "R", _r, float);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_ambient, "G", _g, float);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_ambient, "B", _b, float);
             ambient = Vector3(_r, _g, _b);
         }
         {
             GET_XML_ELEMENT_OR_FAIL(_color, "specular", _specular)
-            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_specular, "R", _r, int);
-            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_specular, "G", _g, int);
-            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_specular, "B", _b, int);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_specular, "R", _r, float);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_specular, "G", _g, float);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_specular, "B", _b, float);
             specular = Vector3(_r, _g, _b);
         }
         {
             GET_XML_ELEMENT_OR_FAIL(_color, "emissive", _emissive)
-            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_emissive, "R", _r, int);
-            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_emissive, "G", _g, int);
-            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_emissive, "B", _b, int);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_emissive, "R", _r, float);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_emissive, "G", _g, float);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_emissive, "B", _b, float);
             emissive = Vector3(_r, _g, _b);
         }
         {
             GET_XML_ELEMENT_OR_FAIL(_color, "shininess", _shininess)
-            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_shininess, "value", _svalue, int);
+            GET_XML_ELEMENT_ATTRIB_OR_FAIL(_shininess, "value", _svalue, float);
             shininess = _svalue;
         }
 
@@ -316,8 +470,13 @@ Model* Model::fromXML(XMLElement* xml) {
     GET_XML_ELEMENT_ATTRIB(xml, "id", id, const char*);
 
     Model* obj = new Model(file, id);
-    if (texture) obj->setTexture(texture);
-    if (color) obj->setTexture(color);
+    if (textureElem != nullptr) {
+        GET_XML_ELEMENT_ATTRIB_OR_FAIL(textureElem, "file", texFile, const char*);
+        obj->setTexture(texFile);
+        loadTexture(obj);
+    }
+
+    if (color) obj->setColor(color);
     if (translate.has_value()) obj->translation = translate;
     if (rotate.has_value()) obj->rotation = rotate;
     if (scale.has_value()) obj->setScale(scale.value());
@@ -341,6 +500,14 @@ Map<GLuint, std::string>& Model::getGeometryVBO() {
     return _geometryVBO;
 }
 
+Map<GLuint, std::string>& Model::getGeometryTBO() {
+    return _geometryTBO;
+}
+
+Map<GLuint, std::string>& Model::getGeometryNBO() {
+    return _geometryNBO;
+};
+
 Map<GLuint, std::string>& Model::getGeometryIBO() {
     return _geometryIBO;
 }
@@ -348,6 +515,10 @@ Map<GLuint, std::string>& Model::getGeometryIBO() {
 Map<BaseGeometry*, std::string> Model::_geometryCache;
 
 Map<GLuint, std::string> Model::_geometryVBO;
+
+Map<GLuint, std::string> Model::_geometryTBO;
+
+Map<GLuint, std::string> Model::_geometryNBO;
 
 Map<GLuint, std::string> Model::_geometryIBO;
 

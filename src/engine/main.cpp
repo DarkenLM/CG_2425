@@ -1,6 +1,7 @@
 #ifndef GLUT
 #include <GL/glew.h>
 #include <GL/glut.h>
+#include <IL/il.h>
 #endif
 
 #include "common/geometry/BaseGeometry.hpp"
@@ -149,6 +150,7 @@ void renderScene(void) {
 
     // Setup Axis
 
+    glDisable(GL_LIGHTING);
     glBegin(GL_LINES);
     // x in red
     glColor3f(1.0f, 0.0f, 0.0f);
@@ -166,6 +168,7 @@ void renderScene(void) {
     // Changes color back to white
     glColor3f(1.0f, 1.0f, 1.0f);
     glEnd();
+    glEnable(GL_LIGHTING);
 
     STATE.scene->render();
 
@@ -234,28 +237,56 @@ void genVBOs() {
     Map<BaseGeometry*, std::string> geometrys = Model::getGeometryCache();
     Map<GLuint, std::string>& VBOids = Model::getGeometryVBO();
     Map<GLuint, std::string>& IBOids = Model::getGeometryIBO();
+    Map<GLuint, std::string>& NBOids = Model::getGeometryNBO();
+    Map<GLuint, std::string>& TBOids = Model::getGeometryTBO();
     std::vector<std::string> keys = geometrys.keys();
 
     // Prepare buffers
     STATE.VBObuffers.resize(keys.size());
     STATE.IBObuffers.resize(keys.size());
+    STATE.NBObuffers.resize(keys.size());
+    STATE.TBObuffers.resize(keys.size());
 
     // Generate VBOs
     glGenBuffers(keys.size(), STATE.VBObuffers.data());
-    // Generate IBO
+    // Generate IBOs
     glGenBuffers(keys.size(), STATE.IBObuffers.data());
+    // Generate NBOs
+    glGenBuffers(keys.size(), STATE.NBObuffers.data());
+    // Generate TBOs
+    glGenBuffers(keys.size(), STATE.TBObuffers.data());
 
     // Assign buffers
     for (int i = 0; i < keys.size(); i++) {
         VBOids.add(keys[i], STATE.VBObuffers[i]);
         IBOids.add(keys[i], STATE.IBObuffers[i]);
+        NBOids.add(keys[i], STATE.NBObuffers[i]);
+        TBOids.add(keys[i], STATE.TBObuffers[i]);
     }
 
     for (std::string k : keys) {
         std::optional<GLuint> VBOindex = VBOids.get(k);
         std::optional<GLuint> IBOindex = IBOids.get(k);
+        std::optional<GLuint> NBOindex = NBOids.get(k);
+        std::optional<GLuint> TBOindex = TBOids.get(k);
         std::optional<BaseGeometry*> geometry = geometrys.get(k);
         std::vector<Point3D> modelVerticesArray = geometry.value()->getVertices();
+        std::vector<Vector3<float>> modelNormalsArray = geometry.value()->getNormals();
+        std::vector<Vector2<float>> modelUvsArray = geometry.value()->getUVs();
+
+        // Creating this one to have the correct size for vbo utilization
+        std::vector<Point3D> modelNormalsArrayCorrectSize;
+        for (Vector3<float> normal : modelNormalsArray) {
+            modelNormalsArrayCorrectSize.push_back(normal.toPoint3D());
+        }
+
+        std::vector<float> modelUvsArrayCorrectSize;
+        for (Vector2<float> uv : modelUvsArray) {
+            modelUvsArrayCorrectSize.push_back(uv.first);
+            modelUvsArrayCorrectSize.push_back(uv.second);
+        }
+        //
+
         std::vector<unsigned int> modelIndicesArray = geometry.value()->getIndices();
         if (VBOindex.value()) {
             std::cout << "A criar vbo para: " << k << " com buffer em: " << VBOindex.value() << std::endl;
@@ -265,6 +296,20 @@ void genVBOs() {
                 GL_ARRAY_BUFFER,
                 sizeof(Point3D) * modelVerticesArray.size(),
                 modelVerticesArray.data(),
+                GL_STATIC_DRAW);
+
+            glBindBuffer(GL_ARRAY_BUFFER, NBOindex.value());
+            glBufferData(
+                GL_ARRAY_BUFFER,
+                sizeof(Point3D) * modelNormalsArrayCorrectSize.size(),
+                modelNormalsArrayCorrectSize.data(),
+                GL_STATIC_DRAW);
+
+            glBindBuffer(GL_ARRAY_BUFFER, TBOindex.value());
+            glBufferData(
+                GL_ARRAY_BUFFER,
+                sizeof(float) * modelUvsArrayCorrectSize.size(),
+                modelUvsArrayCorrectSize.data(),
                 GL_STATIC_DRAW);
 
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBOindex.value());
@@ -310,6 +355,12 @@ int main(int argc, char** argv) {
 
     const char* sceneFile = argv[1];
 
+    // Images-texturing
+    ilInit();
+    ilEnable(IL_ORIGIN_SET);
+    ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
+    glEnable(GL_TEXTURE_2D);
+
     loadScene(sceneFile);
 
     // put GLUT init here
@@ -320,7 +371,6 @@ int main(int argc, char** argv) {
     glutCreateWindow("CG@DI");
     glewInit();
 
-    glEnableClientState(GL_VERTEX_ARRAY);
     genVBOs();
 
     // Inicializar fps counter
@@ -347,6 +397,11 @@ int main(int argc, char** argv) {
     // some OpenGL settings
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+
+    glEnable(GL_LIGHTING);
+    glEnable(GL_RESCALE_NORMAL);
+    STATE.scene->loadLights();
+
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
     glPolygonMode(GL_FRONT, GL_LINE);

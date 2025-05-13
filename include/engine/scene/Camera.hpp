@@ -3,8 +3,8 @@
 #include <limits>
 
 #include "common/util/xmlutil.hpp"
-#include "engine/scene/Object.hpp"
 #include "engine/scene/Model.hpp"
+#include "engine/scene/Object.hpp"
 using namespace tinyxml2;
 
 /**
@@ -27,7 +27,7 @@ typedef struct cameraSettings {
     float alpha, beta;  ///< Vertical (alpha) and horizontal (beta) rotation angles.
     float zoom;         ///< Zoom level.
     float aspectRatio;  ///< Aspect ratio (width / height).
-    int   targetId;     ///< The id for the model for the camera to track.
+    int targetId;       ///< The id for the model for the camera to track.
 } cameraSettings;
 
 /**
@@ -58,8 +58,7 @@ class Camera : public Object {
         float lookX, float lookY, float lookZ,
         float upX, float upY, float upZ,
         float fov, float near, float far,
-        Model* fallbackModel, std::string target
-    );
+        Model* fallbackModel, std::string target);
 
     /**
      * @brief Returns the current camera mode.
@@ -117,7 +116,7 @@ class Camera : public Object {
     bool isTrackingFallback();
 
     /**
-     * @brief Gets the id of the model that the camera is tracking. If it is tracking it's fallback model, it will 
+     * @brief Gets the id of the model that the camera is tracking. If it is tracking it's fallback model, it will
      * return "<self>".
      */
     std::string getTrackingId();

@@ -1,6 +1,11 @@
+#define ILUT_USE_OPENGL
+
 #include "engine/scene/Model.hpp"
 
+#include <sstream>
 #include <IL/il.h>
+#include <IL/ilu.h>
+#include <IL/ilut.h>
 #include <unistd.h>  // For getcwd on Linux/macOS
 
 using namespace tinyxml2;
@@ -140,7 +145,8 @@ void Model::processNormals() {
 void Model::loadingMaterial() {
     // Use default material values (gray tones) if material doesn't exist
     auto matOpt = this->getMaterial();
-    Vector3<float> ambientColor(50, 50, 50);
+    // Vector3<float> ambientColor(50, 50, 50);
+    Vector3<float> ambientColor(50, 0, 0);
     Vector3<float> diffuseColor(200, 200, 200);
     Vector3<float> specularColor(0, 0, 0);
     Vector3<float> emissiveColor(0, 0, 0);
@@ -241,13 +247,13 @@ void Model::render() {
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
         glBindTexture(GL_TEXTURE_2D, this->textureId);
-        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);  // Ignora luz e mostra só textura
+        // glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);  // Ignora luz e mostra só textura
 
         glBindBuffer(GL_ARRAY_BUFFER, this->_geometryTBO.get(this->source).value());
         glTexCoordPointer(2, GL_FLOAT, 0, 0);
     }
 
-    this->loadingMaterial();
+    // this->loadingMaterial();
 
     if (this->showNormals) {
         this->processNormals();
@@ -266,10 +272,13 @@ void Model::render() {
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 
     glBindTexture(GL_TEXTURE_2D, 0);
-
+    
+    if (this->textureId != 0) {
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        glDisable(GL_TEXTURE_2D);
+    }
     glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glPopMatrix();
 }
 
@@ -321,35 +330,33 @@ void Model::setTextureId(unsigned int id) {
     this->textureId = id;
 }
 
-void loadTexture(Model* obj) {
-    unsigned int t, tw, th;
-    unsigned char* texData;
-
-    ilGenImages(1, &t);
-    ilBindImage(t);
+GLuint loadTexture(Model* obj) {
+    ILuint imageID;
+    ilGenImages(1, &imageID);
+    ilBindImage(imageID);
 
     std::string fullPath = "Textures/" + std::string(obj->getTexture());
+    std::cout << "Loading texture: " << fullPath << std::endl;
+
     ilLoadImage((ILstring)fullPath.c_str());
     if (ilGetError() != IL_NO_ERROR) {
-        std::cerr << "Image loading failed: " << ilGetError() << std::endl;
-        return;  // Return or handle the error
+        // std::cerr << "Image loading failed: " << ilGetError() << std::endl;
+        std::stringstream err; err << "Image loading failed: " << ilGetError() << std::endl;
+        ilDeleteImages(1, &imageID);
+        yeet err.str();
     }
+
     ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+    GLuint texID = ilutGLBindTexImage();
+    if (ilGetError() != IL_NO_ERROR) {
+        std::stringstream err; err << "Texture binding failed: " << ilGetError() << std::endl;
+        ilDeleteImages(1, &imageID);
+        yeet err.str();
+    }
 
-    tw = ilGetInteger(IL_IMAGE_WIDTH);
-    th = ilGetInteger(IL_IMAGE_HEIGHT);
-
-    texData = ilGetData();
-
-    glGenTextures(1, &obj->textureId);
-
-    glBindTexture(GL_TEXTURE_2D, obj->textureId);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tw, th, 0, GL_RGBA, GL_UNSIGNED_BYTE, texData);
+    ilDeleteImages(1, &imageID);
+    obj->textureId = texID;
+    return texID;
 }
 
 Model* Model::fromXML(XMLElement* xml) {
@@ -473,7 +480,11 @@ Model* Model::fromXML(XMLElement* xml) {
     if (textureElem != nullptr) {
         GET_XML_ELEMENT_ATTRIB_OR_FAIL(textureElem, "file", texFile, const char*);
         obj->setTexture(texFile);
-        loadTexture(obj);
+        // fuckAround {
+        //     loadTexture(obj);
+        // } findOut(std::string e) {
+        //     yeet std::string("Unable to load texture: ") + e;
+        // }
     }
 
     if (color) obj->setColor(color);
@@ -490,6 +501,14 @@ Model* Model::fromXML(XMLElement* xml) {
 void Model::load() {
     this->geometry = this->getOrLoadModel(this->source);
     this->_loaded = true;
+
+    if (!this->texture.empty()) {
+        fuckAround {
+            loadTexture(this);
+        } findOut(std::string e) {
+            yeet std::string("Unable to load texture: ") + e;
+        }
+    }
 }
 
 Map<BaseGeometry*, std::string> Model::getGeometryCache() {

@@ -1,7 +1,16 @@
+#define ILUT_USE_OPENGL
+
 #ifndef GLUT
 #include <GL/glew.h>
 #include <GL/glut.h>
+// #ifdef DEBUG_MODE
+//     #include <GL/freeglut.h>
+// #else
+//     #include <GL/glut.h>
+// #endif
 #include <IL/il.h>
+#include <IL/ilu.h>
+#include <IL/ilut.h>
 #endif
 
 #include "common/geometry/BaseGeometry.hpp"
@@ -214,7 +223,8 @@ void printInfo() {
     printf("Version: %s\n", glGetString(GL_VERSION));
 }
 
-void loadScene(const char* sceneFile) {
+
+void preloadScene(const char* sceneFile) {
     std::cout << "Loading scene '" << sceneFile << "'\n";
 
     Scene* scene = Scene::fromFile(sceneFile);
@@ -223,15 +233,36 @@ void loadScene(const char* sceneFile) {
         exit(1);
     }
 
+    STATE.scene = scene;
+}
+
+void loadScene() {
     fuckAround {
-        scene->load();
-        STATE.scene = scene;
-    }
-    findOut(std::string e) {
+        STATE.scene->load();
+    } findOut(std::string e) {
         std::cout << std::string("Unable to load scene: ") + e + "\n";
         exit(1);
     }
 }
+
+// void loadScene(const char* sceneFile) {
+//     std::cout << "Loading scene '" << sceneFile << "'\n";
+
+//     Scene* scene = Scene::fromFile(sceneFile);
+//     if (scene == nullptr) {
+//         std::cout << "Unable to read scene.\n";
+//         exit(1);
+//     }
+
+//     fuckAround {
+//         scene->load();
+//         STATE.scene = scene;
+//     }
+//     findOut(std::string e) {
+//         std::cout << std::string("Unable to load scene: ") + e + "\n";
+//         exit(1);
+//     }
+// }
 
 void genVBOs() {
     Map<BaseGeometry*, std::string> geometrys = Model::getGeometryCache();
@@ -354,22 +385,31 @@ int main(int argc, char** argv) {
     }
 
     const char* sceneFile = argv[1];
-
-    // Images-texturing
-    ilInit();
-    ilEnable(IL_ORIGIN_SET);
-    ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
-    glEnable(GL_TEXTURE_2D);
-
-    loadScene(sceneFile);
+    preloadScene(sceneFile);
 
     // put GLUT init here
     glutInit(&argc, argv);
+    // #ifdef DEBUG_MODE
+    //     glutInitContextVersion(4, 6);
+    //     // glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
+    //     glutInitContextProfile(GLUT_CORE_PROFILE);
+    //     glutInitContextFlags(GLUT_FORWARD_COMPATIBLE | GLUT_DEBUG);
+    // #endif
     glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
     glutInitWindowPosition(100, 100);
     glutInitWindowSize(STATE.scene->getWindowWidth(), STATE.scene->getWindowHeight());
     glutCreateWindow("CG@DI");
     glewInit();
+
+    // Images-texturing
+    ilInit();
+    iluInit();
+    ilutRenderer(ILUT_OPENGL);
+    ilEnable(IL_ORIGIN_SET);
+    ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
+    glEnable(GL_TEXTURE_2D);
+
+    loadScene();
 
     genVBOs();
 

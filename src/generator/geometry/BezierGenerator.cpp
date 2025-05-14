@@ -112,6 +112,7 @@ void BezierGeometry::tessellateBezierPatch(
         for (int j = 0; j <= tessellationLevel; ++j) {
             float v = float(j) / tessellationLevel;
 
+            // Compute the position of the vertex on the surface using Bezier patch formula
             Point3D vertex(0, 0, 0);
             for (int k = 0; k < 4; ++k) {
                 for (int l = 0; l < 4; ++l) {
@@ -123,6 +124,7 @@ void BezierGeometry::tessellateBezierPatch(
                 }
             }
 
+            // Compute the tangents for normal calculation
             Point3D du(0, 0, 0), dv(0, 0, 0);
             for (int k = 0; k < 4; ++k) {
                 for (int l = 0; l < 4; ++l) {
@@ -160,11 +162,25 @@ void BezierGeometry::tessellateBezierPatch(
             Vector3<float> normal = tangentV.cross(tangentU);
             normal.normalize();
 
-            unsigned int index = addVertex(vertex, normal, u, v);
+            // Improved UV calculation with boundary handling
+            float texU = u;
+            float texV = 1.0f - v;  // Flip V coordinate to match standard texture orientation
+
+            // For the last vertex in each row/column, ensure exact 1.0 or 0.0 to prevent seams
+            if (i == tessellationLevel) texU = 1.0f;  // Rightmost column
+            if (j == tessellationLevel) texV = 0.0f;  // Bottom row
+
+            // Boundary cases for adjacent patches
+            if (i == 0) texU = 0.0f;  // Leftmost column
+            if (j == 0) texV = 1.0f;  // Top row
+
+            // Add the vertex (possibly duplicate for edges)
+            unsigned int index = addVertex(vertex, normal, texU, texV);
             gridIndices[i][j] = index;
         }
     }
 
+    // Create triangles for the patch
     for (int i = 0; i < tessellationLevel; ++i) {
         for (int j = 0; j < tessellationLevel; ++j) {
             this->indices.push_back(gridIndices[i][j]);

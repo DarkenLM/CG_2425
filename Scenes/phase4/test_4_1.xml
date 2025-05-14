@@ -20,15 +20,9 @@
 	</lights>
 	<group> 
   		<models> 
-			<model file="box_2_3.3d" id="cumeta"> <!-- generator box 2 3 box_2_3.3d cone_1_2_4_3.3d-->
-				<color>
-                    <diffuse R="200" G="200" B="000" />
-                    <ambient R="50" G="50" B="00" />
-                    <specular R="0" G="0" B="0" />
-                    <emissive R="0" G="0" B="0" />
-                    <shininess value="0" />
-                </color>
-					<texture file = "box.jpg" />
+			<model file="bezier_10.3d" id="cumeta"> <!-- generator box 2 3 box_2_3.3d cone_1_2_4_3.3d-->
+
+					<texture file = "teapot.jpg" />
 			</model>
  		</models>
  	</group>

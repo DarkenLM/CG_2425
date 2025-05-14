@@ -223,7 +223,6 @@ void printInfo() {
     printf("Version: %s\n", glGetString(GL_VERSION));
 }
 
-
 void preloadScene(const char* sceneFile) {
     std::cout << "Loading scene '" << sceneFile << "'\n";
 
@@ -239,7 +238,8 @@ void preloadScene(const char* sceneFile) {
 void loadScene() {
     fuckAround {
         STATE.scene->load();
-    } findOut(std::string e) {
+    }
+    findOut(std::string e) {
         std::cout << std::string("Unable to load scene: ") + e + "\n";
         exit(1);
     }

@@ -2,11 +2,12 @@
 
 #include "engine/scene/Model.hpp"
 
-#include <sstream>
 #include <IL/il.h>
 #include <IL/ilu.h>
 #include <IL/ilut.h>
 #include <unistd.h>  // For getcwd on Linux/macOS
+
+#include <sstream>
 
 using namespace tinyxml2;
 
@@ -253,7 +254,7 @@ void Model::render() {
         glTexCoordPointer(2, GL_FLOAT, 0, 0);
     }
 
-    // this->loadingMaterial();
+    this->loadingMaterial();
 
     if (this->showNormals) {
         this->processNormals();
@@ -272,7 +273,7 @@ void Model::render() {
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    
+
     if (this->textureId != 0) {
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glDisable(GL_TEXTURE_2D);
@@ -335,21 +336,25 @@ GLuint loadTexture(Model* obj) {
     ilGenImages(1, &imageID);
     ilBindImage(imageID);
 
+    ilEnable(IL_ORIGIN_SET);
+    ilOriginFunc(IL_ORIGIN_LOWER_LEFT);  // Must come after ilEnable
+
     std::string fullPath = "Textures/" + std::string(obj->getTexture());
     std::cout << "Loading texture: " << fullPath << std::endl;
 
-    ilLoadImage((ILstring)fullPath.c_str());
-    if (ilGetError() != IL_NO_ERROR) {
-        // std::cerr << "Image loading failed: " << ilGetError() << std::endl;
-        std::stringstream err; err << "Image loading failed: " << ilGetError() << std::endl;
+    if (!ilLoadImage((ILstring)fullPath.c_str()) || ilGetError() != IL_NO_ERROR) {
+        std::stringstream err;
+        err << "Image loading failed: " << ilGetError() << std::endl;
         ilDeleteImages(1, &imageID);
         yeet err.str();
     }
 
     ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+
     GLuint texID = ilutGLBindTexImage();
     if (ilGetError() != IL_NO_ERROR) {
-        std::stringstream err; err << "Texture binding failed: " << ilGetError() << std::endl;
+        std::stringstream err;
+        err << "Texture binding failed: " << ilGetError() << std::endl;
         ilDeleteImages(1, &imageID);
         yeet err.str();
     }
@@ -505,7 +510,8 @@ void Model::load() {
     if (!this->texture.empty()) {
         fuckAround {
             loadTexture(this);
-        } findOut(std::string e) {
+        }
+        findOut(std::string e) {
             yeet std::string("Unable to load texture: ") + e;
         }
     }

@@ -15,7 +15,6 @@ ConeGeometry::ConeGeometry(int radius, int height, int slices, int stacks) {
     this->_kind = GEOMETRY_CONE;
 
     float alpha = (2 * M_PI) / slices;
-    float stackHeight = static_cast<float>(height) / stacks;
     Point3D baseCenter(0.0f, 0.0f, 0.0f);
     Point3D apex(0.0f, static_cast<float>(height), 0.0f);
 
@@ -23,18 +22,26 @@ ConeGeometry::ConeGeometry(int radius, int height, int slices, int stacks) {
     std::unordered_map<unsigned int, Vector3<float>> normalSums;
     std::unordered_map<unsigned int, int> normalCounts;
 
-    auto addVertex = [&](const Point3D& pos, const Vector3<float>& faceNormal, float u, float v) {
-        VertexKey key{pos};
+    auto addVertex = [&](const Point3D& pos, const Vector3<float>& faceNormal, float u, float v, bool forceNew = false) {
         unsigned int index;
+        VertexKey key{pos};
 
-        auto it = vertexMap.find(key);
-        if (it != vertexMap.end()) {
-            index = it->second;
+        if (!forceNew) {
+            auto it = vertexMap.find(key);
+            if (it != vertexMap.end()) {
+                index = it->second;
+            } else {
+                index = static_cast<unsigned int>(this->vertices.size());
+                vertexMap[key] = index;
+                this->vertices.push_back(pos);
+                this->normals.emplace_back(0.0f, 0.0f, 0.0f);
+                this->uvs.emplace_back(u, v);
+            }
         } else {
+            // Always create a new vertex (used for duplicated base circle vertices)
             index = static_cast<unsigned int>(this->vertices.size());
-            vertexMap[key] = index;
             this->vertices.push_back(pos);
-            this->normals.emplace_back(0.0f, 0.0f, 0.0f);  // placeholder
+            this->normals.emplace_back(0.0f, 0.0f, 0.0f);
             this->uvs.emplace_back(u, v);
         }
 
@@ -44,7 +51,7 @@ ConeGeometry::ConeGeometry(int radius, int height, int slices, int stacks) {
     };
 
     // --- Base ---
-    Vector3<float> down(0.0f, -1.0f, 0.0f);
+    Vector3<float> down(0.0f, -1.0f, 0.0f);  // Normal for the base (flat shading)
     for (int i = 0; i < slices; i++) {
         float angle1 = i * alpha;
         float angle2 = (i + 1) * alpha;
@@ -57,16 +64,17 @@ ConeGeometry::ConeGeometry(int radius, int height, int slices, int stacks) {
         Point3D p1(x1, 0.0f, z1);
         Point3D p2(x2, 0.0f, z2);
 
-        // UVs for base using polar mapping
-        auto uv = [](float x, float z, float r) {
-            return Vector2<float>(0.5f + x / (2.0f * r), 0.5f + z / (2.0f * r));
+        // UVs for the base using polar coordinates
+        auto uv = [](float angle, float radius) {
+            return Vector2<float>(0.5f + cos(angle) * 0.5f, 0.5f + sin(angle) * 0.5f);
         };
 
-        unsigned int i1 = addVertex(p2, down, uv(p2.getX(), p2.getZ(), radius).first, uv(p2.getX(), p2.getZ(), radius).second);
-        unsigned int i2 = addVertex(baseCenter, down, 0.5f, 0.5f);
-        unsigned int i3 = addVertex(p1, down, uv(p1.getX(), p1.getZ(), radius).first, uv(p1.getX(), p1.getZ(), radius).second);
+        unsigned int i1_base = addVertex(p2, down, uv(angle2, radius).first, uv(angle2, radius).second, true);
+        unsigned int i2_base = addVertex(baseCenter, down, 0.5f, 0.5f, true);
+        unsigned int i3_base = addVertex(p1, down, uv(angle1, radius).first, uv(angle1, radius).second, true);
 
-        this->indices.insert(this->indices.end(), {i1, i2, i3});
+        // Use these indices to create the base face
+        this->indices.insert(this->indices.end(), {i1_base, i2_base, i3_base});
     }
 
     // --- Side ---
@@ -94,25 +102,33 @@ ConeGeometry::ConeGeometry(int radius, int height, int slices, int stacks) {
             Point3D p3(x2 * scale2, y2, z2 * scale2);
             Point3D p4(x2 * scale1, y1, z2 * scale1);
 
-            // Normals for two triangles
+            // Normals for two triangles forming a quad
             Vector3<float> n1 = (p3.toVector3() - p1.toVector3()).cross(p2.toVector3() - p1.toVector3()).normalized();
             Vector3<float> n2 = (p3.toVector3() - p2.toVector3()).cross(p4.toVector3() - p2.toVector3()).normalized();
 
-            float u1 = static_cast<float>(i) / slices;
-            float u2 = static_cast<float>(i + 1) / slices;
-            float v1 = 1.0f - t1;
-            float v2 = 1.0f - t2;
+            // Corrected side UVs:
+            float u1_side = static_cast<float>(i) / slices;
+            float u2_side = static_cast<float>(i + 1) / slices;
+            float v1_side = static_cast<float>(j) / stacks;
+            float v2_side = static_cast<float>(j + 1) / stacks;
 
-            unsigned int i1 = addVertex(p1, n1, u1, v2);
-            unsigned int i2 = addVertex(p2, n1, u1, v1);
-            unsigned int i3 = addVertex(p3, n1, u2, v2);
+            // For the last slice, we want to connect back to the beginning
+            if (i == slices - 1) {
+                u2_side = 1.0f;
+            }
 
-            unsigned int i4 = addVertex(p3, n2, u2, v2);
-            unsigned int i5 = addVertex(p2, n2, u1, v1);
-            unsigned int i6 = addVertex(p4, n2, u2, v1);
+            // Duplicating base vertices for side faces:
+            unsigned int i1_side = addVertex(p1, n1, u1_side, v2_side);
+            unsigned int i2_side = addVertex(p2, n1, u1_side, v1_side);
+            unsigned int i3_side = addVertex(p3, n1, u2_side, v2_side);
 
-            this->indices.insert(this->indices.end(), {i1, i3, i2});
-            this->indices.insert(this->indices.end(), {i4, i6, i5});
+            unsigned int i4_side = addVertex(p3, n2, u2_side, v2_side);
+            unsigned int i5_side = addVertex(p2, n2, u1_side, v1_side);
+            unsigned int i6_side = addVertex(p4, n2, u2_side, v1_side);
+
+            // Create the indices for the side faces
+            this->indices.insert(this->indices.end(), {i1_side, i3_side, i2_side});
+            this->indices.insert(this->indices.end(), {i4_side, i6_side, i5_side});
         }
     }
 

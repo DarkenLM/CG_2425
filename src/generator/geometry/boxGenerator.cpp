@@ -18,10 +18,6 @@ BoxGeometry::BoxGeometry(int length, int gridSize) {
     float half = len / 2.0f;
     float step = len / gridSize;
 
-    std::unordered_map<VertexKey, unsigned int> vertexMap;
-    std::unordered_map<unsigned int, Vector3<float>> normalSums;
-    std::unordered_map<unsigned int, int> normalCounts;
-
     auto addFace = [&](Vector3<float> origin,
                        Vector3<float> uDir,
                        Vector3<float> vDir,
@@ -32,33 +28,20 @@ BoxGeometry::BoxGeometry(int length, int gridSize) {
             for (int j = 0; j <= gridSize; ++j) {
                 Vector3<float> pos = origin + (uDir * (j * step)) + (vDir * (i * step));
                 Point3D point = pos.toPoint3D();
-                VertexKey key{point};
 
-                unsigned int index;
-                auto it = vertexMap.find(key);
-                if (it != vertexMap.end()) {
-                    index = it->second;
-                } else {
-                    index = static_cast<unsigned int>(vertices.size());
-                    vertexMap[key] = index;
-                    vertices.push_back(point);
-                    normals.emplace_back(0.0f, 0.0f, 0.0f);  // placeholder
+                unsigned int index = static_cast<unsigned int>(vertices.size());
+                vertices.push_back(point);
+                normals.push_back(faceNormal);
 
-                    // UVs
-                    float u = j / static_cast<float>(gridSize);
-                    float v = i / static_cast<float>(gridSize);
-                    uvs.emplace_back(u, v);
-                }
-
-                // Acumular a normal
-                normalSums[index] += faceNormal;
-                normalCounts[index] += 1;
+                // UVs normalizados (0 a 1 em cada face)
+                float u = static_cast<float>(j) / gridSize;
+                float v = static_cast<float>(i) / gridSize;
+                uvs.emplace_back(u, v);
 
                 gridIndices[i][j] = index;
             }
         }
 
-        // Generate face indices (2 triangles per quad)
         for (int i = 0; i < gridSize; ++i) {
             for (int j = 0; j < gridSize; ++j) {
                 unsigned int i0 = gridIndices[i][j];
@@ -77,22 +60,12 @@ BoxGeometry::BoxGeometry(int length, int gridSize) {
         }
     };
 
-    // Add all 6 faces of the box
     addFace(Vector3<float>(-half, half, -half), Vector3<float>(0, 0, 1), Vector3<float>(1, 0, 0), Vector3<float>(0, 1, 0));    // +Y
     addFace(Vector3<float>(-half, -half, -half), Vector3<float>(1, 0, 0), Vector3<float>(0, 0, 1), Vector3<float>(0, -1, 0));  // -Y
     addFace(Vector3<float>(-half, -half, half), Vector3<float>(1, 0, 0), Vector3<float>(0, 1, 0), Vector3<float>(0, 0, 1));    // +Z
     addFace(Vector3<float>(half, -half, -half), Vector3<float>(-1, 0, 0), Vector3<float>(0, 1, 0), Vector3<float>(0, 0, -1));  // -Z
     addFace(Vector3<float>(half, -half, half), Vector3<float>(0, 0, -1), Vector3<float>(0, 1, 0), Vector3<float>(1, 0, 0));    // +X
     addFace(Vector3<float>(-half, -half, -half), Vector3<float>(0, 0, 1), Vector3<float>(0, 1, 0), Vector3<float>(-1, 0, 0));  // -X
-
-    // Final pass: normalize the averaged normals (smooth normals for faces that share vertices)
-    for (size_t i = 0; i < normals.size(); ++i) {
-        if (normalCounts[i] > 0) {
-            Vector3<float> avg = normalSums[i] * (1.0f / static_cast<float>(normalCounts[i]));
-            avg.normalize();
-            normals[i] = avg;
-        }
-    }
 }
 
 std::vector<Point3D> BoxGeometry::copyVertices() {

@@ -355,8 +355,8 @@ void genVBOs() {
 }
 
 void processKeys(unsigned char key, int x, int y) {
-    ImGui_ImplGLUT_KeyboardFunc(key, x, y, 0);
     STATE.scene->onKeypress(key, x, y);
+    ImGui_ImplGLUT_KeyboardFunc(key, x, y, 0);
 
     glutPostRedisplay();
 }

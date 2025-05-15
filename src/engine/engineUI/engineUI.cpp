@@ -11,7 +11,7 @@ EngineUI::EngineUI()
       show_another_window(false),
       show_performance_window(true),
       clear_color(ImVec4(0.45f, 0.55f, 0.60f, 1.00f)),
-      fullscreen(true),
+      fullscreen(false),
       vsync(false),
       polygonMode(0),
       cameraMode(0) {}
@@ -173,22 +173,51 @@ void modelTree(int& groupNumber, std::vector<Group*> groups) {
         if (ImGui::TreeNodeEx(c_label, ImGuiTreeNodeFlags_Framed)) {
             if (ImGui::TreeNodeEx("Transformações")) {
                 for (TransformType transform : group->getTransformations()) {
+                    ObjectTranslation obj_translation;
+                    ObjectRotation obj_rotation;
+                    Vector3<float> obj_scale;
                     switch (transform) {
                         case 1:
+                            obj_translation = group->getTranslation().value();
                             if (group->getTranslation().value().isDynamic()) {
                                 if (ImGui::TreeNodeEx("Dynamic Translation")) {
                                     ImGui::Checkbox("Show curve", group->getTranslation().value().getShowCurvePtr());
+                                    ImGui::Text("Completes the curve in: %d", obj_translation.getTime());
                                     ImGui::TreePop();
                                 }
                             } else {
-                                ImGui::Text("Translation");
+                                if (ImGui::TreeNodeEx("Translation Values")) {
+                                    ImGui::Text("X: %.2f", obj_translation.getVector().first);
+                                    ImGui::Text("Y: %.2f", obj_translation.getVector().second);
+                                    ImGui::Text("Z: %.2f", obj_translation.getVector().third);
+                                    ImGui::TreePop();
+                                }
                             }
                             break;
                         case 3:
-                            ImGui::Text("Rotation");
+                            obj_rotation = group->getRotation().value();
+                            if (group->getRotation().value().isDynamic()) {
+                                if (ImGui::TreeNodeEx("Dynamic Rotation")) {
+                                    ImGui::Text("One rotation every: %.2fs", obj_rotation.getTime());
+                                    ImGui::TreePop();
+                                }
+                            } else {
+                                if (ImGui::TreeNodeEx("Translation Values")) {
+                                    ImGui::Text("X: %.2f", obj_translation.getVector().first);
+                                    ImGui::Text("Y: %.2f", obj_translation.getVector().second);
+                                    ImGui::Text("Z: %.2f", obj_translation.getVector().third);
+                                    ImGui::TreePop();
+                                }
+                            }
                             break;
                         case 6:
-                            ImGui::Text("Scale");
+                            obj_scale = group->getScale().value();
+                            if (ImGui::TreeNodeEx("Scale Values")) {
+                                ImGui::Text("X: %.2f", obj_scale.first);
+                                ImGui::Text("Y: %.2f", obj_scale.second);
+                                ImGui::Text("Z: %.2f", obj_scale.third);
+                                ImGui::TreePop();
+                            }
                             break;
                         default:
                             break;

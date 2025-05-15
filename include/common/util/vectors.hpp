@@ -73,6 +73,10 @@ class Vector3 : public Vector<T> {
 
     Vector3<T> operator-(const Vector3<T>& other) const;
 
+    Vector3<T> operator-() const {
+        return Vector3<T>(-this->first, -this->second, -this->third);
+    }
+
     Point3D toPoint3D() const;
 };
 

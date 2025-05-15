@@ -15,6 +15,11 @@
         </target>
     </camera>
 
+	
+	<lights> 
+		<light type="point" posx="0" posy="0" posz="0" />
+	</lights>
+
     <group>
         <!-- Sun -->
         <group>
@@ -23,7 +28,9 @@
                 <scale x="15" y="15" z="15" />
             </transform>
             <models>
-                <model file="sun.3d" />
+                <model file="sun.3d">
+                    <texture file = "sun.jpg" />
+                </model>
             </models>
         </group>
 
@@ -35,7 +42,9 @@
                 <scale x="0.75" y="0.75" z="0.75" />
             </transform>
             <models>
-                <model file="planet.3d" />
+                <model file="planet.3d">
+                    <texture file = "mercury.jpg" />
+                </model>
             </models>
         </group>
 
@@ -46,9 +55,11 @@
                 <translate x="275" y="0" z="0" />
                 <scale x="1.4" y="1.4" z="1.4" />
             </transform>
-            <models>
-                <model file="planet.3d" />
-            </models>
+                <models>
+                    <model file="planet.3d">
+                        <texture file = "venus.jpg" />
+                    </model>
+                </models>
         </group>
 
         <!-- Earth -->
@@ -59,7 +70,9 @@
                 <scale x="1.5" y="1.5" z="1.5" />
             </transform>
             <models>
-                <model file="planet.3d" />
+                <model file="planet.3d">
+                    <texture file = "earth.jpg" />
+                </model>
             </models>
 
             <!-- Moon -->
@@ -69,7 +82,10 @@
                     <translate x="25" y="0" z="0" />
                     <scale x="0.5" y="0.5" z="0.5" />
                 </transform>
-                <models><model file="planet.3d" /></models>
+                <models>
+                    <model file="planet.3d">
+                    </model>
+                </models>
             </group>
         </group>
 
@@ -80,9 +96,11 @@
                 <translate x="425" y="0" z="0" />
                 <scale x="1" y="1" z="1" />
             </transform>
-            <models>
-                <model file="planet.3d" />
-            </models>
+                <models>
+                    <model file="planet.3d">
+                        <texture file = "mars.jpg" />
+                    </model>
+                </models>
         </group>
 
         <!-- Jupiter -->
@@ -92,7 +110,11 @@
                 <translate x="625" y="0" z="0" />
                 <scale x="3.75" y="3.75" z="3.75" />
             </transform>
-            <models><model file="planet.3d" /></models>
+                <models>
+                    <model file="planet.3d">
+                        <texture file = "jupiter.jpg" />
+                    </model>
+                </models>
 
             <!-- Moons -->
             <group>
@@ -128,7 +150,11 @@
                 <translate x="900" y="0" z="0" />
                 <scale x="3" y="3" z="3" />
             </transform>
-            <models><model file="planet.3d" /></models>
+                <models>
+                    <model file="planet.3d">
+                        <texture file = "saturn.jpg" />
+                    </model>
+                </models>
 
             <!-- Tilted ring -->
             <group>
@@ -136,7 +162,11 @@
                     <rotate angle="27" x="1" y="0" z="0" />
                     <scale x="3" y="0.1" z="3" />
                 </transform>
-                <models><model file="ring.3d" /></models>
+                <models>
+                    <model file="ring.3d">
+                        <texture file = "ring.jpg" />
+                    </model>
+                </models>
             </group>
         </group>
 
@@ -147,7 +177,11 @@
                 <translate x="1100" y="0" z="0" />
                 <scale x="1.8" y="1.8" z="1.8" />
             </transform>
-            <models><model file="planet.3d" /></models>
+                <models>
+                    <model file="planet.3d">
+                        <texture file = "uranus.jpg" />
+                    </model>
+                </models>
 
             <!-- Moon -->
             <group>
@@ -167,7 +201,11 @@
                 <translate x="1300" y="0" z="0" />
                 <scale x="1.65" y="1.65" z="1.65" />
             </transform>
-            <models><model file="planet.3d" /></models>
+                <models>
+                    <model file="planet.3d">
+                        <texture file = "neptune.jpg" />
+                    </model>
+                </models>
 
             <!-- Moon -->
             <group>

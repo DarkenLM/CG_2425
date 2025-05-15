@@ -20,9 +20,9 @@
 	</lights>
 	<group> 
   		<models> 
-			<model file="bezier_10.3d" id="cumeta"> <!-- generator box 2 3 box_2_3.3d cone_1_2_4_3.3d-->
+			<model file="ring.3d" id="cumeta"> <!-- generator box 2 3 box_2_3.3d cone_1_2_4_3.3d-->
 
-					<texture file = "teapot.jpg" />
+					<texture file = "ring.jpg" />
 			</model>
  		</models>
  	</group>

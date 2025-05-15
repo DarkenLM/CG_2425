@@ -14,20 +14,11 @@ FlatRingGeometry::FlatRingGeometry(int majorRadius, int minorRadius, int slices)
 
     float slicesJump = 2 * M_PI / slices;
 
-    std::unordered_map<ExtendedVertexKey, unsigned int> vertexMap;
-
     auto addVertex = [&](const Point3D& pos, const Vector3<float>& normal, float u, float v) {
-        ExtendedVertexKey key{pos, normal};
-        auto it = vertexMap.find(key);
-        if (it != vertexMap.end()) {
-            return it->second;
-        }
-
         unsigned int index = static_cast<unsigned int>(this->vertices.size());
         this->vertices.push_back(pos);
-        this->normals.push_back(normal.normalized());  // directly push the normalized version
+        this->normals.push_back(normal.normalized());
         this->uvs.push_back(Vector2<float>(u, v));
-        vertexMap[key] = index;
         return index;
     };
 
@@ -53,28 +44,24 @@ FlatRingGeometry::FlatRingGeometry(int majorRadius, int minorRadius, int slices)
         Vector3<float> up(0.0f, 1.0f, 0.0f);
         Vector3<float> down(0.0f, -1.0f, 0.0f);
 
-        float u1 = (beta1 + M_PI) / (2 * M_PI);
-        float u2 = (beta2 + M_PI) / (2 * M_PI);
-        float vTop = 0.5f;
-        float vBot = 1.0f - vTop;
-
-        // Top face (CCW)
-        unsigned int i1 = addVertex(p1, up, u1, vTop);
-        unsigned int i2 = addVertex(p2, up, u2, vTop);
-        unsigned int i3 = addVertex(p3, up, u2, vTop);
-        unsigned int i4 = addVertex(p4, up, u1, vTop);
+        // Top face UVs (0,0)-(1,1)
+        unsigned int i1 = addVertex(p1, up, 0.0f, 0.0f);
+        unsigned int i2 = addVertex(p2, up, 1.0f, 0.0f);
+        unsigned int i3 = addVertex(p3, up, 1.0f, 1.0f);
+        unsigned int i4 = addVertex(p4, up, 0.0f, 1.0f);
 
         this->indices.insert(this->indices.end(), {i1, i3, i2});
         this->indices.insert(this->indices.end(), {i1, i4, i3});
 
-        // Bottom face (CW, inverted)
-        unsigned int i5 = addVertex(p1, down, u1, vBot);
-        unsigned int i6 = addVertex(p4, down, u2, vBot);
-        unsigned int i7 = addVertex(p3, down, u2, vBot);
-        unsigned int i8 = addVertex(p2, down, u1, vBot);
+        // Bottom face UVs same as top face but winding order flipped for correct face orientation
+        unsigned int i5 = addVertex(p1, down, 0.0f, 0.0f);
+        unsigned int i6 = addVertex(p2, down, 1.0f, 0.0f);
+        unsigned int i7 = addVertex(p3, down, 1.0f, 1.0f);
+        unsigned int i8 = addVertex(p4, down, 0.0f, 1.0f);
 
-        this->indices.insert(this->indices.end(), {i5, i7, i6});
-        this->indices.insert(this->indices.end(), {i5, i8, i7});
+        // Notice the order here is flipped compared to top face to maintain correct winding (CW)
+        this->indices.insert(this->indices.end(), {i5, i6, i7});
+        this->indices.insert(this->indices.end(), {i5, i7, i8});
     }
 }
 

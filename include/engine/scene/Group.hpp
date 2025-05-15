@@ -81,6 +81,8 @@ class Group : public Object {
      */
     std::optional<ObjectTranslation>& getTranslation();
 
+    std::optional<Vector3<float>>& getScale();
+
     /**
      * @brief Sets the rotation transformation for the group.
      *

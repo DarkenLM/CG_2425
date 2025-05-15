@@ -125,6 +125,10 @@ Group* Group::fromXML(XMLElement* xml) {
     return retGroup;
 }
 
+std::optional<Vector3<float>>& Group::getScale() {
+    return this->scale;
+};
+
 const std::vector<Group*>& Group::getGroups() const {
     return this->groups;
 }
@@ -142,7 +146,7 @@ const Model* Group::getObjectById(const char* id) const {
         const Model* target = group->getObjectById(id);
         if (target != nullptr) return target;
     }
-    
+
     return nullptr;
 }
 

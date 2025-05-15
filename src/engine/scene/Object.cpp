@@ -12,7 +12,7 @@ ObjectTranslation::ObjectTranslation(float x, float y, float z) : _dynamic(false
 
 ObjectTranslation::ObjectTranslation(int time, bool align, std::vector<Point3D> points)
     : _dynamic(true),
-      showCurve(true),
+      showCurve(false),
       time(time),
       align(align),
       points(points),

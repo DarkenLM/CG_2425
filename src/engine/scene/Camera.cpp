@@ -401,19 +401,23 @@ void Camera::fpMovement(unsigned char key, int mx, int my) {
     float dirX2, dirY2, dirZ2;
 
     switch (key) {
-        case 'j': {
+        case 'j':
+        case 'J': {
             this->cameras[1].beta += this->ROTATION_SPEED;
             break;
         }
-        case 'l': {
+        case 'l':
+        case 'L': {
             this->cameras[1].beta -= this->ROTATION_SPEED;
             break;
         }
-        case 'i': {
+        case 'i':
+        case 'I': {
             if (this->cameras[1].alpha < M_PI / 2 - this->ROTATION_SPEED) this->cameras[1].alpha += this->ROTATION_SPEED;
             break;
         }
-        case 'k': {
+        case 'k':
+        case 'K': {
             if (this->cameras[1].alpha > -M_PI / 2 + this->ROTATION_SPEED) this->cameras[1].alpha -= this->ROTATION_SPEED;
             break;
         }
